@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend_static:/app/staticfiles
+      - backend_media:/app/media
+    environment:
+      - DJANGO_SETTINGS_MODULE=marbelle.settings.dev
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgres
+    networks:
+      - marbelle_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - marbelle_network
+
+  # PostgreSQL service (will be configured in TASK-003)
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: marbelle_db
+      POSTGRES_USER: marbelle_user
+      POSTGRES_PASSWORD: marbelle_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - marbelle_network
+
+volumes:
+  postgres_data:
+  backend_static:
+  backend_media:
+
+networks:
+  marbelle_network:
+    driver: bridge
