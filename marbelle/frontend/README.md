@@ -48,7 +48,7 @@ frontend/
 ### 1. Install Dependencies
 
 ```bash
-npm install --legacy-peer-deps
+npm install
 ```
 
 ### 2. Development Server
