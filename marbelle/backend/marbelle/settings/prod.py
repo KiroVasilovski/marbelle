@@ -3,7 +3,7 @@ Production settings for marbelle project.
 """
 
 import os
-from .base import *
+from .base import *  # noqa: F403,F405
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -54,7 +54,7 @@ LOGGING = {
         'file': {
             'level': 'ERROR',
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
+            'filename': BASE_DIR / 'logs' / 'django.log',  # noqa: F405
             'formatter': 'verbose',
         },
     },
