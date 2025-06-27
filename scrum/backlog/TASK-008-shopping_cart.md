@@ -3,6 +3,7 @@
 ## State: Backlog
 ## Story Points: 6
 ## Priority: Medium
+## Stack: Backend + Frontend
 
 **As a** customer  
 **I want** to add products to a cart and manage quantities  

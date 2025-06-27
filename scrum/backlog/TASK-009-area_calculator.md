@@ -3,6 +3,7 @@
 ## State: Backlog
 ## Story Points: 5
 ## Priority: Medium
+## Stack: Frontend
 
 **As a** customer (architect, designer, contractor)  
 **I want** to calculate material needs for my project  

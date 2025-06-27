@@ -3,6 +3,7 @@
 ## State: Backlog
 ## Story Points: 8
 ## Priority: Low
+## Stack: Backend + Frontend
 
 **As a** customer with special requirements  
 **I want** to request custom quotes for edge profiles, polishing, or special cuts  
