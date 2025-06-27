@@ -146,6 +146,70 @@ Configured to use PostgreSQL 16+ for all environments:
 - Password: admin123
 - URL: http://localhost:8000/admin/
 
+## Database Migrations
+
+Django migrations track database schema changes. Here are the essential commands:
+
+### Basic Migration Commands
+
+```bash
+# Create migrations for changes to models
+docker-compose exec backend python manage.py makemigrations
+
+# Apply migrations to database
+docker-compose exec backend python manage.py migrate
+
+# Check migration status
+docker-compose exec backend python manage.py showmigrations
+
+# Create migrations for specific app
+docker-compose exec backend python manage.py makemigrations users
+```
+
+### Development Best Practices
+
+**During Development (before production):**
+```bash
+# If you need to rollback and redo migrations cleanly
+docker-compose exec backend python manage.py migrate users zero  # Rollback to initial state
+rm backend/users/migrations/0001_initial.py                      # Remove migration files
+docker-compose exec backend python manage.py makemigrations users # Create fresh migration
+docker-compose exec backend python manage.py migrate              # Apply clean migration
+```
+
+**For table name changes in development:**
+Instead of creating a separate migration for table renames, modify the model's `Meta.db_table` 
+before creating the initial migration to avoid unnecessary rename operations.
+
+**Database Reset (Development Only):**
+```bash
+# Complete database reset
+docker-compose exec postgres psql -U marbelle_user -d marbelle_db -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+docker-compose exec backend python manage.py migrate
+```
+
+### Migration Troubleshooting
+
+**Inconsistent Migration History:**
+If you see migration dependency errors, you may need to reset the database:
+```bash
+# Check which migrations Django thinks are applied
+docker-compose exec backend python manage.py showmigrations
+
+# Reset database and reapply all migrations
+docker-compose exec postgres psql -U marbelle_user -d marbelle_db -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+docker-compose exec backend python manage.py migrate
+```
+
+**Custom Table Names:**
+All models use custom table names via `db_table` in their Meta class:
+- `users.CustomUser` → `users` table
+- `products.Category` → `categories` table
+- `products.Product` → `products` table
+- `products.ProductImage` → `product_images` table
+- `orders.Order` → `orders` table
+- `orders.OrderItem` → `order_items` table
+
 ## Next Steps
 
 - Django model development for each app

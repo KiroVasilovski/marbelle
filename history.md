@@ -25,3 +25,28 @@
 - **Complete**: Foundation setup ready for feature development
 - **Ready for Review**: All 3 tasks moved to `scrum/in_review/`
 - **Next Steps**: Begin model development and API endpoints
+
+## Session 2 - June 26, 2025
+
+### Core Models Development
+- **Backend Models**: Implemented core Django models for users, products and orders apps
+- **Database Migrations**: Created and applied initial migrations for users app with custom User model and UserProfile
+- **Database Migrations**: Created and applied initial migrations for products app with Category, Product, ProductImage, and ProductSpecification models
+- **Database Migrations**: Created and applied initial migrations for orders app with Order, OrderItem, and OrderStatus models
+
+### Key Accomplishments
+- **Users App**: Custom user model with extended profile functionality
+- **Products App**: Complete product catalog structure with categories, products, images, and specifications
+- **Orders App**: Full order management system with items and status tracking
+- **Database**: All models properly migrated and ready for data
+
+### Technical Implementation
+- Django model relationships with proper foreign keys and constraints
+- Image handling for product photos
+- Flexible specification system for product attributes
+- Order status workflow implementation
+
+### Project Status
+- **Complete**: Core backend models implemented and migrated
+- **Ready for Development**: Models ready for API endpoints and frontend integration
+- **Next Steps**: Implement API views and serializers

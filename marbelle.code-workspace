@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"name": "Project Root",
+			"path": "."
+		},
+		{
+			"name": "Backend (Python)",
+			"path": "marbelle/backend"
+		},
+		{
+			"name": "Frontend (React)",
+			"path": "marbelle/frontend"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/marbelle/backend": true,
+			"**/marbelle/frontend": true,
+		}
+	}
+}
