@@ -1,9 +1,16 @@
-# Task TASK-004: Core Database Models
+# Task TASK-004: Core Database Models (SPLIT)
 
-## State: Backlog
-## Story Points: 8
+## State: Backlog - SPLIT INTO SUBTASKS
+## Story Points: 20 (split into smaller tasks)
 ## Priority: High
 
+**NOTICE:** This task has been split into focused subtasks for better implementation and testing:
+
+- **TASK-004A**: User Management Models (5 points)
+- **TASK-004B**: Product Catalog Models (8 points) - **Required for TASK-005 API**
+- **TASK-004C**: Order Management Models (5 points)
+
+## Original User Story
 **As a** developer  
 **I want** to create core database models for the application  
 **So that** I can store and manage product, user, and order data effectively
