@@ -1,6 +1,11 @@
+import secrets
+from datetime import timedelta
+from typing import Any
+
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -51,3 +56,73 @@ class User(AbstractUser):
         verbose_name = "User"
         verbose_name_plural = "Users"
         db_table = "users"
+
+
+class EmailVerificationToken(models.Model):
+    """
+    Model for email verification tokens.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="email_verification_tokens")
+    token = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+
+    def save(self, *args: Any, **kwargs: Any):
+        if not self.token:
+            self.token = secrets.token_urlsafe(32)
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(hours=24)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    @property
+    def is_valid(self):
+        return not self.is_used and not self.is_expired
+
+    def __str__(self) -> str:
+        return f"Email verification for {self.user.email}"
+
+    class Meta:
+        verbose_name = "Email Verification Token"
+        verbose_name_plural = "Email Verification Tokens"
+        db_table = "email_verification_tokens"
+
+
+class PasswordResetToken(models.Model):
+    """
+    Model for password reset tokens.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="password_reset_tokens")
+    token = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+
+    def save(self, *args: Any, **kwargs: Any):
+        if not self.token:
+            self.token = secrets.token_urlsafe(32)
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(hours=24)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    @property
+    def is_valid(self):
+        return not self.is_used and not self.is_expired
+
+    def __str__(self) -> str:
+        return f"Password reset for {self.user.email}"
+
+    class Meta:
+        verbose_name = "Password Reset Token"
+        verbose_name_plural = "Password Reset Tokens"
+        db_table = "password_reset_tokens"
