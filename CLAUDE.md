@@ -77,6 +77,12 @@ We will follow a SCRUM-inspired workflow, using user stories to progressively bu
 - **Environment**: Development environment fully containerized
 - **Database Client**: DBeaver for PostgreSQL management (no pgAdmin needed)
 
+### API Documentation
+- **API Documentation**: All API endpoints are documented in `API.md` file at the project root
+- **Documentation Standards**: Follow REST API documentation best practices with request/response examples
+- **Format**: Markdown format with consistent structure for endpoints, authentication, and examples
+- **Maintenance**: API documentation must be updated whenever new endpoints are added or existing ones are modified
+
 ## Session History
 To keep Claude informed and updated on our progress, a file named `history.md` exists at the root of the project.
 
