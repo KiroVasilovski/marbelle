@@ -146,16 +146,32 @@ SIMPLE_JWT = {
 
 # CORS settings for frontend
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React dev server
+    "http://localhost:3000",  # React dev server (if using CRA)
     "http://127.0.0.1:3000",
+    "http://localhost:5173",  # Vite dev server
+    "http://127.0.0.1:5173",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
+# Additional CORS settings for development
+CORS_ALLOW_ALL_ORIGINS = False  # Keep this False for security
+CORS_ALLOWED_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
 # Email Configuration (will be configured per environment)
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # Default for development
 DEFAULT_FROM_EMAIL = "noreply@marbelle.com"
-FRONTEND_URL = "http://localhost:3000"  # Default for development
+FRONTEND_URL = "http://localhost:5173"  # Vite dev server URL
 
 # Token blacklist for JWT
 INSTALLED_APPS += ["rest_framework_simplejwt.token_blacklist"]
