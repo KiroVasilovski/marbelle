@@ -33,7 +33,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(
             username=validated_data["email"],  # Use email as username
             is_active=False,  # Account remains inactive until email verification
-            **validated_data
+            **validated_data,
         )
         user.set_password(password)
         user.save()
@@ -58,7 +58,9 @@ class UserLoginSerializer(serializers.Serializer):
             try:
                 user = User.objects.get(email=email)
                 if not user.is_active:
-                    raise serializers.ValidationError("Account is not activated. Please check your email for verification instructions.")
+                    raise serializers.ValidationError(
+                        "Account is not activated. Please check your email for verification instructions."
+                    )
             except User.DoesNotExist:
                 raise serializers.ValidationError("Invalid email or password.")
 
@@ -117,7 +119,9 @@ class PasswordResetRequestSerializer(serializers.Serializer):
             return user
         except User.DoesNotExist:
             # Don't reveal if email exists for security
-            raise serializers.ValidationError("If this email is registered, you will receive password reset instructions.")
+            raise serializers.ValidationError(
+                "If this email is registered, you will receive password reset instructions."
+            )
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):

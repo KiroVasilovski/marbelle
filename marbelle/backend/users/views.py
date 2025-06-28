@@ -88,13 +88,9 @@ def logout_user(request: Request) -> Response:
             token = RefreshToken(refresh_token)
             token.blacklist()
 
-        return Response(
-            {"success": True, "message": "Logout successful."}, status=status.HTTP_200_OK
-        )
+        return Response({"success": True, "message": "Logout successful."}, status=status.HTTP_200_OK)
     except Exception:
-        return Response(
-            {"success": False, "message": "Logout failed."}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"success": False, "message": "Logout failed."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -213,9 +209,7 @@ def resend_verification_email(request: Request) -> Response:
     """
     email = request.data.get("email")
     if not email:
-        return Response(
-            {"success": False, "message": "Email is required."}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"success": False, "message": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         user = User.objects.get(email=email)
@@ -230,13 +224,9 @@ def resend_verification_email(request: Request) -> Response:
         # Send verification email
         send_verification_email(user, verification_token.token)
 
-        return Response(
-            {"success": True, "message": "Verification email sent."}, status=status.HTTP_200_OK
-        )
+        return Response({"success": True, "message": "Verification email sent."}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
-        return Response(
-            {"success": False, "message": "Email not found."}, status=status.HTTP_404_NOT_FOUND
-        )
+        return Response({"success": False, "message": "Email not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
 def send_verification_email(user: User, token: str) -> None:

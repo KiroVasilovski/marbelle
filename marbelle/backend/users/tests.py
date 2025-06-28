@@ -159,9 +159,7 @@ class AuthenticationAPITest(APITestCase):
         token = EmailVerificationToken.objects.create(user=user)
 
         # Verify email
-        response = self.client.post(
-            self.verify_email_url, {"token": token.token}, format="json"
-        )
+        response = self.client.post(self.verify_email_url, {"token": token.token}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["success"])
 
@@ -209,9 +207,7 @@ class AuthenticationAPITest(APITestCase):
             is_active=True,
         )
 
-        response = self.client.post(
-            self.password_reset_url, {"email": "test@example.com"}, format="json"
-        )
+        response = self.client.post(self.password_reset_url, {"email": "test@example.com"}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["success"])
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>VERIFY YOUR MARBELLE ACCOUNT</title>
@@ -12,12 +13,14 @@
             margin: 0 auto;
             padding: 20px;
         }
+
         .header {
             text-align: center;
             border-bottom: 2px solid #ddd;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
+
         .logo {
             font-size: 24px;
             font-weight: bold;
@@ -25,9 +28,11 @@
             text-transform: uppercase;
             letter-spacing: 2px;
         }
+
         .content {
             margin-bottom: 30px;
         }
+
         .button {
             display: inline-block;
             background-color: #000;
@@ -40,6 +45,7 @@
             letter-spacing: 1px;
             margin: 20px 0;
         }
+
         .footer {
             border-top: 2px solid #ddd;
             padding-top: 20px;
@@ -49,6 +55,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <div class="logo">MARBELLE</div>
@@ -57,24 +64,25 @@
 
     <div class="content">
         <h2>VERIFY YOUR ACCOUNT</h2>
-        
+
         <p>Hello {{ user.first_name|default:"" }},</p>
-        
-        <p>Thank you for registering with Marbelle. To activate your account and start browsing our premium natural stone collection, please verify your email address by clicking the button below:</p>
-        
+
+        <p>Thank you for registering with Marbelle. To activate your account and start browsing our premium natural
+            stone collection, please verify your email address by clicking the button below:</p>
+
         <div style="text-align: center;">
             <a href="{{ verification_url }}" class="button">VERIFY EMAIL ADDRESS</a>
         </div>
-        
+
         <p>If the button above doesn't work, copy and paste this link into your browser:</p>
         <p><a href="{{ verification_url }}">{{ verification_url }}</a></p>
-        
+
         <p>This verification link will expire in 24 hours for security reasons.</p>
-        
+
         <p>If you didn't create an account with Marbelle, please ignore this email.</p>
-        
+
         <p>Best regards,<br>
-        The Marbelle Team</p>
+            The Marbelle Team</p>
     </div>
 
     <div class="footer">
@@ -82,4 +90,5 @@
         <p>This is an automated message. Please do not reply to this email.</p>
     </div>
 </body>
+
 </html>
