@@ -5,7 +5,7 @@
 // Environment configuration
 export const API_CONFIG = {
     baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1',
-    timeout: 10000, // 10 seconds
+    timeout: 30000, // 30 seconds
     defaultHeaders: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
@@ -42,5 +42,4 @@ export const STORAGE_KEYS = {
     ACCESS_TOKEN: 'access_token',
     REFRESH_TOKEN: 'refresh_token',
     USER_DATA: 'user_data',
-    REMEMBER_ME: 'remember_me',
 } as const;

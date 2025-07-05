@@ -5,9 +5,11 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse, type AxiosError } from 'axios';
 import { API_CONFIG, STORAGE_KEYS } from './apiConfig';
 import { localStorageService } from '../storage/LocalStorageService';
-import { sessionStorageService } from '../storage/SessionStorageService';
 
-// Types
+/**
+ * ApiResponse - Standardized API response structure
+ * @template T - Type of the data returned in the response
+ */
 export interface ApiResponse<T = unknown> {
     success: boolean;
     data?: T;
@@ -15,16 +17,31 @@ export interface ApiResponse<T = unknown> {
     errors?: Record<string, string[]>;
 }
 
+/**
+ * RequestOptions - Extended Axios request configuration
+ * @extends AxiosRequestConfig
+ * @property {boolean} [skipAuth] - Skip authentication for this request
+ * @property {boolean} [useRefreshToken] - Use refresh token for this request
+ */
 export interface RequestOptions extends AxiosRequestConfig {
     skipAuth?: boolean;
     useRefreshToken?: boolean;
 }
 
+/**
+ * AuthTokens - Structure for authentication tokens
+ * @property {string} access - Access token for authenticated requests
+ * @property {string} refresh - Refresh token for renewing access token
+ */
 export interface AuthTokens {
     access: string;
     refresh: string;
 }
 
+/**
+ * ApiClient - Singleton class for managing API requests
+ * Implements token management, request/response interceptors, and error handling
+ */
 export class ApiClient {
     private static instance: ApiClient;
     private axiosInstance: AxiosInstance;
@@ -42,10 +59,7 @@ export class ApiClient {
     }
 
     public static getInstance(): ApiClient {
-        if (!ApiClient.instance) {
-            ApiClient.instance = new ApiClient();
-        }
-        return ApiClient.instance;
+        return ApiClient.instance || (ApiClient.instance = new ApiClient());
     }
 
     private setupInterceptors(): void {
@@ -104,23 +118,11 @@ export class ApiClient {
     }
 
     private getAccessToken(): string | null {
-        const rememberMe = localStorageService.getItem<boolean>(STORAGE_KEYS.REMEMBER_ME);
-
-        if (rememberMe) {
-            return localStorageService.getItem<string>(STORAGE_KEYS.ACCESS_TOKEN);
-        } else {
-            return sessionStorageService.getItem<string>(STORAGE_KEYS.ACCESS_TOKEN);
-        }
+        return localStorageService.getItem<string>(STORAGE_KEYS.ACCESS_TOKEN);
     }
 
     private getRefreshToken(): string | null {
-        const rememberMe = localStorageService.getItem<boolean>(STORAGE_KEYS.REMEMBER_ME);
-
-        if (rememberMe) {
-            return localStorageService.getItem<string>(STORAGE_KEYS.REFRESH_TOKEN);
-        } else {
-            return sessionStorageService.getItem<string>(STORAGE_KEYS.REFRESH_TOKEN);
-        }
+        return localStorageService.getItem<string>(STORAGE_KEYS.REFRESH_TOKEN);
     }
 
     private async refreshAccessToken(): Promise<string> {
@@ -161,23 +163,15 @@ export class ApiClient {
         window.dispatchEvent(new CustomEvent('auth:logout'));
     }
 
-    public storeTokens(tokens: AuthTokens, rememberMe = false): void {
-        const storage = rememberMe ? localStorageService : sessionStorageService;
-
-        storage.setItem(STORAGE_KEYS.ACCESS_TOKEN, tokens.access);
-        storage.setItem(STORAGE_KEYS.REFRESH_TOKEN, tokens.refresh);
-        localStorageService.setItem(STORAGE_KEYS.REMEMBER_ME, rememberMe);
+    public storeTokens(tokens: AuthTokens): void {
+        localStorageService.setItem(STORAGE_KEYS.ACCESS_TOKEN, tokens.access);
+        localStorageService.setItem(STORAGE_KEYS.REFRESH_TOKEN, tokens.refresh);
     }
 
     public clearTokens(): void {
         localStorageService.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
         localStorageService.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
         localStorageService.removeItem(STORAGE_KEYS.USER_DATA);
-        localStorageService.removeItem(STORAGE_KEYS.REMEMBER_ME);
-
-        sessionStorageService.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-        sessionStorageService.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-        sessionStorageService.removeItem(STORAGE_KEYS.USER_DATA);
     }
 
     public async get<T = unknown>(url: string, config?: RequestOptions): Promise<ApiResponse<T>> {
@@ -259,5 +253,4 @@ export class ApiClient {
     }
 }
 
-// Export singleton instance
 export const apiClient = ApiClient.getInstance();

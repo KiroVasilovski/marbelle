@@ -5,7 +5,6 @@
 import { apiClient } from '../../../shared/api/ApiClient';
 import { API_ENDPOINTS, STORAGE_KEYS } from '../../../shared/api/apiConfig';
 import { localStorageService } from '../../../shared/storage/LocalStorageService';
-import { sessionStorageService } from '../../../shared/storage/SessionStorageService';
 import type {
     LoginCredentials,
     RegisterData,
@@ -64,10 +63,10 @@ export class AuthService {
                 refresh: response.data.refresh,
             };
 
-            apiClient.storeTokens(tokens, credentials.remember_me);
+            apiClient.storeTokens(tokens);
 
             // Store user data
-            this.storeUserData(response.data.user, credentials.remember_me);
+            this.storeUserData(response.data.user);
         }
 
         return {
@@ -178,13 +177,7 @@ export class AuthService {
      * Get Current User Data
      */
     public getCurrentUser(): User | null {
-        const rememberMe = localStorageService.getItem<boolean>(STORAGE_KEYS.REMEMBER_ME);
-
-        if (rememberMe) {
-            return localStorageService.getItem<User>(STORAGE_KEYS.USER_DATA);
-        } else {
-            return sessionStorageService.getItem<User>(STORAGE_KEYS.USER_DATA);
-        }
+        return localStorageService.getItem<User>(STORAGE_KEYS.USER_DATA);
     }
 
     /**
@@ -195,20 +188,17 @@ export class AuthService {
     }
 
     /**
-     * Store user data in appropriate storage
+     * Store user data in localStorage
      */
-    private storeUserData(user: User, rememberMe = false): void {
-        const storage = rememberMe ? localStorageService : sessionStorageService;
-        storage.setItem(STORAGE_KEYS.USER_DATA, user);
+    private storeUserData(user: User): void {
+        localStorageService.setItem(STORAGE_KEYS.USER_DATA, user);
     }
 
     /**
-     * Update user data in storage
+     * Update user data in localStorage
      */
     private updateUserData(user: User): void {
-        const rememberMe = localStorageService.getItem<boolean>(STORAGE_KEYS.REMEMBER_ME);
-        const storage = rememberMe ? localStorageService : sessionStorageService;
-        storage.setItem(STORAGE_KEYS.USER_DATA, user);
+        localStorageService.setItem(STORAGE_KEYS.USER_DATA, user);
     }
 
     /**
