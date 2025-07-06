@@ -12,9 +12,7 @@ export const validationRules = {
     },
 };
 
-export const getPasswordStrength = (
-    password: string
-): {
+export const getPasswordStrength = (password: string): {
     score: number;
     feedback: string[];
 } => {

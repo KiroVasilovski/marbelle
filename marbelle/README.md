@@ -28,7 +28,7 @@ cd /path/to/marbelle
 docker-compose up --build
 
 # Wait for services to start, then access:
-# - Frontend: http://localhost:5173
+# - Frontend: http://localhost:3000
 # - Backend: http://localhost:8000
 # - Database: localhost:5432
 ```
@@ -37,7 +37,7 @@ docker-compose up --build
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| **Frontend** | http://localhost:5173 | React application |
+| **Frontend** | http://localhost:3000 | React application |
 | **Backend** | http://localhost:8000 | Django admin & API |
 | **Database** | localhost:5432 | PostgreSQL (see credentials below) |
 
@@ -54,7 +54,7 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/
 # Expected: 200
 
 # 3. Test frontend health  
-curl -s -o /dev/null -w "%{http_code}" http://localhost:5173/
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/
 # Expected: 200
 
 # 4. Test database connection
@@ -126,7 +126,7 @@ docker-compose up -d
 cd frontend
 npm install
 npm run dev
-# Available at http://localhost:5173
+# Available at http://localhost:3000
 
 # Backend (local development with Docker DB)
 docker-compose up -d postgres
@@ -218,8 +218,8 @@ docker-compose exec frontend npm install
 
 **Port conflicts:**
 ```bash
-# Check what's using ports 5173, 8000, 5432
-lsof -i :5173
+# Check what's using ports 3000, 8000, 5432
+lsof -i :3000
 lsof -i :8000
 lsof -i :5432
 

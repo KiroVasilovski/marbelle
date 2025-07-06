@@ -12,10 +12,17 @@ const initialValues = {
 };
 
 const validation = {
-    email: [
-        { validator: validationRules.required, message: 'EMAIL IS REQUIRED' },
-        { validator: validationRules.email, message: 'VALID EMAIL IS REQUIRED' },
-    ],
+    email:
+        [
+            {
+                validator: validationRules.required,
+                message: 'EMAIL IS REQUIRED'
+            },
+            {
+                validator: validationRules.email,
+                message: 'VALID EMAIL IS REQUIRED'
+            },
+        ],
 };
 
 export const EmailVerification: React.FC = () => {
@@ -91,9 +98,9 @@ export const EmailVerification: React.FC = () => {
     // Show success state
     if (verificationStatus === 'success') {
         return (
-            <div className="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md">
+            <div className="max-w-md mx-auto p-8 bg-white">
                 <div className="text-center">
-                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-10">
                         <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                                 strokeLinecap="round"
@@ -103,11 +110,11 @@ export const EmailVerification: React.FC = () => {
                             ></path>
                         </svg>
                     </div>
-                    <h2 className="text-2xl font-bold mb-4 uppercase text-green-600">EMAIL VERIFIED</h2>
-                    <p className="text-gray-600 mb-6 uppercase">
+                    <h2 className="text-2xl font-bold mb-10 uppercase text-green-600">EMAIL VERIFIED</h2>
+                    <p className="text-gray-600 mb-10 uppercase">
                         YOUR EMAIL HAS BEEN SUCCESSFULLY VERIFIED. YOUR ACCOUNT IS NOW ACTIVE
                     </p>
-                    <Button onClick={() => navigate('/login')} className="w-full uppercase">
+                    <Button onClick={() => navigate('/login')} variant="outline" className="w-full uppercase">
                         SIGN IN TO YOUR ACCOUNT
                     </Button>
                 </div>
@@ -117,7 +124,7 @@ export const EmailVerification: React.FC = () => {
 
     // Show error state or manual verification form
     return (
-        <div className="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md space-y-6">
+        <div className="max-w-md mx-auto p-8 bg-white rounded-lg">
             <div className="text-center">
                 <h2 className="text-2xl font-bold mb-2 uppercase">EMAIL VERIFICATION</h2>
                 {verificationStatus === 'error' ? (

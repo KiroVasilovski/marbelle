@@ -115,7 +115,7 @@
 - **State Management**: React Context with JWT token handling and session persistence
 - **API Integration**: Full integration with backend authentication endpoints
 - **Form Validation**: Real-time validation with password strength indicators
-- **CORS Configuration**: Fixed CORS issues for Vite dev server (port 5173)
+- **CORS Configuration**: Fixed CORS issues for Vite dev server (port 3000)
 
 ### Key Accomplishments
 - **Complete Auth System**: Registration, login, logout, email verification, password reset flows

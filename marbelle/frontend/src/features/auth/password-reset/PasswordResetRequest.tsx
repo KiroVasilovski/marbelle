@@ -12,10 +12,17 @@ const initialValues = {
 };
 
 const validation = {
-    email: [
-        { validator: validationRules.required, message: 'EMAIL IS REQUIRED' },
-        { validator: validationRules.email, message: 'VALID EMAIL IS REQUIRED' },
-    ],
+    email:
+        [
+            {
+                validator: validationRules.required,
+                message: 'EMAIL IS REQUIRED'
+            },
+            {
+                validator: validationRules.email,
+                message: 'VALID EMAIL IS REQUIRED'
+            },
+        ],
 };
 
 export const PasswordResetRequest: React.FC = () => {
@@ -56,13 +63,14 @@ export const PasswordResetRequest: React.FC = () => {
                     <p className="text-gray-600 mb-6 uppercase">
                         IF THIS EMAIL IS REGISTERED, YOU WILL RECEIVE PASSWORD RESET INSTRUCTIONS
                     </p>
-                    <div className="space-y-3">
+                    <div className="space-y-6">
                         <Button onClick={() => setShowSuccess(false)} variant="outline" className="w-full uppercase">
                             SEND ANOTHER EMAIL
                         </Button>
-                        <Link to="/login">
-                            <Button className="w-full uppercase">BACK TO LOGIN</Button>
-                        </Link>
+
+                        <Button asChild className="w-full uppercase" variant="secondary">
+                            <Link to="/login">BACK TO LOGIN</Link>
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -70,7 +78,7 @@ export const PasswordResetRequest: React.FC = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md space-y-6">
+        <form onSubmit={handleSubmit} className="max-w-md mx-auto p-8 bg-white space-y-6">
             <div className="text-center">
                 <h2 className="text-2xl font-bold mb-2 uppercase">RESET PASSWORD</h2>
                 <p className="text-gray-600 uppercase">ENTER YOUR EMAIL TO RESET YOUR PASSWORD</p>
@@ -81,7 +89,6 @@ export const PasswordResetRequest: React.FC = () => {
             )}
 
             <div>
-                <Label htmlFor="email">EMAIL ADDRESS</Label>
                 <Input
                     id="email"
                     type="email"
@@ -95,7 +102,7 @@ export const PasswordResetRequest: React.FC = () => {
                 {errors.email && touched.email && <p className="text-red-500 text-xs mt-1 uppercase">{errors.email}</p>}
             </div>
 
-            <Button type="submit" className="w-full uppercase" disabled={isLoading}>
+            <Button type="submit" className="w-full uppercase" variant="secondary" disabled={isLoading}>
                 {isLoading ? 'SENDING...' : 'SEND RESET EMAIL'}
             </Button>
 
