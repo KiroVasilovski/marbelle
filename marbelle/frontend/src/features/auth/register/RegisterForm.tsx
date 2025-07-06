@@ -6,6 +6,7 @@ import { useAuth } from '../AuthContext';
 import { useFormValidation } from '../../../shared/hooks/useFormValidation';
 import { validationRules, getPasswordStrength } from '../../../shared/lib/validation';
 import type { RegisterData } from '../types/auth';
+import { Eye, EyeOff } from "lucide-react";
 
 const initialValues = {
     email: '',
@@ -78,6 +79,7 @@ const validation = {
 export const RegisterForm: React.FC = () => {
     const { register, isLoading } = useAuth();
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
     const [submitError, setSubmitError] = useState<string>('');
     const [showSuccess, setShowSuccess] = useState(false);
 
@@ -205,15 +207,25 @@ export const RegisterForm: React.FC = () => {
             </div>
 
             <div>
-                <Input
-                    id="password"
-                    type="password"
-                    value={values.password}
-                    onChange={(e) => setValue('password', e.target.value)}
-                    onBlur={() => setTouched('password')}
-                    className={errors.password && touched.password ? 'border-red-500' : ''}
-                    placeholder="Password*"
-                />
+                <div className="relative">
+                    <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={values.password}
+                        onChange={(e) => setValue('password', e.target.value)}
+                        onBlur={() => setTouched('password')}
+                        className={errors.password && touched.password ? 'border-red-500' : ''}
+                        placeholder="Password*"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-4 text-gray-500 hover:text-gray-700"
+                        tabIndex={-1}
+                    >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                </div>
                 {values.password && (
                     <div className="mt-2">
                         <div className="flex gap-1 mb-1">
