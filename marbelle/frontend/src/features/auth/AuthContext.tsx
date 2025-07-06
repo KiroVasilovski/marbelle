@@ -31,13 +31,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 if (storedUser && authService.isAuthenticated()) {
                     try {
                         // Verify token is still valid
-                        const response = await authService.verifyToken();
-                        if (response.success && response.data) {
-                            setUser(response.data);
-                        } else {
-                            // Token is invalid, clear storage
-                            authService.clearAuthData();
-                        }
+                        const userData = await authService.verifyToken();
+                        setUser(userData);
                     } catch {
                         // Token is invalid, clear storage
                         authService.clearAuthData();
@@ -67,11 +62,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await authService.login(credentials);
-            if (response.success && response.data) {
-                setUser(response.data.user);
-            } else {
-                throw new Error(response.message || 'LOGIN FAILED');
+            const data = await authService.login(credentials);
+            if (data) {
+                setUser(data.user);
             }
         } catch (error) {
             setError(error instanceof Error ? error.message : 'LOGIN FAILED');
@@ -85,10 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await authService.register(userData);
-            if (!response.success) {
-                throw new Error(response.message || 'REGISTRATION FAILED');
-            }
+            await authService.register(userData);
             // Don't auto-login after registration, user needs to verify email
         } catch (error) {
             setError(error instanceof Error ? error.message : 'REGISTRATION FAILED');
@@ -108,10 +98,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await authService.verifyEmail(token);
-            if (!response.success) {
-                throw new Error(response.message || 'EMAIL VERIFICATION FAILED');
-            }
+            await authService.verifyEmail(token);
         } catch (error) {
             setError(error instanceof Error ? error.message : 'EMAIL VERIFICATION FAILED');
             throw error;
@@ -124,10 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await authService.requestPasswordReset(email);
-            if (!response.success) {
-                throw new Error(response.message || 'PASSWORD RESET REQUEST FAILED');
-            }
+            await authService.requestPasswordReset(email);
         } catch (error) {
             setError(error instanceof Error ? error.message : 'PASSWORD RESET REQUEST FAILED');
             throw error;
@@ -140,10 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await authService.confirmPasswordReset(token, newPassword, confirmPassword);
-            if (!response.success) {
-                throw new Error(response.message || 'PASSWORD RESET CONFIRMATION FAILED');
-            }
+            await authService.confirmPasswordReset(token, newPassword, confirmPassword);
         } catch (error) {
             setError(error instanceof Error ? error.message : 'PASSWORD RESET CONFIRMATION FAILED');
             throw error;
@@ -156,10 +137,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await authService.resendVerification(email);
-            if (!response.success) {
-                throw new Error(response.message || 'RESEND VERIFICATION FAILED');
-            }
+            await authService.resendVerification(email);
         } catch (error) {
             setError(error instanceof Error ? error.message : 'RESEND VERIFICATION FAILED');
             throw error;
@@ -174,10 +152,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const checkAuthStatus = async (): Promise<void> => {
         try {
-            const response = await authService.verifyToken();
-            if (response.success && response.data) {
-                setUser(response.data);
-            }
+            const userData = await authService.verifyToken();
+            setUser(userData);
         } catch (error) {
             console.error('Auth status check failed:', error);
             setUser(null);

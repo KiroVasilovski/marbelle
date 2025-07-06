@@ -18,12 +18,11 @@ import type {
     User,
     AuthTokens,
 } from '../types/auth';
-import type { ApiResponse } from '../../../shared/api/ApiClient';
 
 export class AuthService {
     private static instance: AuthService;
 
-    private constructor() {}
+    private constructor() { }
 
     public static getInstance(): AuthService {
         if (!AuthService.instance) {
@@ -35,46 +34,34 @@ export class AuthService {
     /**
      * User Registration
      */
-    public async register(data: RegisterData): Promise<RegisterResponse> {
-        const response = await apiClient.post<RegisterResponse['data']>(API_ENDPOINTS.AUTH.REGISTER, data, {
+    public async register(data: RegisterData): Promise<RegisterResponse['data']> {
+        return await apiClient.post<RegisterResponse['data']>(API_ENDPOINTS.AUTH.REGISTER, data, {
             skipAuth: true,
         });
-
-        return {
-            success: response.success,
-            message: response.message,
-            data: response.data,
-            errors: response.errors,
-        };
     }
 
     /**
      * User Login
      */
-    public async login(credentials: LoginCredentials): Promise<LoginResponse> {
-        const response = await apiClient.post<LoginResponse['data']>(API_ENDPOINTS.AUTH.LOGIN, credentials, {
+    public async login(credentials: LoginCredentials): Promise<LoginResponse['data']> {
+        const data = await apiClient.post<LoginResponse['data']>(API_ENDPOINTS.AUTH.LOGIN, credentials, {
             skipAuth: true,
         });
 
-        if (response.success && response.data) {
+        if (data) {
             // Store tokens using ApiClient method
             const tokens: AuthTokens = {
-                access: response.data.access,
-                refresh: response.data.refresh,
+                access: data.access,
+                refresh: data.refresh,
             };
 
             apiClient.storeTokens(tokens);
 
             // Store user data
-            this.storeUserData(response.data.user);
+            this.storeUserData(data.user);
         }
 
-        return {
-            success: response.success,
-            message: response.message,
-            data: response.data,
-            errors: response.errors,
-        };
+        return data;
     }
 
     /**
@@ -96,37 +83,30 @@ export class AuthService {
     /**
      * Email Verification
      */
-    public async verifyEmail(token: string): Promise<VerificationResponse> {
+    public async verifyEmail(token: string): Promise<VerificationResponse['data']> {
         const data: EmailVerificationRequest = { token };
 
-        const response = await apiClient.post<VerificationResponse['data']>(API_ENDPOINTS.AUTH.VERIFY_EMAIL, data, {
+        return await apiClient.post<VerificationResponse['data']>(API_ENDPOINTS.AUTH.VERIFY_EMAIL, data, {
             skipAuth: true,
         });
-
-        return {
-            success: response.success,
-            message: response.message,
-            data: response.data,
-            errors: response.errors,
-        };
     }
 
     /**
      * Resend Email Verification
      */
-    public async resendVerification(email: string): Promise<ApiResponse> {
+    public async resendVerification(email: string): Promise<void> {
         const data: ResendVerificationRequest = { email };
 
-        return await apiClient.post(API_ENDPOINTS.AUTH.RESEND_VERIFICATION, data, { skipAuth: true });
+        await apiClient.post(API_ENDPOINTS.AUTH.RESEND_VERIFICATION, data, { skipAuth: true });
     }
 
     /**
      * Request Password Reset
      */
-    public async requestPasswordReset(email: string): Promise<ApiResponse> {
+    public async requestPasswordReset(email: string): Promise<void> {
         const data: PasswordResetRequest = { email };
 
-        return await apiClient.post(API_ENDPOINTS.AUTH.PASSWORD_RESET, data, { skipAuth: true });
+        await apiClient.post(API_ENDPOINTS.AUTH.PASSWORD_RESET, data, { skipAuth: true });
     }
 
     /**
@@ -136,36 +116,31 @@ export class AuthService {
         token: string,
         newPassword: string,
         confirmPassword: string
-    ): Promise<ApiResponse> {
+    ): Promise<void> {
         const data: PasswordResetConfirm = {
             token,
             new_password: newPassword,
             new_password_confirm: confirmPassword,
         };
 
-        return await apiClient.post(API_ENDPOINTS.AUTH.PASSWORD_RESET_CONFIRM, data, { skipAuth: true });
+        await apiClient.post(API_ENDPOINTS.AUTH.PASSWORD_RESET_CONFIRM, data, { skipAuth: true });
     }
 
     /**
      * Verify Token (check if user is still authenticated)
      */
-    public async verifyToken(): Promise<ApiResponse<User>> {
+    public async verifyToken(): Promise<User> {
         if (!apiClient.isAuthenticated()) {
-            return {
-                success: false,
-                message: 'No token found',
-            };
+            throw new Error('No token found');
         }
 
         try {
-            const response = await apiClient.get<User>(API_ENDPOINTS.AUTH.VERIFY_TOKEN);
+            const user = await apiClient.get<User>(API_ENDPOINTS.AUTH.VERIFY_TOKEN);
 
-            if (response.success && response.data) {
-                // Update stored user data
-                this.updateUserData(response.data);
-            }
+            // Update stored user data
+            this.updateUserData(user);
 
-            return response;
+            return user;
         } catch (error) {
             // If token verification fails, clear stored data
             apiClient.clearTokens();

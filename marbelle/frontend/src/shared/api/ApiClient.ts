@@ -5,6 +5,7 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse, type AxiosError } from 'axios';
 import { API_CONFIG, STORAGE_KEYS } from './apiConfig';
 import { localStorageService } from '../storage/LocalStorageService';
+import { ApiError } from './ApiError';
 
 /**
  * ApiResponse - Standardized API response structure
@@ -143,11 +144,14 @@ export class ApiClient {
                 this.storeTokens(response.data.data);
                 return response.data.data.access;
             } else {
-                throw new Error('Token refresh failed');
+                throw ApiError.fromResponse(response.status, response.data);
             }
         } catch (error) {
             this.clearTokens();
-            throw error;
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw this.createApiError(error as AxiosError);
         }
     }
 
@@ -174,74 +178,104 @@ export class ApiClient {
         localStorageService.removeItem(STORAGE_KEYS.USER_DATA);
     }
 
-    public async get<T = unknown>(url: string, config?: RequestOptions): Promise<ApiResponse<T>> {
+    public async get<T = unknown>(url: string, config?: RequestOptions): Promise<T> {
         try {
             const response: AxiosResponse<ApiResponse<T>> = await this.axiosInstance.get(url, config);
-            return response.data;
+            
+            if (!response.data.success) {
+                throw ApiError.fromResponse(response.status, response.data);
+            }
+            
+            return response.data.data as T;
         } catch (error) {
-            return this.handleError<T>(error as AxiosError);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw this.createApiError(error as AxiosError);
         }
     }
 
-    public async post<T = unknown>(url: string, data?: unknown, config?: RequestOptions): Promise<ApiResponse<T>> {
+    public async post<T = unknown>(url: string, data?: unknown, config?: RequestOptions): Promise<T> {
         try {
             const response: AxiosResponse<ApiResponse<T>> = await this.axiosInstance.post(url, data, config);
-            return response.data;
+            
+            if (!response.data.success) {
+                throw ApiError.fromResponse(response.status, response.data);
+            }
+            
+            return response.data.data as T;
         } catch (error) {
-            return this.handleError<T>(error as AxiosError);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw this.createApiError(error as AxiosError);
         }
     }
 
-    public async put<T = unknown>(url: string, data?: unknown, config?: RequestOptions): Promise<ApiResponse<T>> {
+    public async put<T = unknown>(url: string, data?: unknown, config?: RequestOptions): Promise<T> {
         try {
             const response: AxiosResponse<ApiResponse<T>> = await this.axiosInstance.put(url, data, config);
-            return response.data;
+            
+            if (!response.data.success) {
+                throw ApiError.fromResponse(response.status, response.data);
+            }
+            
+            return response.data.data as T;
         } catch (error) {
-            return this.handleError<T>(error as AxiosError);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw this.createApiError(error as AxiosError);
         }
     }
 
-    public async patch<T = unknown>(url: string, data?: unknown, config?: RequestOptions): Promise<ApiResponse<T>> {
+    public async patch<T = unknown>(url: string, data?: unknown, config?: RequestOptions): Promise<T> {
         try {
             const response: AxiosResponse<ApiResponse<T>> = await this.axiosInstance.patch(url, data, config);
-            return response.data;
+            
+            if (!response.data.success) {
+                throw ApiError.fromResponse(response.status, response.data);
+            }
+            
+            return response.data.data as T;
         } catch (error) {
-            return this.handleError<T>(error as AxiosError);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw this.createApiError(error as AxiosError);
         }
     }
 
-    public async delete<T = unknown>(url: string, config?: RequestOptions): Promise<ApiResponse<T>> {
+    public async delete<T = unknown>(url: string, config?: RequestOptions): Promise<T> {
         try {
             const response: AxiosResponse<ApiResponse<T>> = await this.axiosInstance.delete(url, config);
-            return response.data;
+            
+            if (!response.data.success) {
+                throw ApiError.fromResponse(response.status, response.data);
+            }
+            
+            return response.data.data as T;
         } catch (error) {
-            return this.handleError<T>(error as AxiosError);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw this.createApiError(error as AxiosError);
         }
     }
 
-    private handleError<T>(error: AxiosError): ApiResponse<T> {
+    private createApiError(error: AxiosError): ApiError {
         console.error('API Error:', error);
 
         if (error.response?.data) {
             const errorData = error.response.data as { message?: string; errors?: Record<string, string[]> };
-            return {
-                success: false,
-                message: errorData.message || 'An error occurred',
-                errors: errorData.errors,
-            };
+            return ApiError.fromResponse(error.response.status, errorData);
         }
 
         if (error.request) {
-            return {
-                success: false,
-                message: 'Network error. Please check your connection.',
-            };
+            return ApiError.fromNetworkError(error);
         }
 
-        return {
-            success: false,
-            message: error.message || 'An unexpected error occurred',
-        };
+        return ApiError.fromUnknownError(error);
     }
 
     public isAuthenticated(): boolean {
