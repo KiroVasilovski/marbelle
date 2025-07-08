@@ -111,24 +111,6 @@ class EmailVerificationSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid verification token.")
 
 
-class PasswordResetRequestSerializer(serializers.Serializer):
-    """
-    Serializer for password reset request.
-    """
-
-    email = serializers.EmailField()
-
-    def validate_email(self, value: str) -> User:
-        try:
-            user = User.objects.get(email=value, is_active=True)
-            return user
-        except User.DoesNotExist:
-            # Don't reveal if email exists for security
-            raise serializers.ValidationError(
-                "If this email is registered, you will receive password reset instructions."
-            )
-
-
 class PasswordResetConfirmSerializer(serializers.Serializer):
     """
     Serializer for password reset confirmation.

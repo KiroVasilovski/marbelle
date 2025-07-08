@@ -14,7 +14,6 @@ from .models import EmailVerificationToken, PasswordResetToken, User
 from .serializers import (
     EmailVerificationSerializer,
     PasswordResetConfirmSerializer,
-    PasswordResetRequestSerializer,
     TokenSerializer,
     UserLoginSerializer,
     UserRegistrationSerializer,
@@ -130,17 +129,12 @@ def verify_email(request: Request) -> Response:
 def request_password_reset(request: Request) -> Response:
     """
     Password reset request endpoint.
+    Always returns success to prevent email enumeration attacks.
     """
-    serializer = PasswordResetRequestSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.validated_data["email"]
-
-        # Create password reset token
-        reset_token = PasswordResetToken.objects.create(user=user)
-
-        # Send password reset email
-        send_password_reset_email(user, reset_token.token)
-
+    email = request.data.get("email", "").strip().lower()
+    
+    # Validate email format
+    if not email or "@" not in email:
         return Response(
             {
                 "success": True,
@@ -148,10 +142,26 @@ def request_password_reset(request: Request) -> Response:
             },
             status=status.HTTP_200_OK,
         )
-
+    
+    # Try to find user, but don't reveal if they exist
+    try:
+        user = User.objects.get(email=email, is_active=True)
+        
+        # Create password reset token and send email only if user exists
+        reset_token = PasswordResetToken.objects.create(user=user)
+        send_password_reset_email(user, reset_token.token)
+        
+    except User.DoesNotExist:
+        # User doesn't exist, but we still return success
+        pass
+    
+    # Always return the same success response regardless of whether email exists
     return Response(
-        {"success": False, "message": "Password reset request failed.", "errors": serializer.errors},
-        status=status.HTTP_400_BAD_REQUEST,
+        {
+            "success": True,
+            "message": "If this email is registered, you will receive password reset instructions.",
+        },
+        status=status.HTTP_200_OK,
     )
 
 
