@@ -257,7 +257,7 @@ def send_password_reset_email(user: User, token: str) -> None:
     Send password reset email.
     """
     subject = "Reset your Marbelle password"
-    reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+    reset_url = f"{settings.FRONTEND_URL}/password-reset?token={token}"
 
     html_message = render_to_string(
         "users/password_reset.html",
