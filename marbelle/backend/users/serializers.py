@@ -2,6 +2,7 @@ from typing import Any, Dict
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -68,6 +69,10 @@ class UserLoginSerializer(serializers.Serializer):
             user = authenticate(username=email, password=password)
             if not user:
                 raise serializers.ValidationError("Invalid email or password.")
+
+            # Update last_login field
+            user.last_login = timezone.now()
+            user.save(update_fields=["last_login"])
 
             attrs["user"] = user
         else:
