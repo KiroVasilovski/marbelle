@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
 import { authService } from '../services/authService';
@@ -25,6 +25,7 @@ const validation = {
 };
 
 export const PasswordResetRequest: React.FC = () => {
+    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [submitError, setSubmitError] = useState<string>('');
     const [showSuccess, setShowSuccess] = useState(false);
@@ -56,11 +57,11 @@ export const PasswordResetRequest: React.FC = () => {
 
     if (showSuccess) {
         return (
-            <div className="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md">
+            <div className="max-w-md mx-auto p-8 bg-white">
                 <div className="text-center">
                     <h2 className="text-2xl font-bold mb-4 uppercase">CHECK YOUR EMAIL</h2>
-                    <p className="text-gray-600 mb-6 uppercase">
-                        IF THIS EMAIL IS REGISTERED, YOU WILL RECEIVE PASSWORD RESET INSTRUCTIONS
+                    <p className="text-gray-600 mb-6">
+                        If this email is registered, you will receive instructions to reset your password.
                     </p>
                     <div className="space-y-6">
                         <Button onClick={() => setShowSuccess(false)} variant="outline" className="w-full uppercase">
@@ -79,8 +80,8 @@ export const PasswordResetRequest: React.FC = () => {
     return (
         <form onSubmit={handleSubmit} className="max-w-md mx-auto p-8 bg-white space-y-6">
             <div className="text-center">
-                <h2 className="text-2xl font-bold mb-2 uppercase">RESET PASSWORD</h2>
-                <p className="text-gray-600 uppercase">ENTER YOUR EMAIL TO RESET YOUR PASSWORD</p>
+                <h2 className="text-2xl font-bold mb-6 uppercase">RESET PASSWORD</h2>
+                <p className="text-gray-600">Enter your email address to receive a password reset link.</p>
             </div>
 
             {submitError && (
@@ -95,7 +96,7 @@ export const PasswordResetRequest: React.FC = () => {
                     onChange={(e) => setValue('email', e.target.value)}
                     onBlur={() => setTouched('email')}
                     className={errors.email && touched.email ? 'border-red-500' : ''}
-                    placeholder="YOUR@EMAIL.COM"
+                    placeholder="Email Address"
                     autoComplete="email"
                 />
                 {errors.email && touched.email && <p className="text-red-500 text-xs mt-1 uppercase">{errors.email}</p>}
@@ -105,14 +106,9 @@ export const PasswordResetRequest: React.FC = () => {
                 {isLoading ? 'SENDING...' : 'SEND RESET EMAIL'}
             </Button>
 
-            <div className="text-center">
-                <p className="text-sm text-gray-600 uppercase">
-                    REMEMBER YOUR PASSWORD?{' '}
-                    <Link to="/login" className="text-blue-600 hover:underline uppercase">
-                        SIGN IN
-                    </Link>
-                </p>
-            </div>
+            <Button onClick={() => navigate('/login')} variant="outline" className="w-full uppercase">
+                CANCEL
+            </Button>
         </form>
     );
 };

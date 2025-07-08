@@ -64,8 +64,8 @@ export const LoginForm: React.FC = () => {
     return (
         <form onSubmit={handleSubmit} className="max-w-md mx-auto p-8 bg-white space-y-6">
             <div className="text-center">
-                <h2 className="text-2xl font-bold mb-2 uppercase">SIGN IN</h2>
-                <p className="text-gray-600 uppercase">ACCESS YOUR MARBELLE ACCOUNT</p>
+                <h2 className="text-2xl font-bold mb-6 uppercase">SIGN IN</h2>
+                <p className="text-gray-600">Access your Marbelle account</p>
             </div>
 
             {submitError && (

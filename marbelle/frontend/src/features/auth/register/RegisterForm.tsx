@@ -130,8 +130,8 @@ export const RegisterForm: React.FC = () => {
     return (
         <form onSubmit={handleSubmit} className="max-w-md mx-auto p-8 bg-white space-y-6">
             <div className="text-center">
-                <h2 className="text-2xl font-bold mb-2 uppercase">CREATE ACCOUNT</h2>
-                <p className="text-gray-600 uppercase">JOIN MARBELLE FOR PREMIUM STONE PRODUCTS</p>
+                <h2 className="text-2xl font-bold mb-6 uppercase">CREATE ACCOUNT</h2>
+                <p className="text-gray-600">Join marbell for premium stone products and services.</p>
             </div>
 
             {submitError && (
