@@ -2,12 +2,17 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../features/auth/AuthContext';
 
-interface ProtectedRouteProps {
+interface AuthenticatedRouteProps {
     children: React.ReactNode;
     fallback?: React.ReactNode;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, fallback }) => {
+interface UnauthenticatedRouteProps {
+    children: React.ReactNode;
+    fallback?: React.ReactNode;
+}
+
+export const AuthenticatedRoute: React.FC<AuthenticatedRouteProps> = ({ children, fallback }) => {
     const { isAuthenticated, isLoading } = useAuth();
     const location = useLocation();
 
@@ -28,3 +33,27 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, fallba
 
     return <>{children}</>;
 };
+
+export const UnauthenticatedRoute: React.FC<UnauthenticatedRouteProps> = ({ children, fallback }) => {
+    const { isAuthenticated, isLoading } = useAuth();
+
+    if (isLoading) {
+        return (
+            fallback || (
+                <div className="flex items-center justify-center min-h-screen">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+            )
+        );
+    }
+
+    if (isAuthenticated) {
+        // Redirect authenticated users to home page
+        return <Navigate to="/" replace />;
+    }
+
+    return <>{children}</>;
+};
+
+// Keep the old export for backward compatibility
+export const ProtectedRoute = AuthenticatedRoute;

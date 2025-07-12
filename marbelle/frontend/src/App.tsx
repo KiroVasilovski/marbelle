@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './features/auth/AuthContext';
-// import { ProtectedRoute } from './shared/components/ProtectedRoute';
+import { UnauthenticatedRoute } from './shared/components/ProtectedRoute';
 import Layout from './shared/components/layout/Layout';
 import Home from './pages/Home';
 import Products from './pages/Products';
@@ -15,23 +15,45 @@ function App() {
         <AuthProvider>
             <Router>
                 <Routes>
-                    {/* Public auth routes */}
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/password-reset" element={<PasswordResetPage />} />
-                    <Route path="/verify-email" element={<EmailVerifyPage />} />
+                    {/* Authentication routes - only accessible when NOT logged in */}
+                    <Route path="/login" element={
+                        <UnauthenticatedRoute>
+                            <LoginPage />
+                        </UnauthenticatedRoute>
+                    } />
+                    <Route path="/register" element={
+                        <UnauthenticatedRoute>
+                            <RegisterPage />
+                        </UnauthenticatedRoute>
+                    } />
+                    <Route path="/password-reset" element={
+                        <UnauthenticatedRoute>
+                            <PasswordResetPage />
+                        </UnauthenticatedRoute>
+                    } />
+                    <Route path="/verify-email" element={
+                        <UnauthenticatedRoute>
+                            <EmailVerifyPage />
+                        </UnauthenticatedRoute>
+                    } />
 
-                    {/* Main layout routes */}
+                    {/* Main layout routes - always accessible */}
                     <Route path="/" element={<Layout />}>
                         <Route index element={<Home />} />
                         <Route path="products" element={<Products />} />
                         <Route path="about" element={<About />} />
 
-                        {/* Protected routes can be added here */}
+                        {/* Protected routes - only accessible when logged in */}
+                        {/* Example: */}
+                        {/* <Route path="profile" element={
+                            <AuthenticatedRoute>
+                                <Profile />
+                            </AuthenticatedRoute>
+                        } /> */}
                         {/* <Route path="dashboard" element={
-                            <ProtectedRoute>
+                            <AuthenticatedRoute>
                                 <Dashboard />
-                            </ProtectedRoute>
+                            </AuthenticatedRoute>
                         } /> */}
                     </Route>
                 </Routes>
