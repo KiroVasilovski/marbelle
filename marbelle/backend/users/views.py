@@ -132,7 +132,7 @@ def request_password_reset(request: Request) -> Response:
     Always returns success to prevent email enumeration attacks.
     """
     email = request.data.get("email", "").strip().lower()
-    
+
     # Validate email format
     if not email or "@" not in email:
         return Response(
@@ -142,19 +142,19 @@ def request_password_reset(request: Request) -> Response:
             },
             status=status.HTTP_200_OK,
         )
-    
+
     # Try to find user, but don't reveal if they exist
     try:
         user = User.objects.get(email=email, is_active=True)
-        
+
         # Create password reset token and send email only if user exists
         reset_token = PasswordResetToken.objects.create(user=user)
         send_password_reset_email(user, reset_token.token)
-        
+
     except User.DoesNotExist:
         # User doesn't exist, but we still return success
         pass
-    
+
     # Always return the same success response regardless of whether email exists
     return Response(
         {

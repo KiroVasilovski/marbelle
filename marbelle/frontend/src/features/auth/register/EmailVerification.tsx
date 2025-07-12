@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
+import { LoadingSpinner } from '../../../shared/components/ui/loading-spinner';
 import { authService } from '../services/authService';
 import { useFormValidation } from '../../../shared/hooks/useFormValidation';
 import { validationRules } from '../../../shared/lib/validation';
@@ -50,7 +51,7 @@ export const EmailVerification: React.FC = () => {
         try {
             await authService.verifyEmail(verificationToken);
             setVerificationStatus('success');
-        } catch (error) {
+        } catch {
             setVerificationStatus('error');
         } finally {
             setIsVerifying(false);
@@ -85,7 +86,7 @@ export const EmailVerification: React.FC = () => {
             <div className="max-w-md mx-auto p-8 bg-white ">
                 <div className="text-center">
                     <h2 className="text-2xl font-bold mb-6 uppercase">VERIFYING EMAIL</h2>
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-6"></div>
+                    <LoadingSpinner className="mx-auto mb-6" />
                     <p className="text-gray-600">Please wait while we verify your Email address...</p>
                 </div>
             </div>
