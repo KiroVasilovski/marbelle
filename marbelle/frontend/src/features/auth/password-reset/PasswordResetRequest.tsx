@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
+import { AuthWindow } from '../ui/auth-window';
 import { authService } from '../services/authService';
 import { useFormValidation } from '../../../shared/hooks/useFormValidation';
 import { validationRules } from '../../../shared/lib/validation';
@@ -57,37 +58,35 @@ export const PasswordResetRequest: React.FC = () => {
 
     if (showSuccess) {
         return (
-            <div className="max-w-md mx-auto p-8 bg-white">
-                <div className="text-center">
-                    <h2 className="text-2xl font-bold mb-4 uppercase">CHECK YOUR EMAIL</h2>
-                    <p className="text-gray-600 mb-6">
-                        If this email is registered, you will receive instructions to reset your password.
-                    </p>
-                    <div className="space-y-6">
-                        <Button onClick={() => setShowSuccess(false)} variant="outline" className="w-full uppercase">
-                            SEND ANOTHER EMAIL
-                        </Button>
-
-                        <Button asChild className="w-full uppercase" variant="secondary">
-                            <Link to="/login">BACK TO LOGIN</Link>
-                        </Button>
-                    </div>
-                </div>
-            </div>
+            <AuthWindow
+                title=""
+                success={{
+                    title: "CHECK YOUR EMAIL",
+                    message: "If this email is registered, you will receive instructions to reset your password.",
+                    action: (
+                        <div className="space-y-6">
+                            <Button onClick={() => setShowSuccess(false)} variant="outline" className="w-full uppercase">
+                                SEND ANOTHER EMAIL
+                            </Button>
+                            <Button asChild className="w-full uppercase" variant="secondary">
+                                <Link to="/login">BACK TO LOGIN</Link>
+                            </Button>
+                        </div>
+                    )
+                }}
+            >
+            </AuthWindow>
         );
     }
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto p-8 bg-white space-y-6">
-            <div className="text-center">
-                <h2 className="text-2xl font-bold mb-6 uppercase">RESET PASSWORD</h2>
-                <p className="text-gray-600">Enter your email address to receive a password reset link.</p>
-            </div>
-
-            {submitError && (
-                <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded uppercase">{submitError}</div>
-            )}
-
+        <AuthWindow
+            title="RESET PASSWORD"
+            subtitle="Enter your email address to receive a password reset link."
+            error={submitError}
+            isForm={true}
+            onSubmit={handleSubmit}
+        >
             <div>
                 <Input
                     id="email"
@@ -109,6 +108,6 @@ export const PasswordResetRequest: React.FC = () => {
             <Button onClick={() => navigate('/login')} variant="outline" className="w-full uppercase">
                 CANCEL
             </Button>
-        </form>
+        </AuthWindow>
     );
 };

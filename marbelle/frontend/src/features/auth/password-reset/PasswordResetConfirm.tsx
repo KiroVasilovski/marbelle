@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
+import { AuthWindow } from '../ui/auth-window';
 import { authService } from '../services/authService';
 import { useFormValidation } from '../../../shared/hooks/useFormValidation';
 import { validationRules, getPasswordStrength } from '../../../shared/lib/validation';
@@ -83,44 +84,43 @@ export const PasswordResetConfirm: React.FC = () => {
 
     if (!token) {
         return (
-            <div className="max-w-md mx-auto p-8 bg-white rounded-lg">
+            <AuthWindow title="INVALID RESET LINK">
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold mb-4 uppercase text-red-600">INVALID RESET LINK</h2>
                     <p className="text-gray-600 mb-6 uppercase">THIS PASSWORD RESET LINK IS INVALID OR HAS EXPIRED</p>
                     <Link to="/password-reset">
                         <Button className="w-full uppercase">REQUEST NEW RESET LINK</Button>
                     </Link>
                 </div>
-            </div>
+            </AuthWindow>
         );
     }
 
     if (showSuccess) {
         return (
-            <div className="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md">
-                <div className="text-center">
-                    <h2 className="text-2xl font-bold mb-4 uppercase text-green-600">PASSWORD RESET SUCCESSFUL</h2>
-                    <p className="text-gray-600 mb-6">
-                        Your password has been successfully reset. You can now sign in with your new password.
-                    </p>
-                    <Button onClick={() => navigate('/login')} variant="secondary" className="w-full uppercase">
-                        SIGN IN
-                    </Button>
-                </div>
-            </div>
+            <AuthWindow
+                title=""
+                success={{
+                    title: "PASSWORD RESET SUCCESSFUL",
+                    message: "Your password has been successfully reset. You can now sign in with your new password.",
+                    action: (
+                        <Button onClick={() => navigate('/login')} variant="secondary" className="w-full uppercase">
+                            SIGN IN
+                        </Button>
+                    )
+                }}
+            >
+            </AuthWindow>
         );
     }
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md space-y-6">
-            <div className="text-center">
-                <h2 className="text-2xl font-bold mb-6 uppercase">SET NEW PASSWORD</h2>
-                <p className="text-gray-600">Please enter your new password below.</p>
-            </div>
-
-            {submitError && (
-                <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded uppercase">{submitError}</div>
-            )}
+        <AuthWindow
+            title="SET NEW PASSWORD"
+            subtitle="Please enter your new password below."
+            error={submitError}
+            isForm={true}
+            onSubmit={handleSubmit}
+        >
 
             <div>
                 <div className="relative">
@@ -187,6 +187,6 @@ export const PasswordResetConfirm: React.FC = () => {
             <Button onClick={() => navigate('/login')} variant="outline" className="w-full uppercase" disabled={isLoading}>
                 CANCEL
             </Button>
-        </form>
+        </AuthWindow>
     );
 };

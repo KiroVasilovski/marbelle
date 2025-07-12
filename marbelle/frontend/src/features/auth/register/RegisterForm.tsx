@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
+import { AuthWindow } from '../ui/auth-window';
 import { useAuth } from '../AuthContext';
 import { useFormValidation } from '../../../shared/hooks/useFormValidation';
 import { validationRules, getPasswordStrength } from '../../../shared/lib/validation';
@@ -128,15 +129,13 @@ export const RegisterForm: React.FC = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto p-8 bg-white space-y-6">
-            <div className="text-center">
-                <h2 className="text-2xl font-bold mb-6 uppercase">CREATE ACCOUNT</h2>
-                <p className="text-gray-600">Join marbell for premium stone products and services.</p>
-            </div>
-
-            {submitError && (
-                <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded uppercase">{submitError}</div>
-            )}
+        <AuthWindow
+            title="CREATE ACCOUNT"
+            subtitle="Join marbell for premium stone products and services."
+            error={submitError}
+            isForm={true}
+            onSubmit={handleSubmit}
+        >
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -274,6 +273,6 @@ export const RegisterForm: React.FC = () => {
                     </Link>
                 </p>
             </div>
-        </form>
+        </AuthWindow>
     );
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
+import { AuthWindow } from '../ui/auth-window';
 import { useAuth } from '../AuthContext';
 import { useFormValidation } from '../../../shared/hooks/useFormValidation';
 import { validationRules } from '../../../shared/lib/validation';
@@ -62,15 +63,13 @@ export const LoginForm: React.FC = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto p-8 bg-white space-y-6">
-            <div className="text-center">
-                <h2 className="text-2xl font-bold mb-6 uppercase">SIGN IN</h2>
-                <p className="text-gray-600">Access your Marbelle account</p>
-            </div>
-
-            {submitError && (
-                <div className="p-3 bg-red-100 border border-red-400 text-red-700 uppercase">{submitError}</div>
-            )}
+        <AuthWindow
+            title="SIGN IN"
+            subtitle="Access your Marbelle account"
+            error={submitError}
+            isForm={true}
+            onSubmit={handleSubmit}
+        >
 
             <div>
                 <Input
@@ -127,6 +126,6 @@ export const LoginForm: React.FC = () => {
             <Button asChild className="w-full uppercase" variant="outline" disabled={isLoading}>
                 <Link to="/register">CREATE ACCOUNT</Link>
             </Button>
-        </form>
+        </AuthWindow>
     );
 };
