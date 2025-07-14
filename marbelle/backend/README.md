@@ -210,6 +210,73 @@ All models use custom table names via `db_table` in their Meta class:
 - `orders.Order` → `orders` table
 - `orders.OrderItem` → `order_items` table
 
+## Production Deployment
+
+### Production Server with Gunicorn
+
+The project includes production-ready server configuration using Gunicorn WSGI server.
+
+#### Docker Production Build
+```bash
+# Build production Docker image
+docker build -f backend/Dockerfile -t marbelle-backend-prod backend/
+
+# Run production container
+docker run -p 8000:8000 --env-file backend/.env marbelle-backend-prod
+```
+
+#### Local Production WSGI Server
+
+**Method 1: Custom Management Command**
+```bash
+# Set production environment
+export DJANGO_SETTINGS_MODULE=marbelle.settings.prod
+
+# Run with Gunicorn using production settings
+python manage.py rungunicorn
+
+# With custom configuration
+python manage.py rungunicorn --workers 4 --port 8000
+```
+
+**Method 2: Direct Gunicorn Command**
+```bash
+# Set production environment and run Gunicorn
+export DJANGO_SETTINGS_MODULE=marbelle.settings.prod
+gunicorn --config gunicorn_config.py marbelle.wsgi:application
+
+# Or with inline parameters
+export DJANGO_SETTINGS_MODULE=marbelle.settings.prod
+gunicorn --bind 0.0.0.0:8000 --workers 4 --timeout 30 marbelle.wsgi:application
+```
+
+**Method 3: Environment Variable in .env**
+```bash
+# Update .env file
+echo "DJANGO_SETTINGS_MODULE=marbelle.settings.prod" >> .env
+
+# Run Gunicorn (will use production settings)
+gunicorn --config gunicorn_config.py marbelle.wsgi:application
+```
+
+#### Production Configuration
+- **Dockerfile**: Production-ready with Gunicorn server
+- **Dockerfile.dev**: Development version with Django dev server
+- **gunicorn_config.py**: Optimized Gunicorn settings for production
+- **Environment Variables**: GUNICORN_WORKERS and GUNICORN_TIMEOUT configurable
+
+#### Key Differences from Development
+- Uses Gunicorn instead of Django development server
+- Production security settings (HTTPS, secure cookies, etc.)
+- Error logging to files instead of console
+- No DEBUG mode
+- Optimized for performance and security
+
+#### Available Endpoints
+- **API Root**: `http://localhost:8000/` - API information and endpoints
+- **Health Check**: `http://localhost:8000/health/` - Server health status
+- **Admin Panel**: `http://localhost:8000/admin/` - Django administration
+
 ## Next Steps
 
 - Django model development for each app
