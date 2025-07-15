@@ -4,35 +4,86 @@ React TypeScript frontend for the Marbelle e-commerce natural stone application.
 
 ## Technology Stack
 
-- **React**: 18+ with TypeScript
+- **React**: 19+ with TypeScript
 - **Build Tool**: Vite 6.3+
 - **Styling**: Tailwind CSS with Shadcn UI components
 - **Routing**: React Router DOM
+- **API Client**: Axios with interceptors
+- **Authentication**: JWT with automatic token refresh
+- **Storage**: Centralized LocalStorage/SessionStorage services
 - **Code Quality**: ESLint with Airbnb preset, Prettier
 - **Package Manager**: npm
 
 ## Project Structure
 
+### Feature-Based Architecture
+
+The project follows a **feature-based architecture** for better scalability and maintainability:
+
 ```
 frontend/
 ├── src/
-│   ├── components/
-│   │   ├── ui/                  # Shadcn UI components
-│   │   │   └── button.tsx
-│   │   └── layout/              # Layout components
-│   │       ├── Layout.tsx
-│   │       ├── Header.tsx
-│   │       └── Footer.tsx
-│   ├── pages/                   # Page components
+│   ├── features/                # Primary organization by business domain/feature
+│   │   └── auth/               # Authentication feature
+│   │       ├── login/
+│   │       │   ├── LoginForm.tsx
+│   │       │   └── LoginPage.tsx
+│   │       ├── register/
+│   │       │   ├── RegisterForm.tsx
+│   │       │   ├── RegisterPage.tsx
+│   │       │   ├── EmailVerification.tsx
+│   │       │   └── EmailVerifyPage.tsx
+│   │       ├── password-reset/
+│   │       │   ├── PasswordResetRequest.tsx
+│   │       │   ├── PasswordResetConfirm.tsx
+│   │       │   └── PasswordResetPage.tsx
+│   │       ├── hooks/           # Auth-specific hooks
+│   │       ├── services/        # Auth-specific services/API calls
+│   │       │   └── authService.ts
+│   │       ├── types/           # Auth-specific types
+│   │       │   └── auth.ts
+│   │       └── AuthContext.tsx  # Auth-specific context
+│   │
+│   ├── shared/                  # Global, highly reusable elements across features
+│   │   ├── api/                 # Central API client and configurations
+│   │   │   ├── ApiClient.ts     # Central class for all API requests
+│   │   │   ├── apiConfig.ts     # Base URL, default headers, timeouts, etc.
+│   │   │   └── interceptors.ts  # Request/response interceptors
+│   │   │
+│   │   ├── storage/             # Central classes for local/session storage
+│   │   │   ├── LocalStorageService.ts
+│   │   │   └── SessionStorageService.ts
+│   │   │
+│   │   ├── components/
+│   │   │   ├── ui/              # Generic UI components (Shadcn)
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── input.tsx
+│   │   │   │   └── label.tsx
+│   │   │   ├── layout/          # Application-level layout components
+│   │   │   │   ├── Footer.tsx
+│   │   │   │   ├── Header.tsx
+│   │   │   │   └── Layout.tsx
+│   │   │   └── ProtectedRoute.tsx # Route protection component
+│   │   ├── hooks/               # Generic, reusable hooks
+│   │   │   └── useFormValidation.ts
+│   │   ├── lib/                 # Generic utility functions
+│   │   │   ├── utils.ts
+│   │   │   └── validation.ts
+│   │   └── types/               # Global, common types
+│   │       └── common.ts
+│   │
+│   ├── pages/                   # Top-level page components
 │   │   ├── Home.tsx
 │   │   ├── Products.tsx
 │   │   └── About.tsx
-│   ├── lib/
-│   │   └── utils.ts             # Utility functions
-│   ├── App.tsx                  # Main application component
+│   │
+│   ├── App.tsx                  # Main application component, handles routing
 │   ├── main.tsx                 # Application entry point
-│   └── index.css                # Global styles with Tailwind directives
-├── public/                      # Static assets
+│   ├── index.css                # Global styles
+│   └── vite-env.d.ts
+│
+├── .env                         # Environment variables
+├── .env.example                 # Environment variables template
 ├── package.json                 # Dependencies and scripts
 ├── tailwind.config.js           # Tailwind CSS configuration
 ├── tsconfig.json               # TypeScript configuration
@@ -41,6 +92,32 @@ frontend/
 ├── .prettierrc                 # Prettier configuration
 ├── Dockerfile                  # Docker container configuration
 └── nginx.conf                  # Nginx configuration for production
+```
+
+### Architecture Benefits
+
+- **🎯 Feature Isolation**: Each feature contains its own components, services, and types
+- **📦 Shared Resources**: Common utilities and components are centralized in `/shared`
+- **🔧 Easy Maintenance**: Related code is co-located, making changes easier
+- **📈 Scalability**: Adding new features (products, orders) follows the same pattern
+- **🧪 Testability**: Feature-based structure makes testing more focused
+
+## Environment Configuration
+
+### Environment Variables
+
+Create a `.env` file in the frontend root directory:
+
+```bash
+# API Configuration
+VITE_API_BASE_URL=http://localhost:8000/api/v1
+
+# Environment
+VITE_APP_ENV=development
+
+# Debug settings (optional)
+VITE_DEBUG_API=true
+VITE_DEBUG_AUTH=true
 ```
 
 ## Setup Instructions
@@ -57,7 +134,7 @@ npm install
 # Start development server
 npm run dev
 
-# The application will be available at http://localhost:5173
+# The application will be available at http://localhost:3000
 ```
 
 ### 3. Build for Production
@@ -152,16 +229,155 @@ npx shadcn-ui@latest add dialog
 - Asset optimization and compression
 - Nginx configuration for SPA routing
 
+## Authentication System
+
+### Features Implemented
+
+- **✅ Complete Authentication Flow**: Registration, login, logout, email verification
+- **✅ Password Reset**: Request and confirmation with secure tokens
+- **✅ JWT Token Management**: Automatic refresh with request queuing
+- **✅ Secure Storage**: LocalStorage/SessionStorage with "Remember Me" functionality
+- **✅ Protected Routes**: Route-level authentication guards
+- **✅ Form Validation**: Real-time validation with password strength indicators
+
+### Authentication Components
+
+```typescript
+// Available authentication components
+import { LoginForm } from './features/auth/login/LoginForm';
+import { RegisterForm } from './features/auth/register/RegisterForm';
+import { PasswordResetRequest } from './features/auth/password-reset/PasswordResetRequest';
+import { EmailVerification } from './features/auth/register/EmailVerification';
+import { ProtectedRoute } from './shared/components/ProtectedRoute';
+
+// Authentication context
+import { useAuth } from './features/auth/AuthContext';
+```
+
+### Using Authentication
+
+```typescript
+// In any component
+import { useAuth } from './features/auth/AuthContext';
+
+function MyComponent() {
+    const { user, isAuthenticated, login, logout } = useAuth();
+    
+    // Component logic here
+}
+```
+
+## API Client System
+
+### Central API Client
+
+The application uses a centralized API client with Axios:
+
+```typescript
+// Features
+- ✅ Automatic token injection
+- ✅ Token refresh with request queuing
+- ✅ Request/Response interceptors
+- ✅ Centralized error handling
+- ✅ TypeScript support
+- ✅ Environment-based configuration
+```
+
+### Using the API Client
+
+```typescript
+import { apiClient } from './shared/api/ApiClient';
+
+// GET request
+const response = await apiClient.get<UserData>('/users/profile');
+
+// POST request
+const response = await apiClient.post<LoginResponse>('/auth/login', {
+    email: 'user@example.com',
+    password: 'password'
+});
+```
+
+### Storage Services
+
+Centralized storage management:
+
+```typescript
+import { localStorageService } from './shared/storage/LocalStorageService';
+import { sessionStorageService } from './shared/storage/SessionStorageService';
+
+// Type-safe storage operations
+localStorageService.setItem('userData', { name: 'John' });
+const userData = localStorageService.getItem<UserData>('userData');
+```
+
+## Adding New Features
+
+### 1. Create Feature Directory
+
+```bash
+mkdir -p src/features/products/{components,services,types,hooks}
+```
+
+### 2. Follow the Pattern
+
+```
+src/features/products/
+├── components/
+│   ├── ProductList.tsx
+│   └── ProductCard.tsx
+├── services/
+│   └── productService.ts
+├── types/
+│   └── product.ts
+├── hooks/
+│   └── useProducts.ts
+└── ProductsContext.tsx (if needed)
+```
+
+### 3. Export from Feature
+
+```typescript
+// src/features/products/index.ts
+export { ProductList } from './components/ProductList';
+export { productService } from './services/productService';
+export type { Product } from './types/product';
+```
+
 ## Integration with Backend
 
-- Backend API available at `http://localhost:8000`
-- Ready for API integration and authentication
-- CORS will be configured in backend for frontend communication
+- **✅ Backend API**: Configured for `http://localhost:8000/api/v1`
+- **✅ CORS Setup**: Frontend development server supported
+- **✅ Authentication**: JWT-based authentication fully integrated
+- **✅ API Documentation**: All endpoints documented in backend API.md
+
+## Development Workflow
+
+### Code Organization Rules
+
+1. **Features**: Business domain-specific code goes in `/features`
+2. **Shared**: Reusable utilities and components go in `/shared`
+3. **Pages**: Top-level route components only
+4. **Types**: Feature-specific types with features, common types in `/shared`
+
+### Import Guidelines
+
+```typescript
+// ✅ Good - Relative imports within features
+import { AuthService } from '../services/authService';
+
+// ✅ Good - Shared utilities
+import { apiClient } from '../../shared/api/ApiClient';
+
+// ❌ Avoid - Cross-feature imports (use shared instead)
+import { ProductService } from '../../products/services/productService';
+```
 
 ## Next Steps
 
-- API client setup for backend communication
-- Authentication system integration
-- Product catalog UI development
-- Shopping cart implementation
-- Form validation and error handling
+The foundation is complete! Ready for:
+
+- ✅ **Authentication System**: Fully implemented and production-ready
+- 🔄 **Product Catalog**: Ready to implement using the same architecture pattern  
+- 🔄 **Shopping Cart**: Can be added as a new feature module
+- 🔄 **Order Management**: Following the established patterns
