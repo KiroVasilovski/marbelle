@@ -1,6 +1,10 @@
-Django==5.2.3
+Django==5.2.4
 python-dotenv==1.0.1
 psycopg2==2.9.10
 Pillow==11.0.0
 ruff==0.8.4
 gunicorn==23.0.0
+djangorestframework==3.16.0
+djangorestframework-simplejwt==5.5.0
+django-cors-headers==4.7.0
+django-ratelimit==4.1.0
