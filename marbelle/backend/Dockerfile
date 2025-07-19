@@ -30,13 +30,17 @@ RUN mkdir -p /app/staticfiles /app/media /app/logs
 # Collect static files
 RUN python manage.py collectstatic --noinput --settings=marbelle.settings.prod
 
+# Copy the entrypoint script and make it executable
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 # Create a non-root user
 RUN adduser --disabled-password --gecos '' appuser \
     && chown -R appuser:appuser /app
 USER appuser
 
 # Expose port
-EXPOSE 8000
+EXPOSE 10000
 
-# Run the application with Gunicorn
-CMD ["gunicorn", "--config", "gunicorn_config.py", "marbelle.wsgi:application"]
+# Run migrations and start the server
+ENTRYPOINT ["/app/entrypoint.sh"]
