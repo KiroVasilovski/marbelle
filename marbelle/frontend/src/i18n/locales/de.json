@@ -1,0 +1,81 @@
+{
+  "auth": {
+    "login": {
+      "title": "ANMELDEN",
+      "subtitle": "Zugang zu Ihrem Marbelle-Konto",
+      "emailPlaceholder": "E-Mail-Adresse",
+      "passwordPlaceholder": "Passwort",
+      "submitButton": "ANMELDEN",
+      "submitButtonLoading": "ANMELDUNG...",
+      "forgotPassword": "Passwort vergessen?",
+      "createAccount": "KONTO ERSTELLEN"
+    },
+    "register": {
+      "title": "KONTO ERSTELLEN",
+      "subtitle": "Treten Sie Marbelle für Premium-Steinprodukte und -dienstleistungen bei.",
+      "firstNamePlaceholder": "Vorname*",
+      "lastNamePlaceholder": "Nachname*",
+      "emailPlaceholder": "E-Mail-Adresse*",
+      "companyPlaceholder": "Unternehmen",
+      "phonePlaceholder": "Telefonnummer",
+      "passwordPlaceholder": "Passwort*",
+      "confirmPasswordPlaceholder": "Passwort bestätigen*",
+      "submitButton": "KONTO ERSTELLEN",
+      "submitButtonLoading": "KONTO WIRD ERSTELLT...",
+      "successTitle": "Registrierung erfolgreich",
+      "successMessage": "Bitte überprüfen Sie Ihre E-Mail für weitere Anweisungen.",
+      "goToLogin": "ZUR ANMELDUNG",
+      "alreadyRegistered": "Bereits registriert?",
+      "signIn": "Anmelden",
+      "passwordStrengthNeeds": "BENÖTIGT"
+    },
+    "passwordReset": {
+      "title": "PASSWORT ZURÜCKSETZEN",
+      "subtitle": "Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten.",
+      "emailPlaceholder": "E-Mail-Adresse",
+      "submitButton": "RESET-E-MAIL SENDEN",
+      "submitButtonLoading": "SENDEN...",
+      "cancel": "ABBRECHEN",
+      "successTitle": "ÜBERPRÜFEN SIE IHRE E-MAIL",
+      "successMessage": "Wenn diese E-Mail registriert ist, erhalten Sie Anweisungen zum Zurücksetzen Ihres Passworts.",
+      "sendAnother": "WEITERE E-MAIL SENDEN",
+      "backToLogin": "ZURÜCK ZUR ANMELDUNG"
+    }
+  },
+  "navigation": {
+    "brand": "MARBELLE",
+    "home": "STARTSEITE",
+    "products": "PRODUKTE",
+    "about": "ÜBER UNS",
+    "welcome": "Hallo, {{firstName}}",
+    "business": "GESCHÄFT",
+    "logout": "ABMELDEN",
+    "login": "ANMELDEN",
+    "register": "REGISTRIEREN"
+  },
+  "home": {
+    "title": "WILLKOMMEN BEI MARBELLE",
+    "subtitle": "PREMIUM NATURSTEIN FÜR ARCHITEKTEN UND DESIGNER",
+    "discoverTitle": "ENTDECKEN SIE UNSERE KOLLEKTION",
+    "discoverDescription": "Erkunden Sie unsere kuratierte Auswahl an Natursteinprodukten einschließlich Platten, Fliesen und Mosaiken.",
+    "browseProducts": "PRODUKTE DURCHSUCHEN",
+    "requestQuote": "ANGEBOT ANFORDERN"
+  },
+  "validation": {
+    "emailRequired": "E-MAIL IST ERFORDERLICH",
+    "validEmailRequired": "GÜLTIGE E-MAIL IST ERFORDERLICH",
+    "passwordRequired": "PASSWORT IST ERFORDERLICH",
+    "passwordRequirements": "PASSWORT MUSS MINDESTENS 8 ZEICHEN MIT GEMISCHTEN FÄLLEN UND ZAHLEN HABEN",
+    "firstNameRequired": "VORNAME IST ERFORDERLICH",
+    "lastNameRequired": "NACHNAME IST ERFORDERLICH",
+    "passwordConfirmationRequired": "PASSWORT-BESTÄTIGUNG IST ERFORDERLICH",
+    "passwordsNoMatch": "PASSWÖRTER STIMMEN NICHT ÜBEREIN",
+    "validPhoneRequired": "GÜLTIGE TELEFONNUMMER IST ERFORDERLICH"
+  },
+  "errors": {
+    "loginFailed": "ANMELDUNG FEHLGESCHLAGEN",
+    "registrationFailed": "REGISTRIERUNG FEHLGESCHLAGEN",
+    "resetRequestFailed": "RESET-ANFRAGE FEHLGESCHLAGEN",
+    "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+  }
+}

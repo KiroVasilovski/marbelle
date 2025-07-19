@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './features/auth/AuthContext';
 import { UnauthenticatedRoute } from './shared/components/ProtectedRoute';
+import './i18n';
 import Layout from './shared/components/layout/Layout';
 import Home from './pages/Home';
 import Products from './pages/Products';

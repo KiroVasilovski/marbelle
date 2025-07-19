@@ -1,0 +1,81 @@
+{
+  "auth": {
+    "login": {
+      "title": "HYRJA",
+      "subtitle": "Qasja në llogarinë tuaj Marbelle",
+      "emailPlaceholder": "Adresa e emailit",
+      "passwordPlaceholder": "Fjalëkalimi",
+      "submitButton": "HYRJA",
+      "submitButtonLoading": "PO HYHET...",
+      "forgotPassword": "Keni harruar fjalëkalimin?",
+      "createAccount": "KRIJO LLOGARI"
+    },
+    "register": {
+      "title": "KRIJO LLOGARI",
+      "subtitle": "Bashkohuni me Marbelle për produkte dhe shërbime të gurit natyror premium.",
+      "firstNamePlaceholder": "Emri*",
+      "lastNamePlaceholder": "Mbiemri*",
+      "emailPlaceholder": "Adresa e emailit*",
+      "companyPlaceholder": "Kompania",
+      "phonePlaceholder": "Numri i telefonit",
+      "passwordPlaceholder": "Fjalëkalimi*",
+      "confirmPasswordPlaceholder": "Konfirmo fjalëkalimin*",
+      "submitButton": "KRIJO LLOGARI",
+      "submitButtonLoading": "PO KRIJOHET LLOGARIA...",
+      "successTitle": "Regjistrimi u krye me sukses",
+      "successMessage": "Ju lutemi kontrolloni emailin tuaj për udhëzime të mëtejshme.",
+      "goToLogin": "SHKO TE HYRJA",
+      "alreadyRegistered": "Tashmë i regjistruar?",
+      "signIn": "Hyrja",
+      "passwordStrengthNeeds": "NEVOJITET"
+    },
+    "passwordReset": {
+      "title": "RIVENDOS FJALËKALIMIN",
+      "subtitle": "Shkruani adresën tuaj të emailit për të marrë një lidhje për rivendosjen e fjalëkalimit.",
+      "emailPlaceholder": "Adresa e emailit",
+      "submitButton": "DËRGO EMAIL RIVENDOSJEJE",
+      "submitButtonLoading": "PO DËRGOHET...",
+      "cancel": "ANULO",
+      "successTitle": "KONTROLLONI EMAILIN TUAJ",
+      "successMessage": "Nëse ky email është i regjistruar, do të merrni udhëzime për rivendosjen e fjalëkalimit tuaj.",
+      "sendAnother": "DËRGO EMAIL TJETËR",
+      "backToLogin": "KTHEHU TE HYRJA"
+    }
+  },
+  "navigation": {
+    "brand": "MARBELLE",
+    "home": "KRYEFAQE",
+    "products": "PRODUKTE",
+    "about": "RRETH NESH",
+    "welcome": "Përshëndetje, {{firstName}}",
+    "business": "BIZNES",
+    "logout": "DALJA",
+    "login": "HYRJA",
+    "register": "REGJISTRIMI"
+  },
+  "home": {
+    "title": "MIRË SE VINI NË MARBELLE",
+    "subtitle": "GUR NATYROR PREMIUM PËR ARKITEKTË DHE DIZAJNERË",
+    "discoverTitle": "ZBULONI KOLEKSIONIN TONË",
+    "discoverDescription": "Eksploroni përzgjedhjen tonë të kujdesshme të produkteve të gurit natyror duke përfshirë pllakat, pllakat dhe mozaikët.",
+    "browseProducts": "SHFLETO PRODUKTET",
+    "requestQuote": "KËRKO OFERTË"
+  },
+  "validation": {
+    "emailRequired": "EMAILI ËSHTË I NEVOJSHËM",
+    "validEmailRequired": "EMAIL I VLEFSHËM ËSHTË I NEVOJSHËM",
+    "passwordRequired": "FJALËKALIMI ËSHTË I NEVOJSHËM",
+    "passwordRequirements": "FJALËKALIMI DUHET TË KETË TË PAKTËN 8 KARAKTERE ME SHKRONJA TË MËDHA DHE TË VOGLA DHE NUMRA",
+    "firstNameRequired": "EMRI ËSHTË I NEVOJSHËM",
+    "lastNameRequired": "MBIEMRI ËSHTË I NEVOJSHËM",
+    "passwordConfirmationRequired": "KONFIRMIMI I FJALËKALIMIT ËSHTË I NEVOJSHËM",
+    "passwordsNoMatch": "FJALËKALIMET NUK PËRPUTHEN",
+    "validPhoneRequired": "NUMRI I VLEFSHËM I TELEFONIT ËSHTË I NEVOJSHËM"
+  },
+  "errors": {
+    "loginFailed": "HYRJA DËSHTOI",
+    "registrationFailed": "REGJISTRIMI DËSHTOI",
+    "resetRequestFailed": "KËRKESA PËR RIVENDOSJE DËSHTOI",
+    "generic": "Ndodhi një gabim. Ju lutemi provoni përsëri."
+  }
+}

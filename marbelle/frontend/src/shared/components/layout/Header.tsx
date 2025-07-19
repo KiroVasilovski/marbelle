@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { useAuth } from '../../../features/auth/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 function Header() {
     const { isAuthenticated, user, logout } = useAuth();
+    const { t } = useTranslation();
 
     const handleLogout = () => {
         logout();
@@ -15,44 +17,44 @@ function Header() {
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center">
                         <Link to="/" className="text-2xl font-bold text-gray-900 uppercase tracking-wide">
-                            MARBELLE
+                            {t('navigation.brand')}
                         </Link>
                     </div>
                     <nav className="hidden md:flex items-center space-x-8">
                         <Link to="/" className="text-gray-700 hover:text-gray-900 uppercase tracking-wide">
-                            HOME
+                            {t('navigation.home')}
                         </Link>
                         <Link to="/products" className="text-gray-700 hover:text-gray-900 uppercase tracking-wide">
-                            PRODUCTS
+                            {t('navigation.products')}
                         </Link>
                         <Link to="/about" className="text-gray-700 hover:text-gray-900 uppercase tracking-wide">
-                            ABOUT
+                            {t('navigation.about')}
                         </Link>
                     </nav>
                     <div className="flex items-center space-x-4">
                         {isAuthenticated ? (
                             <>
                                 <div className="text-sm text-gray-700 uppercase">
-                                    WELCOME, {user?.first_name}
+                                    {t('navigation.welcome', { firstName: user?.first_name || '' })}
                                     {user?.is_business_customer && (
                                         <span className="ml-1 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded uppercase">
-                                            BUSINESS
+                                            {t('navigation.business')}
                                         </span>
                                     )}
                                 </div>
                                 <Button variant="outline" onClick={handleLogout} className="uppercase">
-                                    LOGOUT
+                                    {t('navigation.logout')}
                                 </Button>
                             </>
                         ) : (
                             <>
                                 <Link to="/login">
                                     <Button variant="outline" className="uppercase">
-                                        LOGIN
+                                        {t('navigation.login')}
                                     </Button>
                                 </Link>
                                 <Link to="/register">
-                                    <Button className="uppercase">REGISTER</Button>
+                                    <Button className="uppercase">{t('navigation.register')}</Button>
                                 </Link>
                             </>
                         )}

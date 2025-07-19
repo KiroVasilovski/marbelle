@@ -1,0 +1,81 @@
+{
+  "auth": {
+    "login": {
+      "title": "SIGN IN",
+      "subtitle": "Access your Marbelle account",
+      "emailPlaceholder": "Email Address",
+      "passwordPlaceholder": "Password",
+      "submitButton": "SIGN IN",
+      "submitButtonLoading": "SIGNING IN...",
+      "forgotPassword": "Forgot your password?",
+      "createAccount": "CREATE ACCOUNT"
+    },
+    "register": {
+      "title": "CREATE ACCOUNT",
+      "subtitle": "Join marbelle for premium stone products and services.",
+      "firstNamePlaceholder": "First Name*",
+      "lastNamePlaceholder": "Last Name*",
+      "emailPlaceholder": "Email Address*",
+      "companyPlaceholder": "Company",
+      "phonePlaceholder": "Phone Number",
+      "passwordPlaceholder": "Password*",
+      "confirmPasswordPlaceholder": "Confirm Password*",
+      "submitButton": "CREATE ACCOUNT",
+      "submitButtonLoading": "CREATING ACCOUNT...",
+      "successTitle": "Registration successful",
+      "successMessage": "Please check your Email for further instructions.",
+      "goToLogin": "GO TO LOGIN",
+      "alreadyRegistered": "Already registered?",
+      "signIn": "Sign in",
+      "passwordStrengthNeeds": "NEEDS"
+    },
+    "passwordReset": {
+      "title": "RESET PASSWORD",
+      "subtitle": "Enter your email address to receive a password reset link.",
+      "emailPlaceholder": "Email Address",
+      "submitButton": "SEND RESET EMAIL",
+      "submitButtonLoading": "SENDING...",
+      "cancel": "CANCEL",
+      "successTitle": "CHECK YOUR EMAIL",
+      "successMessage": "If this email is registered, you will receive instructions to reset your password.",
+      "sendAnother": "SEND ANOTHER EMAIL",
+      "backToLogin": "BACK TO LOGIN"
+    }
+  },
+  "navigation": {
+    "brand": "MARBELLE",
+    "home": "HOME",
+    "products": "PRODUCTS",
+    "about": "ABOUT",
+    "welcome": "Hello, {{firstName}}",
+    "business": "BUSINESS",
+    "logout": "LOGOUT",
+    "login": "LOGIN",
+    "register": "REGISTER"
+  },
+  "home": {
+    "title": "WELCOME TO MARBELLE",
+    "subtitle": "PREMIUM NATURAL STONE FOR ARCHITECTS AND DESIGNERS",
+    "discoverTitle": "DISCOVER OUR COLLECTION",
+    "discoverDescription": "Explore our curated selection of natural stone products including slabs, tiles, and mosaics.",
+    "browseProducts": "BROWSE PRODUCTS",
+    "requestQuote": "REQUEST QUOTE"
+  },
+  "validation": {
+    "emailRequired": "EMAIL IS REQUIRED",
+    "validEmailRequired": "VALID EMAIL IS REQUIRED",
+    "passwordRequired": "PASSWORD IS REQUIRED",
+    "passwordRequirements": "PASSWORD MUST BE AT LEAST 8 CHARACTERS WITH MIXED CASE AND NUMBERS",
+    "firstNameRequired": "FIRST NAME IS REQUIRED",
+    "lastNameRequired": "LAST NAME IS REQUIRED",
+    "passwordConfirmationRequired": "PASSWORD CONFIRMATION IS REQUIRED",
+    "passwordsNoMatch": "PASSWORDS DO NOT MATCH",
+    "validPhoneRequired": "VALID PHONE NUMBER IS REQUIRED"
+  },
+  "errors": {
+    "loginFailed": "LOGIN FAILED",
+    "registrationFailed": "REGISTRATION FAILED",
+    "resetRequestFailed": "RESET REQUEST FAILED",
+    "generic": "An error occurred. Please try again."
+  }
+}

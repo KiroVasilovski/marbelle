@@ -6,6 +6,7 @@ import { AuthWindow } from '../ui/auth-window';
 import { useAuth } from '../AuthContext';
 import { useFormValidation } from '../../../shared/hooks/useFormValidation';
 import { validationRules } from '../../../shared/lib/validation';
+import { useTranslation } from 'react-i18next';
 import type { LoginCredentials } from '../types/auth';
 import { Eye, EyeOff } from "lucide-react";
 
@@ -14,29 +15,11 @@ const initialValues = {
     password: '',
 };
 
-const validation = {
-    email:
-        [
-            {
-                validator: validationRules.required,
-                message: 'EMAIL IS REQUIRED'
-            },
-            {
-                validator: validationRules.email,
-                message: 'VALID EMAIL IS REQUIRED'
-            },
-        ],
-    password:
-        [
-            {
-                validator: validationRules.required,
-                message: 'PASSWORD IS REQUIRED'
-            }
-        ],
-};
+// Validation will be created inside component to access labels
 
 export const LoginForm: React.FC = () => {
     const { login } = useAuth();
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
     const [showPassword, setShowPassword] = useState(false);
@@ -44,6 +27,25 @@ export const LoginForm: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const from = location.state?.from?.pathname || '/';
+
+    const validation = {
+        email: [
+            {
+                validator: validationRules.required,
+                message: t('validation.emailRequired')
+            },
+            {
+                validator: validationRules.email,
+                message: t('validation.validEmailRequired')
+            },
+        ],
+        password: [
+            {
+                validator: validationRules.required,
+                message: t('validation.passwordRequired')
+            }
+        ],
+    };
 
     const { values, errors, touched, setValue, setTouched, validateAll } = useFormValidation(initialValues, validation);
 
@@ -60,7 +62,7 @@ export const LoginForm: React.FC = () => {
             await login(values as LoginCredentials);
             navigate(from, { replace: true });
         } catch (error) {
-            setSubmitError(error instanceof Error ? error.message : 'LOGIN FAILED');
+            setSubmitError(error instanceof Error ? error.message : t('errors.loginFailed'));
         } finally {
             setIsLoading(false);
         }
@@ -68,8 +70,8 @@ export const LoginForm: React.FC = () => {
 
     return (
         <AuthWindow
-            title="SIGN IN"
-            subtitle="Access your Marbelle account"
+            title={t('auth.login.title')}
+            subtitle={t('auth.login.subtitle')}
             error={submitError}
             isForm={true}
             onSubmit={handleSubmit}
@@ -83,7 +85,7 @@ export const LoginForm: React.FC = () => {
                     onChange={(e) => setValue('email', e.target.value)}
                     onBlur={() => setTouched('email')}
                     className={errors.email && touched.email ? 'border-red-500' : ''}
-                    placeholder="Email Address"
+                    placeholder={t('auth.login.emailPlaceholder')}
                     autoComplete="email"
                 />
                 {errors.email && touched.email && <p className="text-red-500 text-xs mt-1 uppercase">{errors.email}</p>}
@@ -101,7 +103,7 @@ export const LoginForm: React.FC = () => {
                             ? "border-red-500 pr-10"
                             : "pr-10"
                     }
-                    placeholder="Password"
+                    placeholder={t('auth.login.passwordPlaceholder')}
                     autoComplete="current-password"
                 />
                 <button
@@ -119,16 +121,16 @@ export const LoginForm: React.FC = () => {
 
             <div className="flex items-center">
                 <Link to="/password-reset" className="text-sm text-gray-500 hover:underline">
-                    Forgot your password?
+                    {t('auth.login.forgotPassword')}
                 </Link>
             </div>
 
             <Button type="submit" className="w-full uppercase" variant="secondary" disabled={isLoading}>
-                {isLoading ? 'SIGNING IN...' : 'SIGN IN'}
+                {isLoading ? t('auth.login.submitButtonLoading') : t('auth.login.submitButton')}
             </Button>
 
             <Button asChild className="w-full uppercase" variant="outline" disabled={isLoading}>
-                <Link to="/register">CREATE ACCOUNT</Link>
+                <Link to="/register">{t('auth.login.createAccount')}</Link>
             </Button>
         </AuthWindow>
     );
