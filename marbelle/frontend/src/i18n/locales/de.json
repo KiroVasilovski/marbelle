@@ -1,0 +1,155 @@
+{
+    "auth": {
+        "login": {
+            "title": "ANMELDEN",
+            "subtitle": "Zugang zu Ihrem Marbelle-Konto",
+            "emailPlaceholder": "E-Mail-Adresse",
+            "passwordPlaceholder": "Passwort",
+            "submitButton": "ANMELDEN",
+            "submitButtonLoading": "ANMELDUNG...",
+            "forgotPassword": "Passwort vergessen?",
+            "createAccount": "KONTO ERSTELLEN"
+        },
+        "register": {
+            "title": "KONTO ERSTELLEN",
+            "subtitle": "Treten Sie Marbelle für Premium-Steinprodukte und -dienstleistungen bei.",
+            "firstNamePlaceholder": "Vorname*",
+            "lastNamePlaceholder": "Nachname*",
+            "emailPlaceholder": "E-Mail-Adresse*",
+            "companyPlaceholder": "Unternehmen",
+            "phonePlaceholder": "Telefonnummer",
+            "passwordPlaceholder": "Passwort*",
+            "confirmPasswordPlaceholder": "Passwort bestätigen*",
+            "submitButton": "KONTO ERSTELLEN",
+            "submitButtonLoading": "KONTO WIRD ERSTELLT...",
+            "successTitle": "Registrierung erfolgreich",
+            "successMessage": "Bitte überprüfen Sie Ihre E-Mail für weitere Anweisungen.",
+            "goToLogin": "ZUR ANMELDUNG",
+            "alreadyRegistered": "Bereits registriert?",
+            "signIn": "Anmelden",
+            "passwordStrengthNeeds": "BENÖTIGT"
+        },
+        "passwordReset": {
+            "title": "PASSWORT ZURÜCKSETZEN",
+            "subtitle": "Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten.",
+            "emailPlaceholder": "E-Mail-Adresse",
+            "submitButton": "RESET-E-MAIL SENDEN",
+            "submitButtonLoading": "SENDEN...",
+            "cancel": "ABBRECHEN",
+            "successTitle": "ÜBERPRÜFEN SIE IHRE E-MAIL",
+            "successMessage": "Wenn diese E-Mail registriert ist, erhalten Sie Anweisungen zum Zurücksetzen Ihres Passworts.",
+            "sendAnother": "WEITERE E-MAIL SENDEN",
+            "backToLogin": "ZURÜCK ZUR ANMELDUNG"
+        }
+    },
+    "header": {
+        "brand": "MARBELLE",
+        "home": "STARTSEITE",
+        "products": "PRODUKTE",
+        "about": "ÜBER UNS",
+        "welcome": "Hallo, {{firstName}}",
+        "business": "GESCHÄFT",
+        "logout": "ABMELDEN",
+        "login": "ANMELDEN",
+        "register": "REGISTRIEREN"
+    },
+    "footer": {
+        "description": "Hochwertiger Naturstein für Architekten, Designer und Bauunternehmer.",
+        "products": {
+            "title": "PRODUKTE",
+            "marble": "Marmor",
+            "tiles": "Fliesen",
+            "mosaics": "Mosaike"
+        },
+        "company": {
+            "title": "UNTERNEHMEN",
+            "about": "Über uns",
+            "contact": "Kontaktieren sie uns",
+            "career": "Karriere"
+        },
+        "support": {
+            "title": "UNTERSTÜTZUNG",
+            "help": "Hilfezentrum",
+            "shipping": "Versandinformationen",
+            "returns": "Rücksendungen"
+        },
+        "shippingTo": "Versand an:",
+        "copyright": "© 2025 Marbelle. Alle Rechte vorbehalten."
+    },
+    "pages": {
+        "home": {
+            "title": "WILLKOMMEN BEI MARBELLE",
+            "subtitle": "Premium naturstein für Architekten und Designer",
+            "discoverTitle": "ENTDECKEN SIE UNSERE KOLLEKTION",
+            "discoverDescription": "Erkunden Sie unsere kuratierte Auswahl an Natursteinprodukten einschließlich Platten, Fliesen und Mosaiken.",
+            "browseProducts": "PRODUKTE DURCHSUCHEN",
+            "requestQuote": "ANGEBOT ANFORDERN"
+        },
+        "about": {
+            "title": "Über MARBELLE",
+            "missionTitle": "UNSERE MISSION",
+            "missionDescription": "Marbelle bietet Premium-Natursteinprodukte und -dienstleistungen für Architekten, Designer und Bauunternehmer. Unser Ziel ist es, außergewöhnliche Qualität und Service zu liefern.",
+            "visionTitle": "UNSERE VISION",
+            "visionDescription": "Wir streben danach, die erste Wahl für Natursteinlösungen zu sein, die Kreativität und Funktionalität vereinen.",
+            "valuesTitle": "UNSERE WERTE",
+            "valuesDescription": "Unser Team von Steinspezialisten hilft Ihnen, das perfekte Material für Ihr Projekt zu finden. Wir bieten Ihnen maßgeschneiderte Angebote, detaillierte Spezifikationen und professionelle Beratung, um sicherzustellen, dass Ihre Vision Wirklichkeit wird."
+        },
+        "products": {
+            "title": "UNSERE PRODUKTE",
+            "slabs": {
+                "title": "MARMORPLATTEN",
+                "description": "Hochwertige Marmorplatten für Arbeitsplatten, Fußböden und Wandverkleidungen.",
+                "button": {
+                    "title": "KOLLEKTION ANSEHEN"
+                }
+            },
+            "tiles": {
+                "title": "NATURFLIESEN",
+                "description": "Elegante Natursteinfliesen für Wände, Böden und dekorative Anwendungen.",
+                "button": {
+                    "title": "KOLLEKTION ANSEHEN"
+                }
+            },
+            "mosaics": {
+                "title": "MOSAIKMUSTER",
+                "description": "Aufwendige Mosaikdesigns für Aufkantungen und Akzente.",
+                "button": {
+                    "title": "KOLLEKTION ANSEHEN"
+                }
+            },
+            "custom": {
+                "title": "Sie können nicht finden, was Sie suchen?",
+                "button": {
+                    "title": "ANGEBOT ANFORDERN"
+                }
+            }
+        }
+    },
+    "validation": {
+        "emailRequired": "E-MAIL IST ERFORDERLICH",
+        "validEmailRequired": "GÜLTIGE E-MAIL IST ERFORDERLICH",
+        "passwordRequired": "PASSWORT IST ERFORDERLICH",
+        "passwordRequirements": "PASSWORT MUSS MINDESTENS 8 ZEICHEN MIT GEMISCHTEN FÄLLEN UND ZAHLEN HABEN",
+        "firstNameRequired": "VORNAME IST ERFORDERLICH",
+        "lastNameRequired": "NACHNAME IST ERFORDERLICH",
+        "passwordConfirmationRequired": "PASSWORT-BESTÄTIGUNG IST ERFORDERLICH",
+        "passwordsNoMatch": "PASSWÖRTER STIMMEN NICHT ÜBEREIN",
+        "validPhoneRequired": "GÜLTIGE TELEFONNUMMER IST ERFORDERLICH"
+    },
+    "errors": {
+        "loginFailed": "ANMELDUNG FEHLGESCHLAGEN",
+        "registrationFailed": "REGISTRIERUNG FEHLGESCHLAGEN",
+        "resetRequestFailed": "RESET-ANFRAGE FEHLGESCHLAGEN",
+        "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+    },
+    "shipping": {
+        "drawer": {
+            "title": "Standort und Sprache auswählen",
+            "shippingLocationLabel": "Versandort",
+            "shippingLocationPlaceholder": "Versandort auswählen",
+            "languageLabel": "Sprache",
+            "languagePlaceholder": "Sprache auswählen",
+            "confirmButton": "Bestätigen"
+        }
+    }
+}

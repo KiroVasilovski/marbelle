@@ -181,11 +181,11 @@ export class ApiClient {
     public async get<T = unknown>(url: string, config?: RequestOptions): Promise<T> {
         try {
             const response: AxiosResponse<ApiResponse<T>> = await this.axiosInstance.get(url, config);
-            
+
             if (!response.data.success) {
                 throw ApiError.fromResponse(response.status, response.data);
             }
-            
+
             return response.data.data as T;
         } catch (error) {
             if (error instanceof ApiError) {
@@ -198,11 +198,11 @@ export class ApiClient {
     public async post<T = unknown>(url: string, data?: unknown, config?: RequestOptions): Promise<T> {
         try {
             const response: AxiosResponse<ApiResponse<T>> = await this.axiosInstance.post(url, data, config);
-            
+
             if (!response.data.success) {
                 throw ApiError.fromResponse(response.status, response.data);
             }
-            
+
             return response.data.data as T;
         } catch (error) {
             if (error instanceof ApiError) {
@@ -215,11 +215,11 @@ export class ApiClient {
     public async put<T = unknown>(url: string, data?: unknown, config?: RequestOptions): Promise<T> {
         try {
             const response: AxiosResponse<ApiResponse<T>> = await this.axiosInstance.put(url, data, config);
-            
+
             if (!response.data.success) {
                 throw ApiError.fromResponse(response.status, response.data);
             }
-            
+
             return response.data.data as T;
         } catch (error) {
             if (error instanceof ApiError) {
@@ -232,11 +232,11 @@ export class ApiClient {
     public async patch<T = unknown>(url: string, data?: unknown, config?: RequestOptions): Promise<T> {
         try {
             const response: AxiosResponse<ApiResponse<T>> = await this.axiosInstance.patch(url, data, config);
-            
+
             if (!response.data.success) {
                 throw ApiError.fromResponse(response.status, response.data);
             }
-            
+
             return response.data.data as T;
         } catch (error) {
             if (error instanceof ApiError) {
@@ -249,11 +249,11 @@ export class ApiClient {
     public async delete<T = unknown>(url: string, config?: RequestOptions): Promise<T> {
         try {
             const response: AxiosResponse<ApiResponse<T>> = await this.axiosInstance.delete(url, config);
-            
+
             if (!response.data.success) {
                 throw ApiError.fromResponse(response.status, response.data);
             }
-            
+
             return response.data.data as T;
         } catch (error) {
             if (error instanceof ApiError) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '../../../shared/components/shadcn/button';
 import { Input } from '../../../shared/components/ui/input';
 import { LoadingSpinner } from '../../../shared/components/ui/loading-spinner';
 import { AuthWindow } from '../ui/auth-window';
@@ -13,17 +13,16 @@ const initialValues = {
 };
 
 const validation = {
-    email:
-        [
-            {
-                validator: validationRules.required,
-                message: 'EMAIL IS REQUIRED'
-            },
-            {
-                validator: validationRules.email,
-                message: 'VALID EMAIL IS REQUIRED'
-            },
-        ],
+    email: [
+        {
+            validator: validationRules.required,
+            message: 'EMAIL IS REQUIRED',
+        },
+        {
+            validator: validationRules.email,
+            message: 'VALID EMAIL IS REQUIRED',
+        },
+    ],
 };
 
 export const EmailVerification: React.FC = () => {
@@ -35,10 +34,7 @@ export const EmailVerification: React.FC = () => {
 
     const token = searchParams.get('token');
 
-    const { values, errors, touched, setValue, setTouched, validateAll } = useFormValidation(
-        initialValues,
-        validation
-    );
+    const { values, errors, touched, setValue, setTouched, validateAll } = useFormValidation(initialValues, validation);
 
     // Auto-verify if token is present in URL
     useEffect(() => {
@@ -71,23 +67,20 @@ export const EmailVerification: React.FC = () => {
         authService
             .resendVerification(values.email)
             .then(() => {
-                navigate('/login')
+                navigate('/login');
             })
             .catch(() => {
                 setIsLoading(false);
             })
             .finally(() => {
-                // 
+                //
             });
     };
 
     // Show loading state while verifying
     if (token && isVerifying) {
         return (
-            <AuthWindow
-                title="VERIFYING EMAIL"
-                subtitle="Please wait while we verify your Email address..."
-            >
+            <AuthWindow title="VERIFYING EMAIL" subtitle="Please wait while we verify your Email address...">
                 <div className="text-center">
                     <LoadingSpinner className="mx-auto mb-6" />
                 </div>
@@ -101,12 +94,18 @@ export const EmailVerification: React.FC = () => {
             <AuthWindow
                 title=""
                 success={{
-                    title: "EMAIL VERIFIED",
-                    message: "Your Email has been successfully verified. Your account is now active and you can sign in.",
+                    title: 'EMAIL VERIFIED',
+                    message:
+                        'Your Email has been successfully verified. Your account is now active and you can sign in.',
                     action: (
                         <>
                             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg
+                                    className="w-6 h-6 text-green-600"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
                                     <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -119,10 +118,9 @@ export const EmailVerification: React.FC = () => {
                                 SIGN IN TO YOUR ACCOUNT
                             </Button>
                         </>
-                    )
+                    ),
                 }}
-            >
-            </AuthWindow>
+            ></AuthWindow>
         );
     }
 
@@ -142,13 +140,20 @@ export const EmailVerification: React.FC = () => {
                         </svg>
                     </div>
                     <h3 className="text-lg text-red-500 mb-2">Verification failed!</h3>
-                    <p className="text-gray-600 mb-4">Please try again or request a new verification email. If you have already verified your email, you can ignore this message.</p>
+                    <p className="text-gray-600 mb-4">
+                        Please try again or request a new verification email. If you have already verified your email,
+                        you can ignore this message.
+                    </p>
                     <div className="space-y-6">
-                        <Button onClick={() => {
-                            searchParams.delete('token');
-                            setSearchParams(searchParams);
-                            setVerificationStatus('pending');
-                        }} variant="secondary" className="w-full uppercase">
+                        <Button
+                            onClick={() => {
+                                searchParams.delete('token');
+                                setSearchParams(searchParams);
+                                setVerificationStatus('pending');
+                            }}
+                            variant="secondary"
+                            className="w-full uppercase"
+                        >
                             RESEND VERIFICATION EMAIL
                         </Button>
                         <Button onClick={() => navigate('/login')} variant="outline" className="w-full uppercase">
@@ -178,9 +183,7 @@ export const EmailVerification: React.FC = () => {
                     placeholder="Email Address"
                     autoComplete="email"
                 />
-                {errors.email && touched.email && (
-                    <p className="text-red-500 text-xs mt-1 uppercase">{errors.email}</p>
-                )}
+                {errors.email && touched.email && <p className="text-red-500 text-xs mt-1 uppercase">{errors.email}</p>}
             </div>
 
             <div className="space-y-6">

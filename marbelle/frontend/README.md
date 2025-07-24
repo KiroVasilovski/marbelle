@@ -37,32 +37,41 @@ frontend/
 │   │       │   ├── PasswordResetRequest.tsx
 │   │       │   ├── PasswordResetConfirm.tsx
 │   │       │   └── PasswordResetPage.tsx
-│   │       ├── hooks/           # Auth-specific hooks
 │   │       ├── services/        # Auth-specific services/API calls
 │   │       │   └── authService.ts
 │   │       ├── types/           # Auth-specific types
 │   │       │   └── auth.ts
+│   │       ├── ui/              # Auth-specific UI components
+│   │       │   └── auth-window.tsx
 │   │       └── AuthContext.tsx  # Auth-specific context
 │   │
 │   ├── shared/                  # Global, highly reusable elements across features
 │   │   ├── api/                 # Central API client and configurations
 │   │   │   ├── ApiClient.ts     # Central class for all API requests
 │   │   │   ├── apiConfig.ts     # Base URL, default headers, timeouts, etc.
+│   │   │   ├── ApiError.ts      # API error handling
 │   │   │   └── interceptors.ts  # Request/response interceptors
 │   │   │
 │   │   ├── storage/             # Central classes for local/session storage
 │   │   │   ├── LocalStorageService.ts
-│   │   │   └── SessionStorageService.ts
+│   │   │   ├── SessionStorageService.ts
+│   │   │   └── StorageService.ts
 │   │   │
 │   │   ├── components/
-│   │   │   ├── ui/              # Generic UI components (Shadcn)
-│   │   │   │   ├── button.tsx
+│   │   │   ├── ui/              # Generic UI components
 │   │   │   │   ├── input.tsx
-│   │   │   │   └── label.tsx
+│   │   │   │   ├── label.tsx
+│   │   │   │   ├── loading-spinner.tsx
+│   │   │   │   └── Select.tsx   # Custom Select wrapper
+│   │   │   ├── shadcn/          # Shadcn UI primitives
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── drawer.tsx
+│   │   │   │   └── select.tsx
 │   │   │   ├── layout/          # Application-level layout components
 │   │   │   │   ├── Footer.tsx
 │   │   │   │   ├── Header.tsx
-│   │   │   │   └── Layout.tsx
+│   │   │   │   ├── Layout.tsx
+│   │   │   │   └── ShippingLanguageDrawer.tsx
 │   │   │   └── ProtectedRoute.tsx # Route protection component
 │   │   ├── hooks/               # Generic, reusable hooks
 │   │   │   └── useFormValidation.ts
@@ -72,6 +81,14 @@ frontend/
 │   │   └── types/               # Global, common types
 │   │       └── common.ts
 │   │
+│   ├── i18n/                    # Internationalization
+│   │   ├── locales/
+│   │   │   ├── en.json          # English translations
+│   │   │   ├── de.json          # German translations
+│   │   │   └── sq.json          # Albanian translations
+│   │   ├── index.ts             # i18n configuration
+│   │   └── types.ts             # i18n type definitions
+│   │
 │   ├── pages/                   # Top-level page components
 │   │   ├── Home.tsx
 │   │   ├── Products.tsx
@@ -79,9 +96,9 @@ frontend/
 │   │
 │   ├── App.tsx                  # Main application component, handles routing
 │   ├── main.tsx                 # Application entry point
-│   ├── index.css                # Global styles
-│   └── vite-env.d.ts
+│   └── vite-env.d.ts            # Vite type definitions
 │
+├── components.json              # Shadcn UI configuration
 ├── .env                         # Environment variables
 ├── .env.example                 # Environment variables template
 ├── package.json                 # Dependencies and scripts
@@ -170,12 +187,14 @@ npx prettier --write src/
 ## Development Standards
 
 ### Code Style
+
 - **Indentation**: 4 spaces for all files (TypeScript, HTML, CSS)
 - **ESLint**: Airbnb preset with TypeScript support
 - **Prettier**: Automatic code formatting on save/commit
 - **File Naming**: PascalCase for components, camelCase for utilities
 
 ### Component Structure
+
 - Use functional components with TypeScript
 - Implement proper prop types and interfaces
 - Follow React hooks best practices
@@ -183,6 +202,7 @@ npx prettier --write src/
 - Leverage Shadcn UI components when available
 
 ### Routing
+
 - Nested routing structure with Layout component
 - Home, Products, and About pages implemented
 - Client-side routing handled by React Router DOM
@@ -200,18 +220,21 @@ docker-compose up --build
 ## Tailwind CSS & Shadcn UI
 
 ### Tailwind Configuration
+
 - Custom color scheme with CSS variables for theming
 - Dark mode support (class-based)
 - Responsive breakpoints configured
 - Animation support with tailwindcss-animate
 
 ### Shadcn UI Components
+
 - Button component implemented as example
 - Utility functions in `src/lib/utils.ts`
 - Path alias `@/` configured for clean imports
 - Ready for additional component installation
 
 ### Adding New Shadcn Components
+
 ```bash
 # Example: Add a new component (when shadcn CLI is available)
 npx shadcn-ui@latest add dialog
@@ -220,11 +243,13 @@ npx shadcn-ui@latest add dialog
 ## Environment Configuration
 
 ### Development
+
 - Vite dev server with hot reload
 - Source maps enabled
 - React DevTools support
 
 ### Production
+
 - Optimized bundle with code splitting
 - Asset optimization and compression
 - Nginx configuration for SPA routing
@@ -262,7 +287,7 @@ import { useAuth } from './features/auth/AuthContext';
 
 function MyComponent() {
     const { user, isAuthenticated, login, logout } = useAuth();
-    
+
     // Component logic here
 }
 ```
@@ -294,7 +319,7 @@ const response = await apiClient.get<UserData>('/users/profile');
 // POST request
 const response = await apiClient.post<LoginResponse>('/auth/login', {
     email: 'user@example.com',
-    password: 'password'
+    password: 'password',
 });
 ```
 
@@ -378,6 +403,6 @@ import { ProductService } from '../../products/services/productService';
 The foundation is complete! Ready for:
 
 - ✅ **Authentication System**: Fully implemented and production-ready
-- 🔄 **Product Catalog**: Ready to implement using the same architecture pattern  
+- 🔄 **Product Catalog**: Ready to implement using the same architecture pattern
 - 🔄 **Shopping Cart**: Can be added as a new feature module
 - 🔄 **Order Management**: Following the established patterns

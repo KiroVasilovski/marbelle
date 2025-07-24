@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '../../../shared/components/shadcn/button';
 import { Input } from '../../../shared/components/ui/input';
 import { AuthWindow } from '../ui/auth-window';
 import { useAuth } from '../AuthContext';
 import { useFormValidation } from '../../../shared/hooks/useFormValidation';
 import { validationRules, getPasswordStrength } from '../../../shared/lib/validation';
+import { useTranslation } from 'react-i18next';
 import type { RegisterData } from '../types/auth';
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from 'lucide-react';
 
 const initialValues = {
     email: '',
@@ -19,71 +20,61 @@ const initialValues = {
     phone: '',
 };
 
-const validation = {
-    email:
-        [
-            {
-                validator: validationRules.required,
-                message: 'EMAIL IS REQUIRED'
-            },
-            {
-                validator: validationRules.email,
-                message: 'VALID EMAIL IS REQUIRED'
-            },
-        ],
-
-    first_name:
-        [
-            {
-                validator: validationRules.required,
-                message: 'FIRST NAME IS REQUIRED'
-            }
-        ],
-
-    last_name:
-        [
-            {
-                validator: validationRules.required,
-                message: 'LAST NAME IS REQUIRED'
-            }
-        ],
-
-    password:
-        [
-            {
-                validator: validationRules.required,
-                message: 'PASSWORD IS REQUIRED'
-            },
-            {
-                validator: validationRules.password,
-                message: 'PASSWORD MUST BE AT LEAST 8 CHARACTERS WITH MIXED CASE AND NUMBERS',
-            },
-        ],
-
-    password_confirm:
-        [
-            {
-                validator: validationRules.required,
-                message: 'PASSWORD CONFIRMATION IS REQUIRED'
-            }
-        ],
-
-    phone:
-        [
-            {
-                validator: validationRules.phone,
-                message: 'VALID PHONE NUMBER IS REQUIRED'
-            }
-        ],
-};
-
 export const RegisterForm: React.FC = () => {
     const { register } = useAuth();
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [submitError, setSubmitError] = useState<string>('');
     const [showSuccess, setShowSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
+    const validation = {
+        email: [
+            {
+                validator: validationRules.required,
+                message: t('validation.emailRequired'),
+            },
+            {
+                validator: validationRules.email,
+                message: t('validation.validEmailRequired'),
+            },
+        ],
+        first_name: [
+            {
+                validator: validationRules.required,
+                message: t('validation.firstNameRequired'),
+            },
+        ],
+        last_name: [
+            {
+                validator: validationRules.required,
+                message: t('validation.lastNameRequired'),
+            },
+        ],
+        password: [
+            {
+                validator: validationRules.required,
+                message: t('validation.passwordRequired'),
+            },
+            {
+                validator: validationRules.password,
+                message: t('validation.passwordRequirements'),
+            },
+        ],
+        password_confirm: [
+            {
+                validator: validationRules.required,
+                message: t('validation.passwordConfirmationRequired'),
+            },
+        ],
+        phone: [
+            {
+                validator: validationRules.phone,
+                message: t('validation.validPhoneRequired'),
+            },
+        ],
+    };
 
     const { values, errors, touched, setValue, setTouched, validateAll, reset } = useFormValidation(
         initialValues,
@@ -92,7 +83,7 @@ export const RegisterForm: React.FC = () => {
 
     // Additional validation for password confirmation
     const passwordMatchError =
-        values.password !== values.password_confirm && touched.password_confirm ? 'PASSWORDS DO NOT MATCH' : '';
+        values.password !== values.password_confirm && touched.password_confirm ? t('validation.passwordsNoMatch') : '';
 
     const passwordStrength = getPasswordStrength(values.password);
 
@@ -110,7 +101,7 @@ export const RegisterForm: React.FC = () => {
             setShowSuccess(true);
             reset();
         } catch (error) {
-            setSubmitError(error instanceof Error ? error.message : 'REGISTRATION FAILED');
+            setSubmitError(error instanceof Error ? error.message : t('errors.registrationFailed'));
         } finally {
             setIsLoading(false);
         }
@@ -121,12 +112,17 @@ export const RegisterForm: React.FC = () => {
             <AuthWindow
                 title=""
                 success={{
-                    title: "Registration successful",
-                    message: "Please check your Email for further instructions.",
+                    title: t('auth.register.successTitle'),
+                    message: t('auth.register.successMessage'),
                     action: (
                         <>
                             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg
+                                    className="w-6 h-6 text-green-600"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
                                     <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -136,10 +132,10 @@ export const RegisterForm: React.FC = () => {
                                 </svg>
                             </div>
                             <Button onClick={() => navigate('/login')} variant="outline" className="w-full uppercase">
-                                GO TO LOGIN
+                                {t('auth.register.goToLogin')}
                             </Button>
                         </>
-                    )
+                    ),
                 }}
             />
         );
@@ -147,13 +143,12 @@ export const RegisterForm: React.FC = () => {
 
     return (
         <AuthWindow
-            title="CREATE ACCOUNT"
-            subtitle="Join marbell for premium stone products and services."
+            title={t('auth.register.title')}
+            subtitle={t('auth.register.subtitle')}
             error={submitError}
             isForm={true}
             onSubmit={handleSubmit}
         >
-
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <Input
@@ -163,7 +158,7 @@ export const RegisterForm: React.FC = () => {
                         onChange={(e) => setValue('first_name', e.target.value)}
                         onBlur={() => setTouched('first_name')}
                         className={errors.first_name && touched.first_name ? 'border-red-500' : ''}
-                        placeholder="First Name*"
+                        placeholder={t('auth.register.firstNamePlaceholder')}
                     />
                     {errors.first_name && touched.first_name && (
                         <p className="text-red-500 text-xs mt-1 uppercase">{errors.first_name}</p>
@@ -178,7 +173,7 @@ export const RegisterForm: React.FC = () => {
                         onChange={(e) => setValue('last_name', e.target.value)}
                         onBlur={() => setTouched('last_name')}
                         className={errors.last_name && touched.last_name ? 'border-red-500' : ''}
-                        placeholder="Last Name*"
+                        placeholder={t('auth.register.lastNamePlaceholder')}
                     />
                     {errors.last_name && touched.last_name && (
                         <p className="text-red-500 text-xs mt-1 uppercase">{errors.last_name}</p>
@@ -194,7 +189,7 @@ export const RegisterForm: React.FC = () => {
                     onChange={(e) => setValue('email', e.target.value)}
                     onBlur={() => setTouched('email')}
                     className={errors.email && touched.email ? 'border-red-500' : ''}
-                    placeholder="Email Address*"
+                    placeholder={t('auth.register.emailPlaceholder')}
                 />
                 {errors.email && touched.email && <p className="text-red-500 text-xs mt-1 uppercase">{errors.email}</p>}
             </div>
@@ -205,7 +200,7 @@ export const RegisterForm: React.FC = () => {
                     type="text"
                     value={values.company_name}
                     onChange={(e) => setValue('company_name', e.target.value)}
-                    placeholder="Company"
+                    placeholder={t('auth.register.companyPlaceholder')}
                 />
             </div>
 
@@ -217,7 +212,7 @@ export const RegisterForm: React.FC = () => {
                     onChange={(e) => setValue('phone', e.target.value)}
                     onBlur={() => setTouched('phone')}
                     className={errors.phone && touched.phone ? 'border-red-500' : ''}
-                    placeholder="Phone Number"
+                    placeholder={t('auth.register.phonePlaceholder')}
                 />
                 {errors.phone && touched.phone && <p className="text-red-500 text-xs mt-1 uppercase">{errors.phone}</p>}
             </div>
@@ -226,12 +221,12 @@ export const RegisterForm: React.FC = () => {
                 <div className="relative">
                     <Input
                         id="password"
-                        type={showPassword ? "text" : "password"}
+                        type={showPassword ? 'text' : 'password'}
                         value={values.password}
                         onChange={(e) => setValue('password', e.target.value)}
                         onBlur={() => setTouched('password')}
                         className={errors.password && touched.password ? 'border-red-500' : ''}
-                        placeholder="Password*"
+                        placeholder={t('auth.register.passwordPlaceholder')}
                     />
                     <button
                         type="button"
@@ -248,14 +243,15 @@ export const RegisterForm: React.FC = () => {
                             {[...Array(4)].map((_, i) => (
                                 <div
                                     key={i}
-                                    className={`h-1 flex-1 rounded ${i < passwordStrength.score ? 'bg-green-500' : 'bg-gray-200'
-                                        }`}
+                                    className={`h-1 flex-1 rounded ${
+                                        i < passwordStrength.score ? 'bg-green-500' : 'bg-gray-200'
+                                    }`}
                                 />
                             ))}
                         </div>
                         {passwordStrength.feedback.length > 0 && (
                             <p className="text-xs text-gray-500 uppercase">
-                                NEEDS: {passwordStrength.feedback.join(', ')}
+                                {t('auth.register.passwordStrengthNeeds')}: {passwordStrength.feedback.join(', ')}
                             </p>
                         )}
                     </div>
@@ -273,20 +269,20 @@ export const RegisterForm: React.FC = () => {
                     onChange={(e) => setValue('password_confirm', e.target.value)}
                     onBlur={() => setTouched('password_confirm')}
                     className={passwordMatchError ? 'border-red-500' : ''}
-                    placeholder="Confirm Password*"
+                    placeholder={t('auth.register.confirmPasswordPlaceholder')}
                 />
                 {passwordMatchError && <p className="text-red-500 text-xs mt-1 uppercase">{passwordMatchError}</p>}
             </div>
 
             <Button type="submit" className="w-full uppercase" variant="secondary" disabled={isLoading}>
-                {isLoading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}
+                {isLoading ? t('auth.register.submitButtonLoading') : t('auth.register.submitButton')}
             </Button>
 
             <div className="text-center">
                 <p className="text-sm text-gray-600">
-                    Already registered?{' '}
+                    {t('auth.register.alreadyRegistered')}{' '}
                     <Link to="/login" className="text-gray-600 hover:underline">
-                        Sign in
+                        {t('auth.register.signIn')}
                     </Link>
                 </p>
             </div>

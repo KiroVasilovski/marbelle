@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '../../../shared/components/shadcn/button';
 import { Input } from '../../../shared/components/ui/input';
 import { AuthWindow } from '../ui/auth-window';
 import { authService } from '../services/authService';
 import { useFormValidation } from '../../../shared/hooks/useFormValidation';
 import { validationRules, getPasswordStrength } from '../../../shared/lib/validation';
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from 'lucide-react';
 
 const initialValues = {
     new_password: '',
@@ -14,24 +14,22 @@ const initialValues = {
 };
 
 const validation = {
-    new_password:
-        [
-            {
-                validator: validationRules.required,
-                message: 'PASSWORD IS REQUIRED'
-            },
-            {
-                validator: validationRules.password,
-                message: 'PASSWORD MUST BE AT LEAST 8 CHARACTERS WITH MIXED CASE AND NUMBERS',
-            },
-        ],
-    new_password_confirm:
-        [
-            {
-                validator: validationRules.required,
-                message: 'PASSWORD CONFIRMATION IS REQUIRED'
-            }
-        ],
+    new_password: [
+        {
+            validator: validationRules.required,
+            message: 'PASSWORD IS REQUIRED',
+        },
+        {
+            validator: validationRules.password,
+            message: 'PASSWORD MUST BE AT LEAST 8 CHARACTERS WITH MIXED CASE AND NUMBERS',
+        },
+    ],
+    new_password_confirm: [
+        {
+            validator: validationRules.required,
+            message: 'PASSWORD CONFIRMATION IS REQUIRED',
+        },
+    ],
 };
 
 export const PasswordResetConfirm: React.FC = () => {
@@ -100,16 +98,15 @@ export const PasswordResetConfirm: React.FC = () => {
             <AuthWindow
                 title=""
                 success={{
-                    title: "PASSWORD RESET SUCCESSFUL",
-                    message: "Your password has been successfully reset. You can now sign in with your new password.",
+                    title: 'PASSWORD RESET SUCCESSFUL',
+                    message: 'Your password has been successfully reset. You can now sign in with your new password.',
                     action: (
                         <Button onClick={() => navigate('/login')} variant="secondary" className="w-full uppercase">
                             SIGN IN
                         </Button>
-                    )
+                    ),
                 }}
-            >
-            </AuthWindow>
+            ></AuthWindow>
         );
     }
 
@@ -121,12 +118,11 @@ export const PasswordResetConfirm: React.FC = () => {
             isForm={true}
             onSubmit={handleSubmit}
         >
-
             <div>
                 <div className="relative">
                     <Input
                         id="new_password"
-                        type={showPassword ? "text" : "password"}
+                        type={showPassword ? 'text' : 'password'}
                         value={values.new_password}
                         onChange={(e) => setValue('new_password', e.target.value)}
                         onBlur={() => setTouched('new_password')}
@@ -149,8 +145,9 @@ export const PasswordResetConfirm: React.FC = () => {
                             {[...Array(4)].map((_, i) => (
                                 <div
                                     key={i}
-                                    className={`h-1 flex-1 rounded ${i < passwordStrength.score ? 'bg-green-500' : 'bg-gray-200'
-                                        }`}
+                                    className={`h-1 flex-1 rounded ${
+                                        i < passwordStrength.score ? 'bg-green-500' : 'bg-gray-200'
+                                    }`}
                                 />
                             ))}
                         </div>
@@ -184,7 +181,12 @@ export const PasswordResetConfirm: React.FC = () => {
                 {isLoading ? 'UPDATING PASSWORD...' : 'UPDATE PASSWORD'}
             </Button>
 
-            <Button onClick={() => navigate('/login')} variant="outline" className="w-full uppercase" disabled={isLoading}>
+            <Button
+                onClick={() => navigate('/login')}
+                variant="outline"
+                className="w-full uppercase"
+                disabled={isLoading}
+            >
                 CANCEL
             </Button>
         </AuthWindow>

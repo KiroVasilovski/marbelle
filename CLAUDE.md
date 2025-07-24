@@ -89,3 +89,61 @@ To keep Claude informed and updated on our progress, a file named `history.md` e
 - After each programming session, we will collaboratively document the work completed during that session in `history.md`.
 - Each session's documentation must be appended to the end of the file and clearly separated from previous entries.
 - Every entry must include the date of the session.
+
+## Frontend Labels System
+The frontend uses a centralized labels system for all text content to support future internationalization and maintain consistency.
+
+### Usage Instructions
+**For all new frontend components, ALWAYS use labels instead of hardcoded text:**
+
+```typescript
+import { useLabels } from '../labels'; // or appropriate path
+
+const MyComponent = () => {
+    const { getLabel, t } = useLabels(); // t is an alias for getLabel
+    
+    return (
+        <div>
+            <h1>{getLabel('section.title')}</h1>
+            <p>{getLabel('section.welcome', { name: user.name })}</p>
+        </div>
+    );
+};
+```
+
+### Adding New Labels
+1. **Add to Configuration**: Update `src/labels/labels.config.ts` with new labels
+2. **Update Types**: Add corresponding types to `src/labels/types.ts` if needed
+3. **Use in Components**: Replace hardcoded text with `getLabel()` calls
+
+### Label Key Structure
+- `auth.*` - Authentication flows (login, register, password reset)
+- `navigation.*` - Header, navigation, and menu items
+- `home.*` - Home page content
+- `validation.*` - Form validation messages
+- `errors.*` - Error messages
+- `[feature].*` - Feature-specific labels (organized by component/page)
+
+### Examples
+```typescript
+// Simple label
+const title = getLabel('auth.login.title');
+
+// Label with variables
+const welcome = getLabel('navigation.welcome', { firstName: user.firstName });
+
+// Form validation
+const validation = {
+    email: [{
+        validator: validationRules.required,
+        message: getLabel('validation.emailRequired')
+    }]
+};
+```
+
+### Important Rules
+- **NEVER use hardcoded text** in JSX or component logic
+- **ALWAYS use labels** for user-facing text
+- **Group related labels** logically in the configuration
+- **Use descriptive key names** that clearly indicate the text purpose
+- **Add variable interpolation** for dynamic content

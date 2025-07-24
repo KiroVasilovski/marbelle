@@ -1,35 +1,36 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '../../../shared/components/shadcn/button';
 import { Input } from '../../../shared/components/ui/input';
 import { AuthWindow } from '../ui/auth-window';
 import { authService } from '../services/authService';
 import { useFormValidation } from '../../../shared/hooks/useFormValidation';
 import { validationRules } from '../../../shared/lib/validation';
+import { useTranslation } from 'react-i18next';
 
 const initialValues = {
     email: '',
 };
 
-const validation = {
-    email:
-        [
-            {
-                validator: validationRules.required,
-                message: 'EMAIL IS REQUIRED'
-            },
-            {
-                validator: validationRules.email,
-                message: 'VALID EMAIL IS REQUIRED'
-            },
-        ],
-};
-
 export const PasswordResetRequest: React.FC = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [submitError, setSubmitError] = useState<string>('');
     const [showSuccess, setShowSuccess] = useState(false);
+
+    const validation = {
+        email: [
+            {
+                validator: validationRules.required,
+                message: t('validation.emailRequired'),
+            },
+            {
+                validator: validationRules.email,
+                message: t('validation.validEmailRequired'),
+            },
+        ],
+    };
 
     const { values, errors, touched, setValue, setTouched, validateAll, reset } = useFormValidation(
         initialValues,
@@ -50,7 +51,7 @@ export const PasswordResetRequest: React.FC = () => {
             setShowSuccess(true);
             reset();
         } catch (error) {
-            setSubmitError(error instanceof Error ? error.message : 'RESET REQUEST FAILED');
+            setSubmitError(error instanceof Error ? error.message : t('errors.resetRequestFailed'));
         } finally {
             setIsLoading(false);
         }
@@ -61,28 +62,31 @@ export const PasswordResetRequest: React.FC = () => {
             <AuthWindow
                 title=""
                 success={{
-                    title: "CHECK YOUR EMAIL",
-                    message: "If this email is registered, you will receive instructions to reset your password.",
+                    title: t('auth.passwordReset.successTitle'),
+                    message: t('auth.passwordReset.successMessage'),
                     action: (
                         <div className="space-y-6">
-                            <Button onClick={() => setShowSuccess(false)} variant="outline" className="w-full uppercase">
-                                SEND ANOTHER EMAIL
+                            <Button
+                                onClick={() => setShowSuccess(false)}
+                                variant="outline"
+                                className="w-full uppercase"
+                            >
+                                {t('auth.passwordReset.sendAnother')}
                             </Button>
                             <Button asChild className="w-full uppercase" variant="secondary">
-                                <Link to="/login">BACK TO LOGIN</Link>
+                                <Link to="/login">{t('auth.passwordReset.backToLogin')}</Link>
                             </Button>
                         </div>
-                    )
+                    ),
                 }}
-            >
-            </AuthWindow>
+            ></AuthWindow>
         );
     }
 
     return (
         <AuthWindow
-            title="RESET PASSWORD"
-            subtitle="Enter your email address to receive a password reset link."
+            title={t('auth.passwordReset.title')}
+            subtitle={t('auth.passwordReset.subtitle')}
             error={submitError}
             isForm={true}
             onSubmit={handleSubmit}
@@ -95,18 +99,18 @@ export const PasswordResetRequest: React.FC = () => {
                     onChange={(e) => setValue('email', e.target.value)}
                     onBlur={() => setTouched('email')}
                     className={errors.email && touched.email ? 'border-red-500' : ''}
-                    placeholder="Email Address"
+                    placeholder={t('auth.passwordReset.emailPlaceholder')}
                     autoComplete="email"
                 />
                 {errors.email && touched.email && <p className="text-red-500 text-xs mt-1 uppercase">{errors.email}</p>}
             </div>
 
             <Button type="submit" className="w-full uppercase" variant="secondary" disabled={isLoading}>
-                {isLoading ? 'SENDING...' : 'SEND RESET EMAIL'}
+                {isLoading ? t('auth.passwordReset.submitButtonLoading') : t('auth.passwordReset.submitButton')}
             </Button>
 
             <Button onClick={() => navigate('/login')} variant="outline" className="w-full uppercase">
-                CANCEL
+                {t('auth.passwordReset.cancel')}
             </Button>
         </AuthWindow>
     );
