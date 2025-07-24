@@ -1,0 +1,155 @@
+{
+    "auth": {
+        "login": {
+            "title": "SIGN IN",
+            "subtitle": "Access your Marbelle account",
+            "emailPlaceholder": "Email Address",
+            "passwordPlaceholder": "Password",
+            "submitButton": "SIGN IN",
+            "submitButtonLoading": "SIGNING IN...",
+            "forgotPassword": "Forgot your password?",
+            "createAccount": "CREATE ACCOUNT"
+        },
+        "register": {
+            "title": "CREATE ACCOUNT",
+            "subtitle": "Join marbelle for premium stone products and services.",
+            "firstNamePlaceholder": "First Name*",
+            "lastNamePlaceholder": "Last Name*",
+            "emailPlaceholder": "Email Address*",
+            "companyPlaceholder": "Company",
+            "phonePlaceholder": "Phone Number",
+            "passwordPlaceholder": "Password*",
+            "confirmPasswordPlaceholder": "Confirm Password*",
+            "submitButton": "CREATE ACCOUNT",
+            "submitButtonLoading": "CREATING ACCOUNT...",
+            "successTitle": "Registration successful",
+            "successMessage": "Please check your Email for further instructions.",
+            "goToLogin": "GO TO LOGIN",
+            "alreadyRegistered": "Already registered?",
+            "signIn": "Sign in",
+            "passwordStrengthNeeds": "NEEDS"
+        },
+        "passwordReset": {
+            "title": "RESET PASSWORD",
+            "subtitle": "Enter your email address to receive a password reset link.",
+            "emailPlaceholder": "Email Address",
+            "submitButton": "SEND RESET EMAIL",
+            "submitButtonLoading": "SENDING...",
+            "cancel": "CANCEL",
+            "successTitle": "CHECK YOUR EMAIL",
+            "successMessage": "If this email is registered, you will receive instructions to reset your password.",
+            "sendAnother": "SEND ANOTHER EMAIL",
+            "backToLogin": "BACK TO LOGIN"
+        }
+    },
+    "header": {
+        "brand": "MARBELLE",
+        "home": "HOME",
+        "products": "PRODUCTS",
+        "about": "ABOUT",
+        "welcome": "Hello, {{firstName}}",
+        "business": "BUSINESS",
+        "logout": "LOGOUT",
+        "login": "LOGIN",
+        "register": "REGISTER"
+    },
+    "footer": {
+        "description": "Premium natural stone for architects, designers, and contractors.",
+        "products": {
+            "title": "PRODUCTS",
+            "marble": "Marble",
+            "tiles": "Tiles",
+            "mosaics": "Mosaics"
+        },
+        "company": {
+            "title": "COMPANY",
+            "about": "About Us",
+            "contact": "Contact Us",
+            "career": "Career"
+        },
+        "support": {
+            "title": "SUPPORT",
+            "help": "Help Center",
+            "shipping": "Shipping Information",
+            "returns": "Returns"
+        },
+        "shippingTo": "Shipping to:",
+        "copyright": "© 2025 Marbelle. All rights reserved."
+    },
+    "pages": {
+        "home": {
+            "title": "Welcome to Marbelle",
+            "subtitle": "Premium natural stone for architects and designers",
+            "discoverTitle": "DISCOVER OUR COLLECTION",
+            "discoverDescription": "Explore our range of marble slabs, tiles, and mosaics designed to elevate your projects.",
+            "browseProducts": "BROWSE PRODUCTS",
+            "requestQuote": "REQUEST QUOTE"
+        },
+        "about": {
+            "title": "About Marbelle",
+            "missionTitle": "OUR MISSION",
+            "missionDescription": "Marbelle provides premium natural stone products and services for architects, designers, and contractors. Our goal is to deliver exceptional quality and service.",
+            "visionTitle": "OUR VISION",
+            "visionDescription": "To be the leading provider of premium natural stone solutions, known for our quality, innovation, and customer service.",
+            "valuesTitle": "OUR VALUES",
+            "valuesDescription": "Our team of stone specialists will help you find the perfect material for your project. We offer customized quotes, detailed specifications and professional advice to ensure your vision becomes a reality."
+        },
+        "products": {
+            "title": "OUR PRODUCTS",
+            "slabs": {
+                "title": "MARBLE SLABS",
+                "description": "Premium marble slabs for countertops, flooring, and feature walls.",
+                "button": {
+                    "title": "VIEW COLLECTION"
+                }
+            },
+            "tiles": {
+                "title": "NATURAL TILES",
+                "description": "Elegant natural stone tiles for walls, floors, and decorative applications.",
+                "button": {
+                    "title": "VIEW COLLECTION"
+                }
+            },
+            "mosaics": {
+                "title": "MOSAIC PATTERNS",
+                "description": "Intricate mosaic designs for backsplashes and accent features.",
+                "button": {
+                    "title": "VIEW COLLECTION"
+                }
+            },
+            "custom": {
+                "title": "CAN'T FIND WHAT YOU'RE LOOKING FOR?",
+                "button": {
+                    "title": "REQUEST CUSTOM QUOTE"
+                }
+            }
+        }
+    },
+    "validation": {
+        "emailRequired": "EMAIL IS REQUIRED",
+        "validEmailRequired": "VALID EMAIL IS REQUIRED",
+        "passwordRequired": "PASSWORD IS REQUIRED",
+        "passwordRequirements": "PASSWORD MUST BE AT LEAST 8 CHARACTERS WITH MIXED CASE AND NUMBERS",
+        "firstNameRequired": "FIRST NAME IS REQUIRED",
+        "lastNameRequired": "LAST NAME IS REQUIRED",
+        "passwordConfirmationRequired": "PASSWORD CONFIRMATION IS REQUIRED",
+        "passwordsNoMatch": "PASSWORDS DO NOT MATCH",
+        "validPhoneRequired": "VALID PHONE NUMBER IS REQUIRED"
+    },
+    "errors": {
+        "loginFailed": "LOGIN FAILED",
+        "registrationFailed": "REGISTRATION FAILED",
+        "resetRequestFailed": "RESET REQUEST FAILED",
+        "generic": "An error occurred. Please try again."
+    },
+    "shipping": {
+        "drawer": {
+            "title": "Select location and language",
+            "shippingLocationLabel": "Shipping location",
+            "shippingLocationPlaceholder": "Select shipping location",
+            "languageLabel": "Language",
+            "languagePlaceholder": "Select language",
+            "confirmButton": "Confirm"
+        }
+    }
+}

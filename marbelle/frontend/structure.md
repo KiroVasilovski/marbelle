@@ -6,7 +6,7 @@ frontend/
 │   │   │   ├── login/
 │   │   │   │   ├── LoginForm.tsx
 │   │   │   │   └── LoginPage.tsx
-│   │   │   ├── register/  
+│   │   │   ├── register/
 │   │   │   │   ├── EmailVerifyPage.tsx
 │   │   │   │   ├── EmailVerifyForm.tsx # Renamed for clarity: it's a form, not a page
 │   │   │   │   ├── RegisterForm.tsx
@@ -24,10 +24,10 @@ frontend/
 │   │   │   └── AuthContext.tsx    # Auth-specific context lives with its feature
 │   │   │
 │   │   ├── products/              # Example of another feature (if it grows)
-│   │   │   ├── 
+│   │   │   ├──
 │   │   │
 │   │   └── marketing/             # Example of a marketing/info feature
-│   │       ├── 
+│   │       ├──
 │   │
 │   ├── shared/                    # Global, highly reusable elements across features
 │   │   ├── api/                    # NEW: Central API client and related configurations

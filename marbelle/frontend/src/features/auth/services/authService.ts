@@ -22,7 +22,7 @@ import type {
 export class AuthService {
     private static instance: AuthService;
 
-    private constructor() { }
+    private constructor() {}
 
     public static getInstance(): AuthService {
         if (!AuthService.instance) {
@@ -112,11 +112,7 @@ export class AuthService {
     /**
      * Confirm Password Reset
      */
-    public async confirmPasswordReset(
-        token: string,
-        newPassword: string,
-        confirmPassword: string
-    ): Promise<void> {
+    public async confirmPasswordReset(token: string, newPassword: string, confirmPassword: string): Promise<void> {
         const data: PasswordResetConfirm = {
             token,
             new_password: newPassword,

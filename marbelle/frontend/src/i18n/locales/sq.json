@@ -1,0 +1,155 @@
+{
+    "auth": {
+        "login": {
+            "title": "HYRJA",
+            "subtitle": "Qasja në llogarinë tuaj Marbelle",
+            "emailPlaceholder": "Adresa e emailit",
+            "passwordPlaceholder": "Fjalëkalimi",
+            "submitButton": "HYRJA",
+            "submitButtonLoading": "PO HYHET...",
+            "forgotPassword": "Keni harruar fjalëkalimin?",
+            "createAccount": "KRIJO LLOGARI"
+        },
+        "register": {
+            "title": "KRIJO LLOGARI",
+            "subtitle": "Bashkohuni me Marbelle për produkte dhe shërbime të gurit natyror premium.",
+            "firstNamePlaceholder": "Emri*",
+            "lastNamePlaceholder": "Mbiemri*",
+            "emailPlaceholder": "Adresa e emailit*",
+            "companyPlaceholder": "Kompania",
+            "phonePlaceholder": "Numri i telefonit",
+            "passwordPlaceholder": "Fjalëkalimi*",
+            "confirmPasswordPlaceholder": "Konfirmo fjalëkalimin*",
+            "submitButton": "KRIJO LLOGARI",
+            "submitButtonLoading": "PO KRIJOHET LLOGARIA...",
+            "successTitle": "Regjistrimi u krye me sukses",
+            "successMessage": "Ju lutemi kontrolloni emailin tuaj për udhëzime të mëtejshme.",
+            "goToLogin": "SHKO TE HYRJA",
+            "alreadyRegistered": "Tashmë i regjistruar?",
+            "signIn": "Hyrja",
+            "passwordStrengthNeeds": "NEVOJITET"
+        },
+        "passwordReset": {
+            "title": "RIVENDOS FJALËKALIMIN",
+            "subtitle": "Shkruani adresën tuaj të emailit për të marrë një lidhje për rivendosjen e fjalëkalimit.",
+            "emailPlaceholder": "Adresa e emailit",
+            "submitButton": "DËRGO EMAIL RIVENDOSJEJE",
+            "submitButtonLoading": "PO DËRGOHET...",
+            "cancel": "ANULO",
+            "successTitle": "KONTROLLONI EMAILIN TUAJ",
+            "successMessage": "Nëse ky email është i regjistruar, do të merrni udhëzime për rivendosjen e fjalëkalimit tuaj.",
+            "sendAnother": "DËRGO EMAIL TJETËR",
+            "backToLogin": "KTHEHU TE HYRJA"
+        }
+    },
+    "header": {
+        "brand": "MARBELLE",
+        "home": "KRYEFAQE",
+        "products": "PRODUKTE",
+        "about": "RRETH NESH",
+        "welcome": "Përshëndetje, {{firstName}}",
+        "business": "BIZNES",
+        "logout": "DALJA",
+        "login": "HYRJA",
+        "register": "REGJISTRIMI"
+    },
+    "footer": {
+        "description": "Gurë natyror premium për arkitektët, dizajnerët dhe kontraktorët.",
+        "products": {
+            "title": "PRODUKTET",
+            "marble": "Mermer",
+            "tiles": "Pllaka",
+            "mosaics": "Mozaikë"
+        },
+        "company": {
+            "title": "KOMPANIA",
+            "about": "Rreth Nesh",
+            "contact": "Na Kontaktoni",
+            "career": "Karriera"
+        },
+        "support": {
+            "title": "SUPORTI",
+            "help": "Qendër Ndihme",
+            "shipping": "Informacioni i Dërgesës",
+            "returns": "Rikthimet"
+        },
+        "shippingTo": "Dërgim në:",
+        "copyright": "© 2025 Marbelle. Të gjitha të drejtat e rezervuara."
+    },
+    "pages": {
+        "home": {
+            "title": "Mirë se vini te Marbelle",
+            "subtitle": "Gurë natyror premium për arkitektët dhe dizajnerët",
+            "discoverTitle": "ZBULO KOLEKSIONIN TONE",
+            "discoverDescription": "Eksploroni gamën tonë të pllakave të mermerit, pllakave dhe mozaikëve të dizajnuara për të ngritur projektet tuaja.",
+            "browseProducts": "SHQYRTO PRODUKTET",
+            "requestQuote": "KËRKO ÇMIM"
+        },
+        "about": {
+            "title": "Rreth Marbelle",
+            "missionTitle": "MISIONI YNË",
+            "missionDescription": "Marbelle ofron produkte dhe shërbime premium të gurit natyror për arkitektët, dizajnerët dhe kontraktorët. Qëllimi ynë është të ofrojmë cilësi dhe shërbim të jashtëzakonshëm.",
+            "visionTitle": "VIZIONI YNË",
+            "visionDescription": "Ne jemi të përkushtuar të jemi lider në industrinë e gurit natyror, duke ofruar produkte inovative dhe zgjidhje që tejkalojnë pritshmëritë e klientëve tanë.",
+            "valuesTitle": "VLERAT TONA",
+            "valuesDescription": "Ekipi ynë i specialistëve të gurit do t'ju ndihmojë të gjeni materialin e përsosur për projektin tuaj. Ne ofrojmë kuota të personalizuara, specifikime të detajuara dhe këshilla profesionale për të siguruar që vizioni juaj të bëhet realitet."
+        },
+        "products": {
+            "title": "PRODUKTET TONA",
+            "slabs": {
+                "title": "PLLAKAT E MERMERIT",
+                "description": "Pllaka mermeri premium për banakë, dysheme dhe mure karakteristike.",
+                "button": {
+                    "title": "SHIKO KOLEKSIONIN"
+                }
+            },
+            "tiles": {
+                "title": "PLLAKA NATYRORE",
+                "description": "Pllaka natyrore të dizajnuara për qëndrueshmëri dhe bukuri.",
+                "button": {
+                    "title": "SHIKO KOLEKSIONIN"
+                }
+            },
+            "mosaics": {
+                "title": "MOSAIC PATTERNS",
+                "description": "Modele mozaiku të hollësishme për mure dhe karakteristika dekorative.",
+                "button": {
+                    "title": "SHIKO KOLEKSIONIN"
+                }
+            },
+            "custom": {
+                "title": "Nuk mund të gjeni atë që po kërkoni?",
+                "button": {
+                    "title": "KËRKO ÇMIM TË PERSONALIZUAR"
+                }
+            }
+        }
+    },
+    "validation": {
+        "emailRequired": "EMAILI ËSHTË I NEVOJSHËM",
+        "validEmailRequired": "EMAIL I VLEFSHËM ËSHTË I NEVOJSHËM",
+        "passwordRequired": "FJALËKALIMI ËSHTË I NEVOJSHËM",
+        "passwordRequirements": "FJALËKALIMI DUHET TË KETË TË PAKTËN 8 KARAKTERE ME SHKRONJA TË MËDHA DHE TË VOGLA DHE NUMRA",
+        "firstNameRequired": "EMRI ËSHTË I NEVOJSHËM",
+        "lastNameRequired": "MBIEMRI ËSHTË I NEVOJSHËM",
+        "passwordConfirmationRequired": "KONFIRMIMI I FJALËKALIMIT ËSHTË I NEVOJSHËM",
+        "passwordsNoMatch": "FJALËKALIMET NUK PËRPUTHEN",
+        "validPhoneRequired": "NUMRI I VLEFSHËM I TELEFONIT ËSHTË I NEVOJSHËM"
+    },
+    "errors": {
+        "loginFailed": "HYRJA DËSHTOI",
+        "registrationFailed": "REGJISTRIMI DËSHTOI",
+        "resetRequestFailed": "KËRKESA PËR RIVENDOSJE DËSHTOI",
+        "generic": "Ndodhi një gabim. Ju lutemi provoni përsëri."
+    },
+    "shipping": {
+        "drawer": {
+            "title": "Zgjidh vendndodhjen dhe gjuhën",
+            "shippingLocationLabel": "Vendndodhja e dërgesës",
+            "shippingLocationPlaceholder": "Zgjidh vendndodhjen e dërgesës",
+            "languageLabel": "Gjuha",
+            "languagePlaceholder": "Zgjidh gjuhën",
+            "confirmButton": "Konfirmo"
+        }
+    }
+}
