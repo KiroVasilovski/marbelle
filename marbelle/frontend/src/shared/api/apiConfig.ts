@@ -24,17 +24,23 @@ export const API_ENDPOINTS = {
         PASSWORD_RESET: '/auth/password-reset/',
         PASSWORD_RESET_CONFIRM: '/auth/password-reset-confirm/',
         RESEND_VERIFICATION: '/auth/resend-verification/',
+        USER_PROFILE: '/auth/user/',
+        CHANGE_PASSWORD: '/auth/change-password/',
+        ADDRESSES: '/auth/addresses/',
+        ADDRESS_DETAIL: '/auth/addresses/:id/',
+        SET_PRIMARY_ADDRESS: '/auth/addresses/:id/set-primary/',
     },
     PRODUCTS: {
         LIST: '/products/',
         DETAIL: '/products/:id/',
         CATEGORIES: '/products/categories/',
     },
-    ORDERS: {
-        LIST: '/orders/',
-        CREATE: '/orders/',
-        DETAIL: '/orders/:id/',
-    },
+    // TODO: Add orders endpoints when orders API is implemented
+    // ORDERS: {
+    //     LIST: '/orders/',
+    //     CREATE: '/orders/',
+    //     DETAIL: '/orders/:id/',
+    // },
 } as const;
 
 // Storage keys
