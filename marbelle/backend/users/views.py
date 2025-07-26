@@ -1,21 +1,27 @@
+from typing import Any
+
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django_ratelimit.decorators import ratelimit
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import EmailVerificationToken, PasswordResetToken, User
+from .models import Address, EmailVerificationToken, PasswordResetToken, User
 from .serializers import (
+    AddressSerializer,
     EmailVerificationSerializer,
+    PasswordChangeSerializer,
     PasswordResetConfirmSerializer,
     TokenSerializer,
     UserLoginSerializer,
+    UserProfileSerializer,
     UserRegistrationSerializer,
     UserSerializer,
 )
@@ -283,3 +289,174 @@ def send_password_reset_email(user: User, token: str) -> None:
         recipient_list=[user.email],
         fail_silently=False,
     )
+
+
+# Dashboard API Views
+
+
+@api_view(["GET", "PUT"])
+@permission_classes([IsAuthenticated])
+def user_profile(request: Request) -> Response:
+    """
+    User profile management endpoint.
+    GET: Retrieve current user profile
+    PUT: Update user profile
+    """
+    user = request.user
+
+    if request.method == "GET":
+        serializer = UserProfileSerializer(user)
+        return Response(
+            {"success": True, "message": "Profile retrieved successfully.", "data": serializer.data},
+            status=status.HTTP_200_OK,
+        )
+
+    elif request.method == "PUT":
+        serializer = UserProfileSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"success": True, "message": "Profile updated successfully.", "data": serializer.data},
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            {"success": False, "message": "Profile update failed.", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def change_password(request: Request) -> Response:
+    """
+    Password change endpoint.
+    """
+    serializer = PasswordChangeSerializer(data=request.data, context={"request": request})
+    if serializer.is_valid():
+        serializer.save()
+        return Response(
+            {"success": True, "message": "Password changed successfully."},
+            status=status.HTTP_200_OK,
+        )
+
+    return Response(
+        {"success": False, "message": "Password change failed.", "errors": serializer.errors},
+        status=status.HTTP_400_BAD_REQUEST,
+    )
+
+
+class AddressViewSet(ModelViewSet):
+    """
+    ViewSet for address management.
+    Provides CRUD operations for user addresses.
+    """
+
+    serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Return addresses for current user only.
+        """
+        return Address.objects.filter(user=self.request.user).order_by("-is_primary", "created_at")
+
+    def perform_destroy(self, instance: Address) -> None:
+        """
+        Custom deletion logic - prevent deletion if it's the only address or used in recent orders.
+        """
+        user = self.request.user
+        address_count = Address.objects.filter(user=user).count()
+
+        if address_count == 1:
+            from rest_framework.exceptions import ValidationError
+
+            raise ValidationError("Cannot delete the only address. Please add another address first.")
+
+        # TODO: Add check for recent orders using this address when orders app is available
+        # For now, just delete the address
+        super().perform_destroy(instance)
+
+    @action(detail=True, methods=["patch"])
+    def set_primary(self, request: Request, pk: int | None = None) -> Response:
+        """
+        Set address as primary.
+        """
+        address = self.get_object()
+
+        # Remove primary status from other addresses
+        Address.objects.filter(user=request.user, is_primary=True).update(is_primary=False)
+
+        # Set this address as primary
+        address.is_primary = True
+        address.save()
+
+        serializer = self.get_serializer(address)
+        return Response(
+            {"success": True, "message": "Primary address updated successfully.", "data": serializer.data},
+            status=status.HTTP_200_OK,
+        )
+
+    def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        """
+        Custom list response format.
+        """
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(
+            {"success": True, "data": {"addresses": serializer.data}},
+            status=status.HTTP_200_OK,
+        )
+
+    def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        """
+        Custom create response format.
+        """
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"success": True, "message": "Address created successfully.", "data": serializer.data},
+                status=status.HTTP_201_CREATED,
+            )
+
+        return Response(
+            {"success": False, "message": "Address creation failed.", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        """
+        Custom update response format.
+        """
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"success": True, "message": "Address updated successfully.", "data": serializer.data},
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            {"success": False, "message": "Address update failed.", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def destroy(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        """
+        Custom delete response format.
+        """
+        try:
+            self.perform_destroy(self.get_object())
+            return Response(
+                {"success": True, "message": "Address deleted successfully."},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            return Response(
+                {"success": False, "message": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

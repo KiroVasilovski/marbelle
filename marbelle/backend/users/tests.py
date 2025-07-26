@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import EmailVerificationToken, PasswordResetToken
+from .models import EmailVerificationToken, PasswordResetToken, Address
 
 User = get_user_model()
 
@@ -258,4 +258,447 @@ class AuthenticationAPITest(APITestCase):
         """Test JWT token verification with invalid token."""
         self.client.credentials(HTTP_AUTHORIZATION="Bearer invalid_token")
         response = self.client.get(self.verify_token_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class AddressModelTest(TestCase):
+    """Test the Address model."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="test@example.com",
+            username="test@example.com",
+            password="TestPassword123",
+        )
+        self.address_data = {
+            "user": self.user,
+            "label": "Home",
+            "first_name": "Test",
+            "last_name": "User",
+            "address_line_1": "123 Main St",
+            "city": "New York",
+            "state": "NY",
+            "postal_code": "10001",
+            "country": "USA",
+        }
+
+    def test_create_address(self):
+        """Test creating an address."""
+        address = Address.objects.create(**self.address_data)
+        self.assertEqual(address.label, "Home")
+        self.assertEqual(address.user, self.user)
+        self.assertTrue(address.is_primary)  # First address should be primary
+
+    def test_address_string_representation(self):
+        """Test address string representation."""
+        address = Address.objects.create(**self.address_data)
+        expected = f"{address.label} - {address.first_name} {address.last_name}"
+        self.assertEqual(str(address), expected)
+
+    def test_primary_address_logic(self):
+        """Test primary address business logic."""
+        # Create first address
+        address1 = Address.objects.create(**self.address_data)
+        self.assertTrue(address1.is_primary)
+
+        # Create second address
+        address2_data = self.address_data.copy()
+        address2_data["label"] = "Office"
+        address2 = Address.objects.create(**address2_data)
+        self.assertFalse(address2.is_primary)
+
+        # Set second address as primary
+        address2.is_primary = True
+        address2.save()
+
+        # Check first address is no longer primary
+        address1.refresh_from_db()
+        self.assertFalse(address1.is_primary)
+        self.assertTrue(address2.is_primary)
+
+    def test_unique_label_per_user(self):
+        """Test address label uniqueness per user."""
+        Address.objects.create(**self.address_data)
+
+        # Try to create another address with same label for same user
+        from django.db import IntegrityError, transaction
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                Address.objects.create(**self.address_data)
+
+        # Different user should be able to use same label
+        user2 = User.objects.create_user(
+            email="test2@example.com",
+            username="test2@example.com",
+            password="TestPassword123",
+        )
+        address2_data = self.address_data.copy()
+        address2_data["user"] = user2
+        address2 = Address.objects.create(**address2_data)
+        self.assertEqual(address2.label, "Home")
+
+
+class DashboardAPITest(APITestCase):
+    """Test dashboard API endpoints."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="dashboard@example.com",
+            username="dashboard@example.com",
+            first_name="Dashboard",
+            last_name="User",
+            company_name="Test Company",
+            phone="+1234567890",
+            password="TestPassword123",
+            is_active=True,
+        )
+
+        # Get JWT token
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+
+        # URLs
+        self.profile_url = reverse("users:user-profile")
+        self.change_password_url = reverse("users:change-password")
+        self.addresses_url = reverse("users:address-list")
+
+    def authenticate(self):
+        """Helper method to authenticate requests."""
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.access_token}")
+
+    def test_get_user_profile(self):
+        """Test GET user profile endpoint."""
+        self.authenticate()
+        response = self.client.get(self.profile_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+        self.assertEqual(response.data["data"]["email"], self.user.email)
+        self.assertEqual(response.data["data"]["first_name"], self.user.first_name)
+        self.assertEqual(response.data["data"]["company_name"], self.user.company_name)
+
+    def test_update_user_profile(self):
+        """Test PUT user profile endpoint."""
+        self.authenticate()
+        update_data = {
+            "first_name": "Updated",
+            "last_name": "Name",
+            "phone": "+9876543210",
+        }
+
+        response = self.client.put(self.profile_url, update_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+        self.assertEqual(response.data["data"]["first_name"], "Updated")
+
+        # Verify user was updated in database
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, "Updated")
+
+    def test_update_profile_duplicate_email_ignored(self):
+        """Test profile update with duplicate email is silently ignored."""
+        # Create another user
+        User.objects.create_user(
+            email="existing@example.com",
+            username="existing@example.com",
+            password="TestPassword123",
+        )
+
+        self.authenticate()
+        update_data = {"email": "existing@example.com", "first_name": "Updated"}
+
+        response = self.client.put(self.profile_url, update_data, format="json")
+
+        # Should succeed but email change should be silently ignored
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+
+        # Verify email was NOT changed (security feature)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, "dashboard@example.com")  # Original email
+        self.assertEqual(self.user.first_name, "Updated")  # Other fields updated
+
+    def test_profile_requires_authentication(self):
+        """Test profile endpoints require authentication."""
+        response = self.client.get(self.profile_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_change_password(self):
+        """Test password change endpoint."""
+        self.authenticate()
+        password_data = {
+            "current_password": "TestPassword123",
+            "new_password": "NewPassword456",
+            "new_password_confirm": "NewPassword456",
+        }
+
+        response = self.client.post(self.change_password_url, password_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+
+        # Verify password was changed
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("NewPassword456"))
+
+    def test_change_password_invalid_current(self):
+        """Test password change with invalid current password."""
+        self.authenticate()
+        password_data = {
+            "current_password": "WrongPassword",
+            "new_password": "NewPassword456",
+            "new_password_confirm": "NewPassword456",
+        }
+
+        response = self.client.post(self.change_password_url, password_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.data["success"])
+
+    def test_change_password_mismatch_confirmation(self):
+        """Test password change with mismatched confirmation."""
+        self.authenticate()
+        password_data = {
+            "current_password": "TestPassword123",
+            "new_password": "NewPassword456",
+            "new_password_confirm": "DifferentPassword",
+        }
+
+        response = self.client.post(self.change_password_url, password_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.data["success"])
+
+
+class AddressAPITest(APITestCase):
+    """Test address management API endpoints."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="address@example.com",
+            username="address@example.com",
+            password="TestPassword123",
+            is_active=True,
+        )
+
+        # Get JWT token
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+
+        # URLs
+        self.addresses_url = reverse("users:address-list")
+
+        # Address data
+        self.address_data = {
+            "label": "Home",
+            "first_name": "Test",
+            "last_name": "User",
+            "address_line_1": "123 Main St",
+            "city": "New York",
+            "state": "NY",
+            "postal_code": "10001",
+            "country": "USA",
+        }
+
+    def authenticate(self):
+        """Helper method to authenticate requests."""
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.access_token}")
+
+    def test_list_addresses_empty(self):
+        """Test listing addresses when user has none."""
+        self.authenticate()
+        response = self.client.get(self.addresses_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+        self.assertEqual(len(response.data["data"]["addresses"]), 0)
+
+    def test_create_address(self):
+        """Test creating an address."""
+        self.authenticate()
+        response = self.client.post(self.addresses_url, self.address_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(response.data["success"])
+        self.assertEqual(response.data["data"]["label"], "Home")
+        self.assertTrue(response.data["data"]["is_primary"])  # First address should be primary
+
+    def test_create_address_validation(self):
+        """Test address creation validation."""
+        self.authenticate()
+        invalid_data = self.address_data.copy()
+        del invalid_data["first_name"]  # Remove required field
+
+        response = self.client.post(self.addresses_url, invalid_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.data["success"])
+
+    def test_create_duplicate_label(self):
+        """Test creating address with duplicate label."""
+        self.authenticate()
+
+        # Create first address
+        self.client.post(self.addresses_url, self.address_data, format="json")
+
+        # Try to create second address with same label
+        response = self.client.post(self.addresses_url, self.address_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.data["success"])
+
+    def test_address_count_limit(self):
+        """Test maximum address count limit."""
+        self.authenticate()
+
+        # Create 10 addresses (maximum allowed)
+        for i in range(10):
+            address_data = self.address_data.copy()
+            address_data["label"] = f"Address{i}"
+            response = self.client.post(self.addresses_url, address_data, format="json")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Try to create 11th address
+        address_data = self.address_data.copy()
+        address_data["label"] = "Address10"
+        response = self.client.post(self.addresses_url, address_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.data["success"])
+
+    def test_list_addresses_with_data(self):
+        """Test listing addresses when user has addresses."""
+        self.authenticate()
+
+        # Create two addresses
+        self.client.post(self.addresses_url, self.address_data, format="json")
+
+        office_data = self.address_data.copy()
+        office_data["label"] = "Office"
+        self.client.post(self.addresses_url, office_data, format="json")
+
+        # List addresses
+        response = self.client.get(self.addresses_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+        self.assertEqual(len(response.data["data"]["addresses"]), 2)
+
+        # Verify primary address comes first
+        addresses = response.data["data"]["addresses"]
+        self.assertTrue(addresses[0]["is_primary"])
+
+    def test_update_address(self):
+        """Test updating an address."""
+        self.authenticate()
+
+        # Create address
+        response = self.client.post(self.addresses_url, self.address_data, format="json")
+        address_id = response.data["data"]["id"]
+
+        # Update address (use PATCH for partial update)
+        update_data = {"city": "Los Angeles", "state": "CA"}
+        update_url = reverse("users:address-detail", kwargs={"pk": address_id})
+        response = self.client.patch(update_url, update_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+        self.assertEqual(response.data["data"]["city"], "Los Angeles")
+
+    def test_delete_address(self):
+        """Test deleting an address."""
+        self.authenticate()
+
+        # Create two addresses
+        self.client.post(self.addresses_url, self.address_data, format="json")
+
+        office_data = self.address_data.copy()
+        office_data["label"] = "Office"
+        response = self.client.post(self.addresses_url, office_data, format="json")
+        address_id = response.data["data"]["id"]
+
+        # Delete address
+        delete_url = reverse("users:address-detail", kwargs={"pk": address_id})
+        response = self.client.delete(delete_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+
+        # Verify address was deleted
+        self.assertEqual(Address.objects.filter(user=self.user).count(), 1)
+
+    def test_delete_last_address_prevented(self):
+        """Test prevention of deleting the last address."""
+        self.authenticate()
+
+        # Create one address
+        response = self.client.post(self.addresses_url, self.address_data, format="json")
+        address_id = response.data["data"]["id"]
+
+        # Try to delete the only address
+        delete_url = reverse("users:address-detail", kwargs={"pk": address_id})
+        response = self.client.delete(delete_url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.data["success"])
+
+    def test_set_primary_address(self):
+        """Test setting an address as primary."""
+        self.authenticate()
+
+        # Create two addresses
+        self.client.post(self.addresses_url, self.address_data, format="json")
+
+        office_data = self.address_data.copy()
+        office_data["label"] = "Office"
+        response = self.client.post(self.addresses_url, office_data, format="json")
+        address_id = response.data["data"]["id"]
+
+        # Set office as primary
+        set_primary_url = reverse("users:address-set-primary", kwargs={"pk": address_id})
+        response = self.client.patch(set_primary_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+        self.assertTrue(response.data["data"]["is_primary"])
+
+        # Verify only one address is primary
+        primary_count = Address.objects.filter(user=self.user, is_primary=True).count()
+        self.assertEqual(primary_count, 1)
+
+    def test_address_user_isolation(self):
+        """Test that users can only access their own addresses."""
+        # Create another user
+        other_user = User.objects.create_user(
+            email="other@example.com",
+            username="other@example.com",
+            password="TestPassword123",
+            is_active=True,
+        )
+
+        # Create address for other user
+        Address.objects.create(
+            user=other_user,
+            label="Other Home",
+            first_name="Other",
+            last_name="User",
+            address_line_1="456 Other St",
+            city="Other City",
+            state="OT",
+            postal_code="12345",
+            country="USA",
+        )
+
+        # Authenticate as first user
+        self.authenticate()
+
+        # Try to list addresses - should only see own addresses
+        response = self.client.get(self.addresses_url)
+        self.assertEqual(len(response.data["data"]["addresses"]), 0)
+
+    def test_addresses_require_authentication(self):
+        """Test address endpoints require authentication."""
+        response = self.client.get(self.addresses_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

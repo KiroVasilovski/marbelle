@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User
+from .models import Address, User
 
 
 @admin.register(User)
@@ -54,3 +54,81 @@ class CustomUserAdmin(UserAdmin):
 
     is_business_customer.boolean = True
     is_business_customer.short_description = "Business Customer"
+
+
+@admin.register(Address)
+class AddressAdmin(admin.ModelAdmin):
+    """
+    Admin configuration for Address model.
+    """
+
+    list_display = (
+        "label",
+        "user",
+        "first_name",
+        "last_name",
+        "city",
+        "state",
+        "country",
+        "is_primary",
+        "created_at",
+    )
+
+    list_filter = ("is_primary", "country", "state", "created_at")
+
+    search_fields = (
+        "user__username",
+        "user__email",
+        "label",
+        "first_name",
+        "last_name",
+        "company",
+        "city",
+        "address_line_1",
+    )
+
+    readonly_fields = ("created_at", "updated_at")
+
+    fieldsets = (
+        (
+            "Address Information",
+            {
+                "fields": (
+                    "user",
+                    "label",
+                    "is_primary",
+                )
+            },
+        ),
+        (
+            "Contact Details",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "company",
+                    "phone",
+                )
+            },
+        ),
+        (
+            "Address",
+            {
+                "fields": (
+                    "address_line_1",
+                    "address_line_2",
+                    "city",
+                    "state",
+                    "postal_code",
+                    "country",
+                )
+            },
+        ),
+        (
+            "Timestamps",
+            {
+                "fields": ("created_at", "updated_at"),
+                "classes": ("collapse",),
+            },
+        ),
+    )
