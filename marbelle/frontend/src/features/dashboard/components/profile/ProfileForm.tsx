@@ -18,7 +18,7 @@ interface FormErrors {
 
 export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCancel }) => {
     const { updateProfile, profileLoading, profileError } = useDashboard();
-    
+
     const [formData, setFormData] = useState<ProfileUpdateData>({
         first_name: user.first_name || '',
         last_name: user.last_name || '',
@@ -42,23 +42,23 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCan
         };
 
         const dataChanged = Object.keys(formData).some(
-            key => formData[key as keyof ProfileUpdateData] !== originalData[key as keyof ProfileUpdateData]
+            (key) => formData[key as keyof ProfileUpdateData] !== originalData[key as keyof ProfileUpdateData]
         );
 
         setHasChanges(dataChanged);
     }, [formData, user]);
 
     const handleInputChange = (field: keyof ProfileUpdateData, value: string) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-        
+        setFormData((prev) => ({ ...prev, [field]: value }));
+
         // Clear error when user starts typing
         if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: '' }));
+            setErrors((prev) => ({ ...prev, [field]: '' }));
         }
     };
 
     const handleBlur = (field: keyof ProfileUpdateData) => {
-        setTouched(prev => ({ ...prev, [field]: true }));
+        setTouched((prev) => ({ ...prev, [field]: true }));
         validateField(field, formData[field]);
     };
 
@@ -123,10 +123,13 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCan
         e.preventDefault();
 
         // Mark all fields as touched
-        const allTouched = Object.keys(formData).reduce((acc, key) => {
-            acc[key] = true;
-            return acc;
-        }, {} as { [key: string]: boolean });
+        const allTouched = Object.keys(formData).reduce(
+            (acc, key) => {
+                acc[key] = true;
+                return acc;
+            },
+            {} as { [key: string]: boolean }
+        );
         setTouched(allTouched);
 
         if (!validateForm()) {
@@ -168,13 +171,14 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCan
 
                 {/* Personal Information Section */}
                 <div>
-                    <h3 className="text-lg font-medium tracking-wide text-neutral-900 mb-4">
-                        PERSONAL INFORMATION
-                    </h3>
-                    
+                    <h3 className="text-lg font-medium tracking-wide text-neutral-900 mb-4">PERSONAL INFORMATION</h3>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label htmlFor="first_name" className="block text-sm font-medium text-neutral-700 mb-2 tracking-wide">
+                            <label
+                                htmlFor="first_name"
+                                className="block text-sm font-medium text-neutral-700 mb-2 tracking-wide"
+                            >
                                 FIRST NAME *
                             </label>
                             <Input
@@ -193,7 +197,10 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCan
                         </div>
 
                         <div>
-                            <label htmlFor="last_name" className="block text-sm font-medium text-neutral-700 mb-2 tracking-wide">
+                            <label
+                                htmlFor="last_name"
+                                className="block text-sm font-medium text-neutral-700 mb-2 tracking-wide"
+                            >
                                 LAST NAME *
                             </label>
                             <Input
@@ -215,13 +222,14 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCan
 
                 {/* Contact Information Section */}
                 <div>
-                    <h3 className="text-lg font-medium tracking-wide text-neutral-900 mb-4">
-                        CONTACT INFORMATION
-                    </h3>
-                    
+                    <h3 className="text-lg font-medium tracking-wide text-neutral-900 mb-4">CONTACT INFORMATION</h3>
+
                     <div className="space-y-4">
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-2 tracking-wide">
+                            <label
+                                htmlFor="email"
+                                className="block text-sm font-medium text-neutral-700 mb-2 tracking-wide"
+                            >
                                 EMAIL ADDRESS *
                             </label>
                             <Input
@@ -245,7 +253,10 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCan
                         </div>
 
                         <div>
-                            <label htmlFor="phone" className="block text-sm font-medium text-neutral-700 mb-2 tracking-wide">
+                            <label
+                                htmlFor="phone"
+                                className="block text-sm font-medium text-neutral-700 mb-2 tracking-wide"
+                            >
                                 PHONE NUMBER
                             </label>
                             <Input
@@ -267,14 +278,18 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCan
 
                 {/* Business Information Section */}
                 <div>
-                    <h3 className="text-lg font-medium tracking-wide text-neutral-900 mb-4">
-                        BUSINESS INFORMATION
-                    </h3>
-                    
+                    <h3 className="text-lg font-medium tracking-wide text-neutral-900 mb-4">BUSINESS INFORMATION</h3>
+
                     <div>
-                        <label htmlFor="company_name" className="block text-sm font-medium text-neutral-700 mb-2 tracking-wide">
+                        <label
+                            htmlFor="company_name"
+                            className="block text-sm font-medium text-neutral-700 mb-2 tracking-wide"
+                        >
                             COMPANY NAME
                         </label>
+                        <p className="text-neutral-500 text-xs mt-1 mb-2 tracking-wide">
+                            Adding a company name will mark your account as a business customer.
+                        </p>
                         <Input
                             id="company_name"
                             type="text"
@@ -284,9 +299,6 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCan
                             placeholder="ENTER YOUR COMPANY NAME (OPTIONAL)"
                             disabled={profileLoading}
                         />
-                        <p className="text-neutral-500 text-xs mt-1 tracking-wide">
-                            ADDING A COMPANY NAME WILL MARK YOUR ACCOUNT AS A BUSINESS CUSTOMER
-                        </p>
                     </div>
                 </div>
 
@@ -300,7 +312,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCan
                         >
                             {profileLoading ? 'SAVING...' : 'SAVE CHANGES'}
                         </Button>
-                        
+
                         <Button
                             type="button"
                             variant="outline"
@@ -312,12 +324,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCan
                     </div>
 
                     {onCancel && (
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={onCancel}
-                            disabled={profileLoading}
-                        >
+                        <Button type="button" variant="ghost" onClick={onCancel} disabled={profileLoading}>
                             CANCEL
                         </Button>
                     )}
@@ -326,9 +333,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCan
                 {/* Change Indicator */}
                 {hasChanges && (
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                        <p className="text-blue-800 text-sm tracking-wide">
-                            YOU HAVE UNSAVED CHANGES
-                        </p>
+                        <p className="text-blue-800 text-sm tracking-wide">YOU HAVE UNSAVED CHANGES</p>
                     </div>
                 )}
             </form>
