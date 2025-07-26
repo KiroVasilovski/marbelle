@@ -1,13 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../../../shared/components/shadcn/button';
 import { useDashboard } from '../DashboardContext';
 
 interface DashboardCard {
     title: string;
     description: string;
     href: string;
-    icon: string;
     count?: number;
     status?: string;
 }
@@ -21,28 +19,24 @@ export const DashboardPage: React.FC = () => {
                 title: 'PROFILE',
                 description: 'Manage your personal information and account details',
                 href: '/dashboard/profile',
-                icon: '👤',
                 status: user?.is_verified ? 'VERIFIED' : 'PENDING VERIFICATION',
             },
             {
                 title: 'ADDRESSES',
                 description: 'Manage your delivery and billing addresses',
                 href: '/dashboard/addresses',
-                icon: '📍',
                 count: addresses.length,
             },
             {
                 title: 'ORDERS',
                 description: 'View your order history and track shipments',
                 href: '/dashboard/orders',
-                icon: '📦',
                 count: orders.length,
             },
             {
                 title: 'PASSWORD',
                 description: 'Change your password and security settings',
                 href: '/dashboard/password',
-                icon: '🔒',
                 status: 'SECURE',
             },
         ];
@@ -50,30 +44,30 @@ export const DashboardPage: React.FC = () => {
 
     const getAccountCompletionPercentage = (): number => {
         if (!user) return 0;
-        
+
         let completed = 0;
         const total = 6;
-        
+
         if (user.first_name) completed++;
         if (user.last_name) completed++;
         if (user.email) completed++;
         if (user.is_verified) completed++;
         if (user.phone) completed++;
         if (addresses.length > 0) completed++;
-        
+
         return Math.round((completed / total) * 100);
     };
 
     const getWelcomeMessage = (): string => {
         if (!user) return 'WELCOME TO YOUR DASHBOARD';
-        
+
         const time = new Date().getHours();
         let greeting = 'WELCOME';
-        
+
         if (time < 12) greeting = 'GOOD MORNING';
         else if (time < 18) greeting = 'GOOD AFTERNOON';
         else greeting = 'GOOD EVENING';
-        
+
         const firstName = user.first_name?.toUpperCase() || '';
         return firstName ? `${greeting}, ${firstName}` : greeting;
     };
@@ -85,29 +79,19 @@ export const DashboardPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-3xl font-light tracking-wider text-neutral-900 mb-2">
-                    {getWelcomeMessage()}
-                </h1>
-                <p className="text-neutral-600 tracking-wide">
-                    MANAGE YOUR ACCOUNT AND VIEW YOUR ACTIVITY
-                </p>
+                <h1 className="text-3xl font-light tracking-wider text-neutral-900 mb-2">{getWelcomeMessage()}</h1>
+                <p className="text-neutral-600 tracking-wide">MANAGE YOUR ACCOUNT AND VIEW YOUR ACTIVITY</p>
             </div>
 
             {/* Account Status Banner */}
             <div className="bg-white rounded-lg border border-neutral-200 p-6 mb-8">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-lg font-medium tracking-wide text-neutral-900 mb-1">
-                            ACCOUNT STATUS
-                        </h2>
-                        <p className="text-sm text-neutral-600">
-                            YOUR PROFILE IS {completionPercentage}% COMPLETE
-                        </p>
+                        <h2 className="text-lg font-medium tracking-wide text-neutral-900 mb-1">ACCOUNT STATUS</h2>
+                        <p className="text-sm text-neutral-600">YOUR PROFILE IS {completionPercentage}% COMPLETE</p>
                     </div>
                     <div className="text-right">
-                        <div className="text-2xl font-light text-neutral-900 mb-1">
-                            {completionPercentage}%
-                        </div>
+                        <div className="text-2xl font-light text-neutral-900 mb-1">{completionPercentage}%</div>
                         <div className="w-24 bg-neutral-200 rounded-full h-2">
                             <div
                                 className="bg-neutral-900 h-2 rounded-full transition-all duration-300"
@@ -120,9 +104,7 @@ export const DashboardPage: React.FC = () => {
                 {/* Quick actions for incomplete profile */}
                 {completionPercentage < 100 && (
                     <div className="mt-4 pt-4 border-t border-neutral-200">
-                        <p className="text-sm text-neutral-600 mb-3 tracking-wide">
-                            COMPLETE YOUR PROFILE:
-                        </p>
+                        <p className="text-sm text-neutral-600 mb-3 tracking-wide">COMPLETE YOUR PROFILE:</p>
                         <div className="flex flex-wrap gap-2">
                             {!user?.is_verified && (
                                 <span className="text-xs bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full font-medium tracking-wide">
@@ -153,42 +135,29 @@ export const DashboardPage: React.FC = () => {
                 <div className="bg-white rounded-lg border border-neutral-200 p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-neutral-600 tracking-wide">
-                                TOTAL ORDERS
-                            </p>
-                            <p className="text-2xl font-light text-neutral-900 mt-1">
-                                {orders.length}
-                            </p>
+                            <p className="text-sm font-medium text-neutral-600 tracking-wide">TOTAL ORDERS</p>
+                            <p className="text-2xl font-light text-neutral-900 mt-1">{orders.length}</p>
                         </div>
-                        <span className="text-2xl">📦</span>
                     </div>
                 </div>
 
                 <div className="bg-white rounded-lg border border-neutral-200 p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-neutral-600 tracking-wide">
-                                SAVED ADDRESSES
-                            </p>
-                            <p className="text-2xl font-light text-neutral-900 mt-1">
-                                {addresses.length}
-                            </p>
+                            <p className="text-sm font-medium text-neutral-600 tracking-wide">SAVED ADDRESSES</p>
+                            <p className="text-2xl font-light text-neutral-900 mt-1">{addresses.length}</p>
                         </div>
-                        <span className="text-2xl">📍</span>
                     </div>
                 </div>
 
                 <div className="bg-white rounded-lg border border-neutral-200 p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-neutral-600 tracking-wide">
-                                ACCOUNT TYPE
-                            </p>
+                            <p className="text-sm font-medium text-neutral-600 tracking-wide">ACCOUNT TYPE</p>
                             <p className="text-lg font-light text-neutral-900 mt-1 tracking-wide">
                                 {user?.is_business_customer ? 'BUSINESS' : 'PERSONAL'}
                             </p>
                         </div>
-                        <span className="text-2xl">{user?.is_business_customer ? '🏢' : '👤'}</span>
                     </div>
                 </div>
             </div>
@@ -204,15 +173,10 @@ export const DashboardPage: React.FC = () => {
                         <div className="flex items-start justify-between">
                             <div className="flex-1">
                                 <div className="flex items-center space-x-3 mb-3">
-                                    <span className="text-2xl">{card.icon}</span>
-                                    <h3 className="text-lg font-medium tracking-wide text-neutral-900">
-                                        {card.title}
-                                    </h3>
+                                    <h3 className="text-lg font-medium tracking-wide text-neutral-900">{card.title}</h3>
                                 </div>
-                                
-                                <p className="text-sm text-neutral-600 mb-4 tracking-wide">
-                                    {card.description}
-                                </p>
+
+                                <p className="text-sm text-neutral-600 mb-4 tracking-wide">{card.description}</p>
 
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-4">
@@ -222,18 +186,21 @@ export const DashboardPage: React.FC = () => {
                                             </span>
                                         )}
                                         {card.status && (
-                                            <span className={`
+                                            <span
+                                                className={`
                                                 text-xs px-2 py-1 rounded-full font-medium tracking-wide
-                                                ${card.status.includes('VERIFIED') || card.status === 'SECURE'
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-yellow-100 text-yellow-800'
+                                                ${
+                                                    card.status.includes('VERIFIED') || card.status === 'SECURE'
+                                                        ? 'bg-green-100 text-green-800'
+                                                        : 'bg-yellow-100 text-yellow-800'
                                                 }
-                                            `}>
+                                            `}
+                                            >
                                                 {card.status}
                                             </span>
                                         )}
                                     </div>
-                                    
+
                                     <span className="text-neutral-400 group-hover:text-neutral-600 transition-colors text-lg">
                                         →
                                     </span>

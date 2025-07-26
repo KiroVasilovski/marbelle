@@ -8,7 +8,6 @@ interface DashboardNavItem {
     id: string;
     label: string;
     href: string;
-    icon: string;
     description: string;
 }
 
@@ -17,28 +16,24 @@ const navigationItems: DashboardNavItem[] = [
         id: 'profile',
         label: 'PROFILE',
         href: '/dashboard/profile',
-        icon: '👤',
         description: 'Manage your personal information',
     },
     {
         id: 'addresses',
         label: 'ADDRESSES',
         href: '/dashboard/addresses',
-        icon: '📍',
         description: 'Manage your delivery addresses',
     },
     {
         id: 'orders',
         label: 'ORDERS',
         href: '/dashboard/orders',
-        icon: '📦',
         description: 'View your order history',
     },
     {
         id: 'password',
         label: 'PASSWORD',
         href: '/dashboard/password',
-        icon: '🔒',
         description: 'Change your password',
     },
 ];
@@ -128,7 +123,6 @@ export const DashboardLayout: React.FC = () => {
                                     `}
                                 >
                                     <div className="flex items-center space-x-3">
-                                        <span className="text-lg">{item.icon}</span>
                                         <div>
                                             <div className="font-medium">{item.label}</div>
                                             <div className="text-xs text-neutral-500 mt-0.5">{item.description}</div>

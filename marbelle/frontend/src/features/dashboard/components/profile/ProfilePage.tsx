@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../../shared/components/shadcn/button';
 import { useDashboard } from '../../DashboardContext';
 import { ProfileForm } from './ProfileForm';
 
 export const ProfilePage: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
+    const navigate = useNavigate();
     const { user, profileLoading, profileError } = useDashboard();
 
     if (!user) {
@@ -19,11 +21,13 @@ export const ProfilePage: React.FC = () => {
 
     const formatJoinDate = (dateString: string): string => {
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        }).toUpperCase();
+        return date
+            .toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            })
+            .toUpperCase();
     };
 
     const getProfileCompleteness = (): { percentage: number; missingFields: string[] } => {
@@ -38,10 +42,11 @@ export const ProfilePage: React.FC = () => {
         const missingFields: string[] = [];
         let completed = 0;
 
-        fields.forEach(field => {
+        fields.forEach((field) => {
             if (user[field.key as keyof typeof user]) {
                 completed++;
-            } else if (field.key !== 'company_name') { // Company is optional
+            } else if (field.key !== 'company_name') {
+                // Company is optional
                 missingFields.push(field.label);
             }
         });
@@ -51,7 +56,7 @@ export const ProfilePage: React.FC = () => {
 
         return {
             percentage: Math.round((completed / 5) * 100), // 5 core fields
-            missingFields
+            missingFields,
         };
     };
 
@@ -61,28 +66,16 @@ export const ProfilePage: React.FC = () => {
                 <div className="mb-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-2xl font-light tracking-wider text-neutral-900">
-                                EDIT PROFILE
-                            </h1>
-                            <p className="text-neutral-600 tracking-wide mt-1">
-                                UPDATE YOUR PERSONAL INFORMATION
-                            </p>
+                            <h1 className="text-2xl font-light tracking-wider text-neutral-900">EDIT PROFILE</h1>
+                            <p className="text-neutral-600 tracking-wide mt-1">UPDATE YOUR PERSONAL INFORMATION</p>
                         </div>
-                        <Button
-                            variant="outline"
-                            onClick={() => setIsEditing(false)}
-                            disabled={profileLoading}
-                        >
+                        <Button variant="outline" onClick={() => setIsEditing(false)} disabled={profileLoading}>
                             CANCEL
                         </Button>
                     </div>
                 </div>
 
-                <ProfileForm 
-                    user={user}
-                    onSuccess={() => setIsEditing(false)}
-                    onCancel={() => setIsEditing(false)}
-                />
+                <ProfileForm user={user} onSuccess={() => setIsEditing(false)} onCancel={() => setIsEditing(false)} />
             </div>
         );
     }
@@ -95,16 +88,10 @@ export const ProfilePage: React.FC = () => {
             <div className="mb-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-light tracking-wider text-neutral-900">
-                            YOUR PROFILE
-                        </h1>
-                        <p className="text-neutral-600 tracking-wide mt-1">
-                            MANAGE YOUR PERSONAL INFORMATION
-                        </p>
+                        <h1 className="text-2xl font-light tracking-wider text-neutral-900">YOUR PROFILE</h1>
+                        <p className="text-neutral-600 tracking-wide mt-1">MANAGE YOUR PERSONAL INFORMATION</p>
                     </div>
-                    <Button onClick={() => setIsEditing(true)}>
-                        EDIT PROFILE
-                    </Button>
+                    <Button onClick={() => setIsEditing(true)}>EDIT PROFILE</Button>
                 </div>
             </div>
 
@@ -118,14 +105,10 @@ export const ProfilePage: React.FC = () => {
             {/* Profile Completeness */}
             <div className="bg-white rounded-lg border border-neutral-200 p-6 mb-6">
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-medium tracking-wide text-neutral-900">
-                        PROFILE COMPLETENESS
-                    </h2>
-                    <span className="text-2xl font-light text-neutral-900">
-                        {percentage}%
-                    </span>
+                    <h2 className="text-lg font-medium tracking-wide text-neutral-900">PROFILE COMPLETENESS</h2>
+                    <span className="text-2xl font-light text-neutral-900">{percentage}%</span>
                 </div>
-                
+
                 <div className="w-full bg-neutral-200 rounded-full h-3 mb-4">
                     <div
                         className="bg-neutral-900 h-3 rounded-full transition-all duration-300"
@@ -135,9 +118,7 @@ export const ProfilePage: React.FC = () => {
 
                 {missingFields.length > 0 && (
                     <div>
-                        <p className="text-sm text-neutral-600 mb-2 tracking-wide">
-                            MISSING INFORMATION:
-                        </p>
+                        <p className="text-sm text-neutral-600 mb-2 tracking-wide">MISSING INFORMATION:</p>
                         <div className="flex flex-wrap gap-2">
                             {missingFields.map((field, index) => (
                                 <span
@@ -156,35 +137,20 @@ export const ProfilePage: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Personal Information */}
                 <div className="bg-white rounded-lg border border-neutral-200 p-6">
-                    <h3 className="text-lg font-medium tracking-wide text-neutral-900 mb-6">
-                        PERSONAL INFORMATION
-                    </h3>
-                    
+                    <h3 className="text-lg font-medium tracking-wide text-neutral-900 mb-6">PERSONAL INFORMATION</h3>
+
                     <div className="space-y-4">
                         <div>
-                            <label className="text-sm font-medium text-neutral-600 tracking-wide">
-                                FULL NAME
-                            </label>
+                            <label className="text-sm font-medium text-neutral-600 tracking-wide">FULL NAME</label>
                             <p className="text-neutral-900 mt-1 tracking-wide">
                                 {user.first_name} {user.last_name}
                             </p>
                         </div>
 
                         <div>
-                            <label className="text-sm font-medium text-neutral-600 tracking-wide">
-                                EMAIL ADDRESS
-                            </label>
+                            <label className="text-sm font-medium text-neutral-600 tracking-wide">EMAIL ADDRESS</label>
                             <div className="flex items-center space-x-3 mt-1">
                                 <p className="text-neutral-900 tracking-wide">{user.email}</p>
-                                <span className={`
-                                    text-xs px-2 py-1 rounded-full font-medium tracking-wide
-                                    ${user.is_verified 
-                                        ? 'bg-green-100 text-green-800' 
-                                        : 'bg-yellow-100 text-yellow-800'
-                                    }
-                                `}>
-                                    {user.is_verified ? 'VERIFIED' : 'UNVERIFIED'}
-                                </span>
                             </div>
                         </div>
 
@@ -199,9 +165,7 @@ export const ProfilePage: React.FC = () => {
 
                         {user.company_name && (
                             <div>
-                                <label className="text-sm font-medium text-neutral-600 tracking-wide">
-                                    COMPANY
-                                </label>
+                                <label className="text-sm font-medium text-neutral-600 tracking-wide">COMPANY</label>
                                 <p className="text-neutral-900 mt-1 tracking-wide">{user.company_name}</p>
                             </div>
                         )}
@@ -210,47 +174,32 @@ export const ProfilePage: React.FC = () => {
 
                 {/* Account Information */}
                 <div className="bg-white rounded-lg border border-neutral-200 p-6">
-                    <h3 className="text-lg font-medium tracking-wide text-neutral-900 mb-6">
-                        ACCOUNT INFORMATION
-                    </h3>
-                    
+                    <h3 className="text-lg font-medium tracking-wide text-neutral-900 mb-6">ACCOUNT INFORMATION</h3>
+
                     <div className="space-y-4">
                         <div>
-                            <label className="text-sm font-medium text-neutral-600 tracking-wide">
-                                ACCOUNT TYPE
-                            </label>
+                            <label className="text-sm font-medium text-neutral-600 tracking-wide">ACCOUNT TYPE</label>
                             <div className="flex items-center space-x-3 mt-1">
                                 <p className="text-neutral-900 tracking-wide">
                                     {user.is_business_customer ? 'BUSINESS CUSTOMER' : 'PERSONAL CUSTOMER'}
                                 </p>
-                                <span className="text-lg">
-                                    {user.is_business_customer ? '🏢' : '👤'}
-                                </span>
                             </div>
                         </div>
 
                         <div>
-                            <label className="text-sm font-medium text-neutral-600 tracking-wide">
-                                MEMBER SINCE
-                            </label>
-                            <p className="text-neutral-900 mt-1 tracking-wide">
-                                {formatJoinDate(user.date_joined)}
-                            </p>
+                            <label className="text-sm font-medium text-neutral-600 tracking-wide">MEMBER SINCE</label>
+                            <p className="text-neutral-900 mt-1 tracking-wide">{formatJoinDate(user.date_joined)}</p>
                         </div>
 
                         <div>
-                            <label className="text-sm font-medium text-neutral-600 tracking-wide">
-                                ACCOUNT STATUS
-                            </label>
+                            <label className="text-sm font-medium text-neutral-600 tracking-wide">ACCOUNT STATUS</label>
                             <div className="mt-1">
-                                <span className={`
-                                    text-xs px-2 py-1 rounded-full font-medium tracking-wide
-                                    ${user.is_active 
-                                        ? 'bg-green-100 text-green-800' 
-                                        : 'bg-red-100 text-red-800'
+                                <span
+                                    className={
+                                        'text-xs px-2 py-1 rounded-full font-medium tracking-wide bg-green-100 text-green-800'
                                     }
-                                `}>
-                                    {user.is_active ? 'ACTIVE' : 'INACTIVE'}
+                                >
+                                    ACTIVE
                                 </span>
                             </div>
                         </div>
@@ -260,32 +209,18 @@ export const ProfilePage: React.FC = () => {
 
             {/* Actions */}
             <div className="mt-8 bg-neutral-50 rounded-lg border border-neutral-200 p-6">
-                <h3 className="text-lg font-medium tracking-wide text-neutral-900 mb-4">
-                    QUICK ACTIONS
-                </h3>
-                
+                <h3 className="text-lg font-medium tracking-wide text-neutral-900 mb-4">QUICK ACTIONS</h3>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Button
-                        variant="outline"
-                        onClick={() => setIsEditing(true)}
-                        className="w-full"
-                    >
+                    <Button variant="outline" onClick={() => setIsEditing(true)} className="w-full">
                         EDIT INFORMATION
                     </Button>
-                    
-                    <Button
-                        variant="outline"
-                        onClick={() => window.location.href = '/dashboard/password'}
-                        className="w-full"
-                    >
+
+                    <Button variant="outline" onClick={() => navigate('/dashboard/password')} className="w-full">
                         CHANGE PASSWORD
                     </Button>
-                    
-                    <Button
-                        variant="outline"
-                        onClick={() => window.location.href = '/dashboard/addresses'}
-                        className="w-full"
-                    >
+
+                    <Button variant="outline" onClick={() => navigate('/dashboard/addresses')} className="w-full">
                         MANAGE ADDRESSES
                     </Button>
                 </div>
