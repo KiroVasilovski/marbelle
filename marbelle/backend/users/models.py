@@ -126,3 +126,107 @@ class PasswordResetToken(models.Model):
         verbose_name = "Password Reset Token"
         verbose_name_plural = "Password Reset Tokens"
         db_table = "password_reset_tokens"
+
+
+class EmailChangeToken(models.Model):
+    """
+    Model for email change tokens.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="email_change_tokens")
+    new_email = models.EmailField(help_text="The requested new email address")
+    token = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+
+    def save(self, *args: Any, **kwargs: Any):
+        if not self.token:
+            self.token = secrets.token_urlsafe(32)
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(hours=24)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    @property
+    def is_valid(self):
+        return not self.is_used and not self.is_expired
+
+    def __str__(self) -> str:
+        return f"Email change for {self.user.email} to {self.new_email}"
+
+    class Meta:
+        verbose_name = "Email Change Token"
+        verbose_name_plural = "Email Change Tokens"
+        db_table = "email_change_tokens"
+
+
+class Address(models.Model):
+    """
+    Model for user addresses.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="addresses")
+    label = models.CharField(
+        max_length=50,
+        help_text="Address label (e.g., 'Home', 'Office', 'Warehouse')",
+    )
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    company = models.CharField(max_length=100, blank=True)
+    address_line_1 = models.CharField(max_length=255)
+    address_line_2 = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=20)
+    country = models.CharField(max_length=100)
+
+    phone_regex = RegexValidator(
+        regex=r"^\+?1?\d{9,15}$",
+        message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.",
+    )
+    phone = models.CharField(
+        validators=[phone_regex],
+        max_length=20,
+        blank=True,
+        help_text="Phone number for delivery contact (optional)",
+    )
+
+    is_primary = models.BooleanField(
+        default=False,
+        help_text="Whether this is the user's primary address",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args: Any, **kwargs: Any):
+        # Ensure only one primary address per user
+        if self.is_primary:
+            Address.objects.filter(user=self.user, is_primary=True).update(is_primary=False)
+
+        # If this is the user's first address, make it primary
+        if not self.pk and not Address.objects.filter(user=self.user).exists():
+            self.is_primary = True
+
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return f"{self.label} - {self.first_name} {self.last_name}"
+
+    class Meta:
+        verbose_name = "Address"
+        verbose_name_plural = "Addresses"
+        db_table = "addresses"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "label"],
+                name="unique_address_label_per_user",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["user", "is_primary"]),
+            models.Index(fields=["created_at"]),
+        ]
