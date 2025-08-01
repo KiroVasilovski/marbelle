@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 if (storedUser && authService.isAuthenticated()) {
                     // Set user immediately from storage
                     setUser(storedUser);
-                    
+
                     // Verify token in background - ApiClient will handle refresh if needed
                     try {
                         const userData = await authService.verifyToken();

@@ -12,14 +12,14 @@ import PasswordResetPage from './features/auth/password-reset/PasswordResetPage'
 import EmailVerifyPage from './features/auth/register/EmailVerifyPage';
 
 // Dashboard imports
-import { 
-    DashboardProvider, 
-    DashboardLayout, 
-    DashboardPage, 
-    ProfilePage, 
-    AddressesPage, 
-    PasswordPage, 
-    OrdersPage 
+import {
+    DashboardProvider,
+    DashboardLayout,
+    DashboardPage,
+    ProfilePage,
+    AddressesPage,
+    PasswordPage,
+    OrdersPage,
 } from './features/dashboard';
 
 // Email change imports
@@ -64,7 +64,7 @@ function App() {
                             </UnauthenticatedRoute>
                         }
                     />
-                    
+
                     {/* Email change confirmation - public route but can be accessed by authenticated users */}
                     <Route path="/confirm-email-change" element={<EmailConfirmPage />} />
 
@@ -76,13 +76,16 @@ function App() {
                     </Route>
 
                     {/* Dashboard routes - protected and separate layout */}
-                    <Route path="/dashboard" element={
-                        <AuthenticatedRoute>
-                            <DashboardProvider>
-                                <DashboardLayout />
-                            </DashboardProvider>
-                        </AuthenticatedRoute>
-                    }>
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <AuthenticatedRoute>
+                                <DashboardProvider>
+                                    <DashboardLayout />
+                                </DashboardProvider>
+                            </AuthenticatedRoute>
+                        }
+                    >
                         <Route index element={<DashboardPage />} />
                         <Route path="profile" element={<ProfilePage />} />
                         <Route path="email-change" element={<EmailChangePage />} />

@@ -133,6 +133,7 @@ export class DashboardService {
      */
     public async getOrderHistory(page?: number, limit?: number): Promise<OrderHistoryResponse['data']> {
         // TODO: Remove this mock implementation when orders API is ready
+        console.log(page, limit);
         return Promise.resolve({
             orders: [],
             count: 0,
@@ -154,6 +155,7 @@ export class DashboardService {
      */
     public async getOrderDetails(orderId: number): Promise<Order> {
         // TODO: Remove this mock implementation when orders API is ready
+        console.log(orderId);
         throw new Error('Order details API not yet implemented');
 
         // Uncomment when orders API is implemented:

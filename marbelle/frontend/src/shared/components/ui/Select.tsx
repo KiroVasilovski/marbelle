@@ -29,8 +29,8 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
     ({ options, value, onValueChange, placeholder, label, disabled, className, id, ...props }, ref) => {
         return (
             <ShadcnSelect value={value} onValueChange={onValueChange} disabled={disabled} {...props}>
-                <SelectTrigger 
-                    ref={ref} 
+                <SelectTrigger
+                    ref={ref}
                     className={`flex !h-12 w-full border border-input px-3 text-sm focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${className || ''}`}
                     id={id}
                 >

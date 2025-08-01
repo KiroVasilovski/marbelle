@@ -80,10 +80,6 @@ export const getPasswordStrength = (password: string): PasswordStrength => {
  */
 export const enhancedPassword = (value: string) => {
     return (
-        value.length >= 8 &&
-        /[a-z]/.test(value) &&
-        /[A-Z]/.test(value) &&
-        /\d/.test(value) &&
-        /[^a-zA-Z\d]/.test(value)
+        value.length >= 8 && /[a-z]/.test(value) && /[A-Z]/.test(value) && /\d/.test(value) && /[^a-zA-Z\d]/.test(value)
     );
 };

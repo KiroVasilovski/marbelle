@@ -93,15 +93,13 @@ export function useFormValidation<T extends Record<string, string>>(
 
     // Enhanced computed states for form interactions
     const hasChanges = useMemo(() => {
-        return Object.keys(values).some(
-            (key) => values[key as keyof T] !== initialValues[key as keyof T]
-        );
+        return Object.keys(values).some((key) => values[key as keyof T] !== initialValues[key as keyof T]);
     }, [values, initialValues]);
 
     const hasBlockingErrors = useMemo(() => {
         // Only count errors for fields that have been touched
         // This prevents the form from being blocked by untouched field errors
-        return Object.keys(errors).some(errorKey => {
+        return Object.keys(errors).some((errorKey) => {
             const fieldKey = errorKey as keyof T;
             const isTouched = touched[fieldKey];
             const errorMessage = errors[fieldKey];

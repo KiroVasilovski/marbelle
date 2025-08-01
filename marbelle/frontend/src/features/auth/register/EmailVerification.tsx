@@ -176,11 +176,11 @@ export const EmailVerification: React.FC = () => {
                 <Input
                     id="email"
                     type="email"
+                    label="Email Address"
                     value={values.email}
                     onChange={(e) => setValue('email', e.target.value)}
                     onBlur={() => setTouched('email')}
-                    className={errors.email && touched.email ? 'border-red-500' : ''}
-                    placeholder="Email Address"
+                    error={errors.email && touched.email ? errors.email : undefined}
                     autoComplete="email"
                 />
                 {errors.email && touched.email && <p className="text-red-500 text-xs mt-1 uppercase">{errors.email}</p>}

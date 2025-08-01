@@ -48,17 +48,13 @@ function ShippingLanguageDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogTrigger asChild>
-                {children}
-            </DialogTrigger>
+            <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="text-xl font-bold uppercase text-neutral-900 tracking-wide">
                         {t('shipping.drawer.title')}
                     </DialogTitle>
-                    <DialogDescription>
-                        {/* Empty description for accessibility */}
-                    </DialogDescription>
+                    <DialogDescription>{/* Empty description for accessibility */}</DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-6">
