@@ -100,6 +100,7 @@ export interface VerificationResponse {
 export interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
+    isInitializing: boolean;
     error: string | null;
 
     // Auth actions

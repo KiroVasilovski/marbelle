@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User
+from .models import Address, EmailChangeToken, User
 
 
 @admin.register(User)
@@ -54,3 +54,136 @@ class CustomUserAdmin(UserAdmin):
 
     is_business_customer.boolean = True
     is_business_customer.short_description = "Business Customer"
+
+
+@admin.register(Address)
+class AddressAdmin(admin.ModelAdmin):
+    """
+    Admin configuration for Address model.
+    """
+
+    list_display = (
+        "label",
+        "user",
+        "first_name",
+        "last_name",
+        "city",
+        "state",
+        "country",
+        "is_primary",
+        "created_at",
+    )
+
+    list_filter = ("is_primary", "country", "state", "created_at")
+
+    search_fields = (
+        "user__username",
+        "user__email",
+        "label",
+        "first_name",
+        "last_name",
+        "company",
+        "city",
+        "address_line_1",
+    )
+
+    readonly_fields = ("created_at", "updated_at")
+
+    fieldsets = (
+        (
+            "Address Information",
+            {
+                "fields": (
+                    "user",
+                    "label",
+                    "is_primary",
+                )
+            },
+        ),
+        (
+            "Contact Details",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "company",
+                    "phone",
+                )
+            },
+        ),
+        (
+            "Address",
+            {
+                "fields": (
+                    "address_line_1",
+                    "address_line_2",
+                    "city",
+                    "state",
+                    "postal_code",
+                    "country",
+                )
+            },
+        ),
+        (
+            "Timestamps",
+            {
+                "fields": ("created_at", "updated_at"),
+                "classes": ("collapse",),
+            },
+        ),
+    )
+
+
+@admin.register(EmailChangeToken)
+class EmailChangeTokenAdmin(admin.ModelAdmin):
+    """
+    Admin configuration for EmailChangeToken model.
+    """
+
+    list_display = (
+        "user",
+        "new_email",
+        "is_used",
+        "is_expired",
+        "created_at",
+        "expires_at",
+    )
+
+    list_filter = ("is_used", "created_at", "expires_at")
+
+    search_fields = (
+        "user__username",
+        "user__email",
+        "new_email",
+        "token",
+    )
+
+    readonly_fields = ("token", "created_at", "expires_at", "is_expired")
+
+    fieldsets = (
+        (
+            "Token Information",
+            {
+                "fields": (
+                    "user",
+                    "new_email",
+                    "token",
+                    "is_used",
+                )
+            },
+        ),
+        (
+            "Timestamps",
+            {
+                "fields": ("created_at", "expires_at"),
+                "classes": ("collapse",),
+            },
+        ),
+    )
+
+    def is_expired(self, obj: EmailChangeToken) -> bool:
+        """Display expiration status in admin list."""
+        return obj.is_expired
+
+    is_expired.boolean = True
+    is_expired.short_description = "Expired"

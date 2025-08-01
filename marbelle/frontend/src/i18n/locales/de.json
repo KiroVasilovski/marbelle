@@ -1,4 +1,120 @@
 {
+    "common": {
+        "loading": "Lädt...",
+        "saveButton": "Speichern",
+        "saveChangesButton": "Änderungen speichern",
+        "saveChangesButtonProgressing": "Speichern...",
+        "resetButton": "Zurücksetzen",
+        "cancelButton": "Abbrechen",
+        "deleteButton": "Löschen",
+        "editButton": "Bearbeiten"
+    },
+    "validation": {
+        "addressLabelRequired": "ADRESSBEZEICHNUNG IST ERFORDERLICH",
+        "addressLine1Required": "ADRESSZEILE 1 IST ERFORDERLICH",
+        "cityRequired": "STADT IST ERFORDERLICH",
+        "stateRequired": "BUNDESLAND/PROVINZ IST ERFORDERLICH",
+        "postalCodeRequired": "POSTLEITZAHL IST ERFORDERLICH",
+        "countryRequired": "LAND IST ERFORDERLICH",
+        "emailRequired": "E-MAIL IST ERFORDERLICH",
+        "validEmailRequired": "GÜLTIGE E-MAIL IST ERFORDERLICH",
+        "differentEmailRequired": "Neue E-Mail muss sich von der aktuellen E-Mail unterscheiden",
+        "passwordRequired": "PASSWORT IST ERFORDERLICH",
+        "passwordRequirements": "PASSWORT MUSS MINDESTENS 8 ZEICHEN MIT GROSS- UND KLEINBUCHSTABEN UND ZAHLEN HABEN",
+        "firstNameRequired": "VORNAME IST ERFORDERLICH",
+        "lastNameRequired": "NACHNAME IST ERFORDERLICH",
+        "passwordConfirmationRequired": "PASSWORT-BESTÄTIGUNG IST ERFORDERLICH",
+        "passwordsNoMatch": "PASSWÖRTER STIMMEN NICHT ÜBEREIN",
+        "validPhoneRequired": "GÜLTIGE TELEFONNUMMER IST ERFORDERLICH",
+        "currentPasswordRequired": "AKTUELLES PASSWORT IST ERFORDERLICH",
+        "newPasswordRequired": "NEUES PASSWORT IST ERFORDERLICH",
+        "newPasswordDifferent": "NEUES PASSWORT MUSS SICH VOM AKTUELLEN PASSWORT UNTERSCHEIDEN"
+    },
+    "header": {
+        "brand": "MARBELLE",
+        "home": "STARTSEITE",
+        "products": "PRODUKTE",
+        "about": "ÜBER UNS",
+        "welcome": "Hallo, {{firstName}}",
+        "business": "GESCHÄFT",
+        "dashboard": "DASHBOARD",
+        "myAccount": "Mein Konto",
+        "logout": "ABMELDEN",
+        "login": "ANMELDEN",
+        "register": "REGISTRIEREN"
+    },
+    "footer": {
+        "description": "Premium Naturstein für Architekten, Designer und Bauunternehmer.",
+        "products": {
+            "title": "PRODUKTE",
+            "marble": "Marmor",
+            "tiles": "Fliesen",
+            "mosaics": "Mosaike"
+        },
+        "company": {
+            "title": "UNTERNEHMEN",
+            "about": "Über uns",
+            "contact": "Kontakt",
+            "career": "Karriere"
+        },
+        "support": {
+            "title": "SUPPORT",
+            "help": "Hilfezentrum",
+            "shipping": "Versandinformationen",
+            "returns": "Rücksendungen"
+        },
+        "shippingTo": "Versand nach:",
+        "copyright": "© 2025 Marbelle. Alle Rechte vorbehalten."
+    },
+    "pages": {
+        "home": {
+            "title": "Willkommen bei Marbelle",
+            "subtitle": "Premium Naturstein für Architekten und Designer",
+            "discoverTitle": "ENTDECKEN SIE UNSERE KOLLEKTION",
+            "discoverDescription": "Erkunden Sie unser Sortiment an Marmorplatten, Fliesen und Mosaiken, die Ihre Projekte aufwerten.",
+            "browseProducts": "PRODUKTE DURCHSUCHEN",
+            "requestQuote": "ANGEBOT ANFORDERN"
+        },
+        "about": {
+            "title": "Über Marbelle",
+            "missionTitle": "UNSERE MISSION",
+            "missionDescription": "Marbelle bietet Premium-Natursteinprodukte und -dienstleistungen für Architekten, Designer und Bauunternehmer. Unser Ziel ist es, außergewöhnliche Qualität und Service zu liefern.",
+            "visionTitle": "UNSERE VISION",
+            "visionDescription": "Der führende Anbieter von Premium-Natursteinlösungen zu sein, bekannt für unsere Qualität, Innovation und Kundenservice.",
+            "valuesTitle": "UNSERE WERTE",
+            "valuesDescription": "Unser Team von Steinspezialisten hilft Ihnen dabei, das perfekte Material für Ihr Projekt zu finden. Wir bieten maßgeschneiderte Angebote, detaillierte Spezifikationen und professionelle Beratung, um sicherzustellen, dass Ihre Vision Realität wird."
+        },
+        "products": {
+            "title": "UNSERE PRODUKTE",
+            "slabs": {
+                "title": "MARMORPLATTEN",
+                "description": "Premium-Marmorplatten für Arbeitsplatten, Böden und Akzentwände.",
+                "button": {
+                    "title": "KOLLEKTION ANSEHEN"
+                }
+            },
+            "tiles": {
+                "title": "NATURFLIESEN",
+                "description": "Elegante Natursteinfliesen für Wände, Böden und dekorative Anwendungen.",
+                "button": {
+                    "title": "KOLLEKTION ANSEHEN"
+                }
+            },
+            "mosaics": {
+                "title": "MOSAIKMUSTER",
+                "description": "Aufwendige Mosaikdesigns für Spritzschutz und Akzentmerkmale.",
+                "button": {
+                    "title": "KOLLEKTION ANSEHEN"
+                }
+            },
+            "custom": {
+                "title": "KÖNNEN SIE NICHT FINDEN, WAS SIE SUCHEN?",
+                "button": {
+                    "title": "INDIVIDUELLES ANGEBOT ANFORDERN"
+                }
+            }
+        }
+    },
     "auth": {
         "login": {
             "title": "ANMELDEN",
@@ -6,7 +122,7 @@
             "emailPlaceholder": "E-Mail-Adresse",
             "passwordPlaceholder": "Passwort",
             "submitButton": "ANMELDEN",
-            "submitButtonLoading": "ANMELDUNG...",
+            "submitButtonLoading": "ANMELDEN...",
             "forgotPassword": "Passwort vergessen?",
             "createAccount": "KONTO ERSTELLEN"
         },
@@ -21,7 +137,7 @@
             "passwordPlaceholder": "Passwort*",
             "confirmPasswordPlaceholder": "Passwort bestätigen*",
             "submitButton": "KONTO ERSTELLEN",
-            "submitButtonLoading": "KONTO WIRD ERSTELLT...",
+            "submitButtonLoading": "KONTO ERSTELLEN...",
             "successTitle": "Registrierung erfolgreich",
             "successMessage": "Bitte überprüfen Sie Ihre E-Mail für weitere Anweisungen.",
             "goToLogin": "ZUR ANMELDUNG",
@@ -30,117 +146,41 @@
             "passwordStrengthNeeds": "BENÖTIGT"
         },
         "passwordReset": {
-            "title": "PASSWORT ZURÜCKSETZEN",
+            "title": "Passwort zurücksetzen",
             "subtitle": "Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten.",
             "emailPlaceholder": "E-Mail-Adresse",
-            "submitButton": "RESET-E-MAIL SENDEN",
-            "submitButtonLoading": "SENDEN...",
-            "cancel": "ABBRECHEN",
-            "successTitle": "ÜBERPRÜFEN SIE IHRE E-MAIL",
+            "submitButton": "Reset-E-Mail senden",
+            "submitButtonLoading": "Senden...",
+            "cancel": "Abbrechen",
+            "successTitle": "Überprüfen Sie Ihre E-Mail",
             "successMessage": "Wenn diese E-Mail registriert ist, erhalten Sie Anweisungen zum Zurücksetzen Ihres Passworts.",
-            "sendAnother": "WEITERE E-MAIL SENDEN",
-            "backToLogin": "ZURÜCK ZUR ANMELDUNG"
-        }
-    },
-    "header": {
-        "brand": "MARBELLE",
-        "home": "STARTSEITE",
-        "products": "PRODUKTE",
-        "about": "ÜBER UNS",
-        "welcome": "Hallo, {{firstName}}",
-        "business": "GESCHÄFT",
-        "logout": "ABMELDEN",
-        "login": "ANMELDEN",
-        "register": "REGISTRIEREN"
-    },
-    "footer": {
-        "description": "Hochwertiger Naturstein für Architekten, Designer und Bauunternehmer.",
-        "products": {
-            "title": "PRODUKTE",
-            "marble": "Marmor",
-            "tiles": "Fliesen",
-            "mosaics": "Mosaike"
-        },
-        "company": {
-            "title": "UNTERNEHMEN",
-            "about": "Über uns",
-            "contact": "Kontaktieren sie uns",
-            "career": "Karriere"
-        },
-        "support": {
-            "title": "UNTERSTÜTZUNG",
-            "help": "Hilfezentrum",
-            "shipping": "Versandinformationen",
-            "returns": "Rücksendungen"
-        },
-        "shippingTo": "Versand an:",
-        "copyright": "© 2025 Marbelle. Alle Rechte vorbehalten."
-    },
-    "pages": {
-        "home": {
-            "title": "WILLKOMMEN BEI MARBELLE",
-            "subtitle": "Premium naturstein für Architekten und Designer",
-            "discoverTitle": "ENTDECKEN SIE UNSERE KOLLEKTION",
-            "discoverDescription": "Erkunden Sie unsere kuratierte Auswahl an Natursteinprodukten einschließlich Platten, Fliesen und Mosaiken.",
-            "browseProducts": "PRODUKTE DURCHSUCHEN",
-            "requestQuote": "ANGEBOT ANFORDERN"
-        },
-        "about": {
-            "title": "Über MARBELLE",
-            "missionTitle": "UNSERE MISSION",
-            "missionDescription": "Marbelle bietet Premium-Natursteinprodukte und -dienstleistungen für Architekten, Designer und Bauunternehmer. Unser Ziel ist es, außergewöhnliche Qualität und Service zu liefern.",
-            "visionTitle": "UNSERE VISION",
-            "visionDescription": "Wir streben danach, die erste Wahl für Natursteinlösungen zu sein, die Kreativität und Funktionalität vereinen.",
-            "valuesTitle": "UNSERE WERTE",
-            "valuesDescription": "Unser Team von Steinspezialisten hilft Ihnen, das perfekte Material für Ihr Projekt zu finden. Wir bieten Ihnen maßgeschneiderte Angebote, detaillierte Spezifikationen und professionelle Beratung, um sicherzustellen, dass Ihre Vision Wirklichkeit wird."
-        },
-        "products": {
-            "title": "UNSERE PRODUKTE",
-            "slabs": {
-                "title": "MARMORPLATTEN",
-                "description": "Hochwertige Marmorplatten für Arbeitsplatten, Fußböden und Wandverkleidungen.",
-                "button": {
-                    "title": "KOLLEKTION ANSEHEN"
-                }
-            },
-            "tiles": {
-                "title": "NATURFLIESEN",
-                "description": "Elegante Natursteinfliesen für Wände, Böden und dekorative Anwendungen.",
-                "button": {
-                    "title": "KOLLEKTION ANSEHEN"
-                }
-            },
-            "mosaics": {
-                "title": "MOSAIKMUSTER",
-                "description": "Aufwendige Mosaikdesigns für Aufkantungen und Akzente.",
-                "button": {
-                    "title": "KOLLEKTION ANSEHEN"
-                }
-            },
-            "custom": {
-                "title": "Sie können nicht finden, was Sie suchen?",
-                "button": {
-                    "title": "ANGEBOT ANFORDERN"
+            "sendAnother": "Weitere Reset-E-Mail senden",
+            "backToLogin": "Zurück zur Anmeldung",
+            "confirm": {
+                "title": "Neues Passwort festlegen",
+                "subtitle": "Bitte geben Sie Ihr neues Passwort unten ein.",
+                "newPassword": "Neues Passwort",
+                "confirmPassword": "Neues Passwort bestätigen",
+                "submitButton": "Passwort aktualisieren",
+                "submitButtonLoading": "Passwort aktualisieren...",
+                "success": {
+                    "title": "Passwort erfolgreich aktualisiert",
+                    "message": "Ihr Passwort wurde erfolgreich aktualisiert. Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
+                    "goToLogin": "Zur Anmeldung"
+                },
+                "failure": {
+                    "title": "Passwort-Reset fehlgeschlagen",
+                    "message": "Dieser Passwort-Reset-Link ist ungültig oder abgelaufen",
+                    "invalidToken": "Ungültiger Reset-Token",
+                    "action": "Neuen Reset-Link anfordern"
                 }
             }
+        },
+        "errors": {
+            "loginFailed": "ANMELDUNG FEHLGESCHLAGEN",
+            "registrationFailed": "REGISTRIERUNG FEHLGESCHLAGEN",
+            "resetRequestFailed": "RESET-ANFRAGE FEHLGESCHLAGEN"
         }
-    },
-    "validation": {
-        "emailRequired": "E-MAIL IST ERFORDERLICH",
-        "validEmailRequired": "GÜLTIGE E-MAIL IST ERFORDERLICH",
-        "passwordRequired": "PASSWORT IST ERFORDERLICH",
-        "passwordRequirements": "PASSWORT MUSS MINDESTENS 8 ZEICHEN MIT GEMISCHTEN FÄLLEN UND ZAHLEN HABEN",
-        "firstNameRequired": "VORNAME IST ERFORDERLICH",
-        "lastNameRequired": "NACHNAME IST ERFORDERLICH",
-        "passwordConfirmationRequired": "PASSWORT-BESTÄTIGUNG IST ERFORDERLICH",
-        "passwordsNoMatch": "PASSWÖRTER STIMMEN NICHT ÜBEREIN",
-        "validPhoneRequired": "GÜLTIGE TELEFONNUMMER IST ERFORDERLICH"
-    },
-    "errors": {
-        "loginFailed": "ANMELDUNG FEHLGESCHLAGEN",
-        "registrationFailed": "REGISTRIERUNG FEHLGESCHLAGEN",
-        "resetRequestFailed": "RESET-ANFRAGE FEHLGESCHLAGEN",
-        "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
     },
     "shipping": {
         "drawer": {
@@ -150,6 +190,175 @@
             "languageLabel": "Sprache",
             "languagePlaceholder": "Sprache auswählen",
             "confirmButton": "Bestätigen"
+        }
+    },
+    "dashboard": {
+        "profile": {
+            "title": "Mein Profil",
+            "subtitle": "Verwalten Sie Ihre persönlichen Informationen",
+            "editProfileButton": "Profil bearbeiten",
+            "personalInformation": "Persönliche Informationen",
+            "fullName": "Vollständiger Name",
+            "email": "E-Mail-Adresse",
+            "phone": "Telefonnummer",
+            "company": "Firmenname",
+            "accountInformation": "Kontoinformationen",
+            "accountType": "Kontotyp",
+            "memberSince": "Mitglied seit",
+            "accountStatus": "Kontostatus",
+            "accountStatusActive": "Aktiv",
+            "changeEmailButton": "E-Mail-Adresse ändern",
+            "changePasswordButton": "Passwort ändern",
+            "form": {
+                "editProfile": "Profil bearbeiten",
+                "editProfileDescription": "Aktualisieren Sie Ihre persönlichen Informationen.",
+                "personalInformation": "Persönliche Informationen",
+                "firstName": "Vorname",
+                "lastName": "Nachname",
+                "contactInformation": "Kontaktinformationen",
+                "phone": "Telefonnummer",
+                "businessInformation": "Geschäftsinformationen",
+                "companyMessage": "Das Hinzufügen eines Firmennamens markiert Ihr Konto als Geschäftskunde.",
+                "companyName": "Firmenname"
+            }
+        },
+        "password": {
+            "title": "Passwort ändern",
+            "subtitle": "Aktualisieren Sie Ihr Passwort, um Ihr Konto sicher zu halten",
+            "currentPassword": "Aktuelles Passwort",
+            "newPassword": "Neues Passwort",
+            "confirmPassword": "Neues Passwort bestätigen",
+            "changeButton": "Passwort ändern",
+            "changing": "Passwort ändern...",
+            "success": {
+                "title": "Passwort erfolgreich geändert"
+            },
+            "security": {
+                "title": "Passwort-Sicherheitstipps",
+                "first": "Verwenden Sie ein starkes, eindeutiges Passwort",
+                "second": "Verwenden Sie Groß- und Kleinbuchstaben",
+                "third": "Fügen Sie Zahlen und Sonderzeichen hinzu",
+                "fourth": "Vermeiden Sie persönliche Informationen",
+                "fifth": "Verwenden Sie keine Passwörter von anderen Konten wieder"
+            }
+        },
+        "emailChange": {
+            "title": "E-Mail-Adresse ändern",
+            "subtitle": "Aktualisieren Sie Ihre Konto-E-Mail-Adresse sicher",
+            "security": {
+                "title": "Wie die E-Mail-Änderung funktioniert",
+                "firstLabel": "Erneute Authentifizierung:",
+                "first": "Geben Sie Ihr aktuelles Passwort ein, um Ihre Identität zu verifizieren",
+                "secondLabel": "Bestätigungs-E-Mail:",
+                "second": "Wir senden einen Bestätigungslink an Ihre neue E-Mail-Adresse",
+                "thirdLabel": "Bestätigung:",
+                "third": "Klicken Sie auf den Link, um Ihre neue E-Mail-Adresse zu bestätigen und zu aktivieren",
+                "fourthLabel": "Sicherheitsbenachrichtigung:",
+                "fourth": "Ihre alte E-Mail wird über die Änderung benachrichtigt"
+            },
+            "success": {
+                "title": "E-Mail-Änderung angefordert",
+                "subtitle": "Bestätigungs-E-Mail erfolgreich gesendet",
+                "message": "Bestätigungs-E-Mail gesendet",
+                "steps": {
+                    "title": "Nächste Schritte",
+                    "first": "Überprüfen Sie Ihr neues E-Mail-Postfach auf die Bestätigungsnachricht",
+                    "second": "Klicken Sie auf den Bestätigungslink in der E-Mail, um Ihre neue E-Mail-Adresse zu bestätigen",
+                    "third": "Ihre alte E-Mail erhält eine Benachrichtigung über die Änderung zur Sicherheit"
+                },
+                "important": {
+                    "title": "Wichtig:",
+                    "message": "Ihre aktuelle E-Mail-Adresse bleibt aktiv, bis Sie die neue bestätigen. Der Bestätigungslink läuft in 24 Stunden ab."
+                }
+            },
+            "form": {
+                "title": "E-Mail-Änderung anfordern",
+                "subtitle": "Aus Sicherheitsgründen verifizieren Sie bitte Ihre Identität und geben Sie Ihre neue E-Mail-Adresse an.",
+                "alert": {
+                    "title": "Sicherheitshinweis",
+                    "subtitle": "Sie müssen Ihre neue E-Mail-Adresse bestätigen, bevor die Änderung wirksam wird. Ihre aktuelle E-Mail bleibt aktiv, bis die Bestätigung abgeschlossen ist."
+                },
+                "successMessage": "E-Mail-Änderungsbestätigung gesendet. Bitte überprüfen Sie Ihre neue E-Mail, um die Änderung zu bestätigen.",
+                "currentEmail": "Aktuelle E-Mail-Adresse",
+                "currentPassword": "Aktuelles Passwort*",
+                "currentPasswordMessage": "Geben Sie Ihr aktuelles Passwort ein, um Ihre Identität zu verifizieren",
+                "newEmailAddress": "Neue E-Mail-Adresse*",
+                "newEmailAddressMessage": "Wir senden einen Bestätigungslink an diese E-Mail-Adresse",
+                "sendButton": "Bestätigungs-E-Mail senden",
+                "sendButtonProgressing": "Senden..."
+            },
+            "confirm": {
+                "success": {
+                    "title": "E-Mail erfolgreich geändert",
+                    "subtitle": "Ihre E-Mail-Adresse wurde erfolgreich geändert. Sie können sich jetzt mit Ihrer neuen E-Mail anmelden.",
+                    "newEmail": "Ihre neue E-Mail-Adresse",
+                    "steps": {
+                        "title": "Was passiert als nächstes",
+                        "first": "Ihr Konto verwendet jetzt die neue E-Mail-Adresse",
+                        "second": "Verwenden Sie Ihre neue E-Mail für zukünftige Anmeldungen",
+                        "third": "Ihre alte E-Mail erhielt eine Sicherheitsbenachrichtigung",
+                        "fourth": "Alle Kontobenachrichtigungen gehen an Ihre neue E-Mail"
+                    }
+                },
+                "error": {
+                    "title": "Verifizierung fehlgeschlagen",
+                    "subtitle": "E-Mail-Verifizierung fehlgeschlagen. Der Link ist möglicherweise abgelaufen oder ungültig.",
+                    "issues": {
+                        "title": "Häufige Probleme",
+                        "first": "Der Bestätigungslink ist abgelaufen (gültig für 24 Stunden)",
+                        "second": "Der Link wurde bereits verwendet",
+                        "third": "Der Link wurde falsch kopiert"
+                    }
+                },
+                "loading": {
+                    "title": "E-Mail-Änderung verifizieren",
+                    "subtitle": "Bitte warten Sie, während wir Ihre neue E-Mail-Adresse bestätigen..."
+                },
+                "goToDashboardButton": "Zum Dashboard",
+                "loginWithNewEmailButton": "Mit neuer E-Mail anmelden"
+            }
+        },
+        "address": {
+            "title": "Meine Adressen",
+            "subtitle": "Verwalten Sie Ihre Liefer- und Rechnungsadressen",
+            "addAddressButton": "ADRESSE HINZUFÜGEN",
+            "emptyState": {
+                "title": "Keine Adressen gefunden",
+                "subtitle": "Fügen Sie Ihre erste Adresse hinzu, um mit uns zu shoppen."
+            },
+            "primaryAddressLabel": "Hauptadresse",
+            "otherAddressesLabel": "Andere Adressen",
+            "deleteAddressDialog": {
+                "title": "{{address}} löschen",
+                "description": "Sind Sie sicher, dass Sie diese Adresse löschen möchten?",
+                "primaryAddressWarning": "Dies ist Ihre Hauptadresse.",
+                "destructiveWarning": "Diese Aktion kann nicht rückgängig gemacht werden."
+            },
+            "form": {
+                "addressLabel": "Adressdetails",
+                "addressLabelDescription": "Geben Sie Ihrer Adresse eine Bezeichnung, um sie später leicht zu identifizieren",
+                "labelField": "Adressbezeichnung*",
+                "recipientLabel": "Empfängerinformationen",
+                "firstName": "Vorname*",
+                "lastName": "Nachname*",
+                "companyName": "Firmenname",
+                "addressInformation": "Adressinformationen",
+                "addressLine1": "Adresszeile 1*",
+                "addressLine2": "Adresszeile 2",
+                "city": "Stadt*",
+                "state": "Bundesland / Provinz*",
+                "zipCode": "PLZ / Postleitzahl*",
+                "phone": "Telefonnummer",
+                "saveAddressButton": "Adresse speichern",
+                "saveAddressButtonProgressing": "Speichern...",
+                "updateAddressButton": "Adresse aktualisieren",
+                "updateAddressButtonProgressing": "Aktualisieren..."
+            },
+            "primaryLabel": "Hauptadresse",
+            "addedDate": "Hinzugefügt: {{date}}",
+            "updatedDate": "Aktualisiert: {{date}}",
+            "setPrimaryButton": "Als Hauptadresse festlegen",
+            "primaryAddressInfo": "Dies ist Ihre Hauptadresse für Ihre Bestellungen. Sie wird standardmäßig für Versand und Abrechnung ausgewählt."
         }
     }
 }

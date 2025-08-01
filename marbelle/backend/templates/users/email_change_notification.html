@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>EMAIL ADDRESS CHANGED</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .content {
+            margin-bottom: 30px;
+        }
+
+        .security-alert {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .email-change-info {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-left: 4px solid #000;
+            margin: 20px 0;
+        }
+
+        .contact-info {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .footer {
+            border-top: 2px solid #ddd;
+            padding-top: 20px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo">MARBELLE</div>
+        <p>NATURAL STONE SPECIALISTS</p>
+    </div>
+
+    <div class="content">
+        <h2>EMAIL ADDRESS CHANGED</h2>
+
+        <div class="security-alert">
+            <strong>⚠️ SECURITY NOTIFICATION</strong><br>
+            This email is to inform you that your account email address has been successfully changed.
+        </div>
+
+        <p>Hello {{ user.first_name|default:"" }},</p>
+
+        <p>Your Marbelle account email address has been successfully changed. Here are the details:</p>
+
+        <div class="email-change-info">
+            <strong>PREVIOUS EMAIL:</strong> {{ old_email }}<br>
+            <strong>NEW EMAIL:</strong> {{ new_email }}<br>
+            <strong>CHANGE DATE:</strong> {{ "now"|date:"F j, Y \a\t g:i A T" }}
+        </div>
+
+        <p><strong>WHAT THIS MEANS:</strong></p>
+        <ul>
+            <li>Your login email is now: <strong>{{ new_email }}</strong></li>
+            <li>All future communications will be sent to your new email address</li>
+            <li>This old email address ({{ old_email }}) is no longer associated with your account</li>
+        </ul>
+
+        <div class="security-alert">
+            <strong>DID YOU MAKE THIS CHANGE?</strong><br>
+            If you authorized this email change, no further action is needed. However, if you did NOT request this change, your account may have been compromised.
+        </div>
+
+        <div class="contact-info">
+            <strong>NEED HELP?</strong><br>
+            If you did not authorize this change or have any security concerns:
+            <ul>
+                <li>Contact our support team immediately</li>
+                <li>Consider changing your password as a precaution</li>
+                <li>Review your recent account activity</li>
+            </ul>
+        </div>
+
+        <p>Thank you for using Marbelle's premium natural stone services.</p>
+
+        <p>Best regards,<br>
+            The Marbelle Security Team</p>
+    </div>
+
+    <div class="footer">
+        <p>© 2025 MARBELLE - NATURAL STONE SPECIALISTS</p>
+        <p>This is an automated security notification. Please do not reply to this email.</p>
+        <p>If you need assistance, please contact our support team directly.</p>
+    </div>
+</body>
+
+</html>

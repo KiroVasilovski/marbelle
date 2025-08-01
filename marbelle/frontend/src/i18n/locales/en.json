@@ -1,46 +1,34 @@
 {
-    "auth": {
-        "login": {
-            "title": "SIGN IN",
-            "subtitle": "Access your Marbelle account",
-            "emailPlaceholder": "Email Address",
-            "passwordPlaceholder": "Password",
-            "submitButton": "SIGN IN",
-            "submitButtonLoading": "SIGNING IN...",
-            "forgotPassword": "Forgot your password?",
-            "createAccount": "CREATE ACCOUNT"
-        },
-        "register": {
-            "title": "CREATE ACCOUNT",
-            "subtitle": "Join marbelle for premium stone products and services.",
-            "firstNamePlaceholder": "First Name*",
-            "lastNamePlaceholder": "Last Name*",
-            "emailPlaceholder": "Email Address*",
-            "companyPlaceholder": "Company",
-            "phonePlaceholder": "Phone Number",
-            "passwordPlaceholder": "Password*",
-            "confirmPasswordPlaceholder": "Confirm Password*",
-            "submitButton": "CREATE ACCOUNT",
-            "submitButtonLoading": "CREATING ACCOUNT...",
-            "successTitle": "Registration successful",
-            "successMessage": "Please check your Email for further instructions.",
-            "goToLogin": "GO TO LOGIN",
-            "alreadyRegistered": "Already registered?",
-            "signIn": "Sign in",
-            "passwordStrengthNeeds": "NEEDS"
-        },
-        "passwordReset": {
-            "title": "RESET PASSWORD",
-            "subtitle": "Enter your email address to receive a password reset link.",
-            "emailPlaceholder": "Email Address",
-            "submitButton": "SEND RESET EMAIL",
-            "submitButtonLoading": "SENDING...",
-            "cancel": "CANCEL",
-            "successTitle": "CHECK YOUR EMAIL",
-            "successMessage": "If this email is registered, you will receive instructions to reset your password.",
-            "sendAnother": "SEND ANOTHER EMAIL",
-            "backToLogin": "BACK TO LOGIN"
-        }
+    "common": {
+        "loading": "Loading...",
+        "saveButton": "Save",
+        "saveChangesButton": "Save Changes",
+        "saveChangesButtonProgressing": "Saving...",
+        "resetButton": "Reset",
+        "cancelButton": "Cancel",
+        "deleteButton": "Delete",
+        "editButton": "Edit"
+    },
+    "validation": {
+        "addressLabelRequired": "ADDRESS LABEL IS REQUIRED",
+        "addressLine1Required": "ADDRESS LINE 1 IS REQUIRED",
+        "cityRequired": "CITY IS REQUIRED",
+        "stateRequired": "STATE/PROVINCE IS REQUIRED",
+        "postalCodeRequired": "POSTAL CODE IS REQUIRED",
+        "countryRequired": "COUNTRY IS REQUIRED",
+        "emailRequired": "EMAIL IS REQUIRED",
+        "validEmailRequired": "VALID EMAIL IS REQUIRED",
+        "differentEmailRequired": "New email must be different from current email",
+        "passwordRequired": "PASSWORD IS REQUIRED",
+        "passwordRequirements": "PASSWORD MUST BE AT LEAST 8 CHARACTERS WITH MIXED CASE AND NUMBERS",
+        "firstNameRequired": "FIRST NAME IS REQUIRED",
+        "lastNameRequired": "LAST NAME IS REQUIRED",
+        "passwordConfirmationRequired": "PASSWORD CONFIRMATION IS REQUIRED",
+        "passwordsNoMatch": "PASSWORDS DO NOT MATCH",
+        "validPhoneRequired": "VALID PHONE NUMBER IS REQUIRED",
+        "currentPasswordRequired": "CURRENT PASSWORD IS REQUIRED",
+        "newPasswordRequired": "NEW PASSWORD IS REQUIRED",
+        "newPasswordDifferent": "NEW PASSWORD MUST BE DIFFERENT FROM CURRENT PASSWORD"
     },
     "header": {
         "brand": "MARBELLE",
@@ -49,6 +37,8 @@
         "about": "ABOUT",
         "welcome": "Hello, {{firstName}}",
         "business": "BUSINESS",
+        "dashboard": "DASHBOARD",
+        "myAccount": "My account",
         "logout": "LOGOUT",
         "login": "LOGIN",
         "register": "REGISTER"
@@ -125,22 +115,72 @@
             }
         }
     },
-    "validation": {
-        "emailRequired": "EMAIL IS REQUIRED",
-        "validEmailRequired": "VALID EMAIL IS REQUIRED",
-        "passwordRequired": "PASSWORD IS REQUIRED",
-        "passwordRequirements": "PASSWORD MUST BE AT LEAST 8 CHARACTERS WITH MIXED CASE AND NUMBERS",
-        "firstNameRequired": "FIRST NAME IS REQUIRED",
-        "lastNameRequired": "LAST NAME IS REQUIRED",
-        "passwordConfirmationRequired": "PASSWORD CONFIRMATION IS REQUIRED",
-        "passwordsNoMatch": "PASSWORDS DO NOT MATCH",
-        "validPhoneRequired": "VALID PHONE NUMBER IS REQUIRED"
-    },
-    "errors": {
-        "loginFailed": "LOGIN FAILED",
-        "registrationFailed": "REGISTRATION FAILED",
-        "resetRequestFailed": "RESET REQUEST FAILED",
-        "generic": "An error occurred. Please try again."
+    "auth": {
+        "login": {
+            "title": "SIGN IN",
+            "subtitle": "Access your Marbelle account",
+            "emailPlaceholder": "Email Address",
+            "passwordPlaceholder": "Password",
+            "submitButton": "SIGN IN",
+            "submitButtonLoading": "SIGNING IN...",
+            "forgotPassword": "Forgot your password?",
+            "createAccount": "CREATE ACCOUNT"
+        },
+        "register": {
+            "title": "CREATE ACCOUNT",
+            "subtitle": "Join marbelle for premium stone products and services.",
+            "firstNamePlaceholder": "First Name*",
+            "lastNamePlaceholder": "Last Name*",
+            "emailPlaceholder": "Email Address*",
+            "companyPlaceholder": "Company",
+            "phonePlaceholder": "Phone Number",
+            "passwordPlaceholder": "Password*",
+            "confirmPasswordPlaceholder": "Confirm Password*",
+            "submitButton": "CREATE ACCOUNT",
+            "submitButtonLoading": "CREATING ACCOUNT...",
+            "successTitle": "Registration successful",
+            "successMessage": "Please check your Email for further instructions.",
+            "goToLogin": "GO TO LOGIN",
+            "alreadyRegistered": "Already registered?",
+            "signIn": "Sign in",
+            "passwordStrengthNeeds": "NEEDS"
+        },
+        "passwordReset": {
+            "title": "Reset password",
+            "subtitle": "Enter your email address to receive a password reset link.",
+            "emailPlaceholder": "Email Address",
+            "submitButton": "Send reset email",
+            "submitButtonLoading": "Sending...",
+            "cancel": "Cancel",
+            "successTitle": "Check your email",
+            "successMessage": "If this email is registered, you will receive instructions to reset your password.",
+            "sendAnother": "Send another reset email",
+            "backToLogin": "Back to login",
+            "confirm": {
+                "title": "Set new password",
+                "subtitle": "Please enter your new password below.",
+                "newPassword": "New Password",
+                "confirmPassword": "Confirm New Password",
+                "submitButton": "Update password",
+                "submitButtonLoading": "Updating password...",
+                "success": {
+                    "title": "Password updated successfully",
+                    "message": "Your password has been successfully updated. You can now log in with your new password.",
+                    "goToLogin": "Go to login"
+                },
+                "failure": {
+                    "title": "Password reset failed",
+                    "message": "This password reset link is invalid or has expired",
+                    "invalidToken": "Invalid reset token",
+                    "action": "Request new reset link"
+                }
+            }
+        },
+        "errors": {
+            "loginFailed": "LOGIN FAILED",
+            "registrationFailed": "REGISTRATION FAILED",
+            "resetRequestFailed": "RESET REQUEST FAILED"
+        }
     },
     "shipping": {
         "drawer": {
@@ -150,6 +190,175 @@
             "languageLabel": "Language",
             "languagePlaceholder": "Select language",
             "confirmButton": "Confirm"
+        }
+    },
+    "dashboard": {
+        "profile": {
+            "title": "My Profile",
+            "subtitle": "Manage your personal information",
+            "editProfileButton": "Edit Profile",
+            "personalInformation": "Personal Information",
+            "fullName": "Full Name",
+            "email": "Email Address",
+            "phone": "Phone Number",
+            "company": "Company Name",
+            "accountInformation": "Account Information",
+            "accountType": "Account Type",
+            "memberSince": "Member since",
+            "accountStatus": "Account Status",
+            "accountStatusActive": "Active",
+            "changeEmailButton": "Change Email Address",
+            "changePasswordButton": "Change Password",
+            "form": {
+                "editProfile": "Edit Profile",
+                "editProfileDescription": "Update your personal information.",
+                "personalInformation": "Personal Information",
+                "firstName": "First Name",
+                "lastName": "Last Name",
+                "contactInformation": "Contact Information",
+                "phone": "Phone Number",
+                "businessInformation": "Business Information",
+                "companyMessage": "Adding a company name will mark your account as a business customer.",
+                "companyName": "Company Name"
+            }
+        },
+        "password": {
+            "title": "Change Password",
+            "subtitle": "Update your password to keep your account secure",
+            "currentPassword": "Current password",
+            "newPassword": "New password",
+            "confirmPassword": "Confirm new password",
+            "changeButton": "Change password",
+            "changing": "Changing password...",
+            "success": {
+                "title": "Password changed successfully"
+            },
+            "security": {
+                "title": "Password security tips",
+                "first": "Use a strong, unique password",
+                "second": "Include uppercase and lowercase letters",
+                "third": "Add numbers and special characters",
+                "fourth": "Avoid personal information",
+                "fifth": "Don't reuse passwords from other accounts"
+            }
+        },
+        "emailChange": {
+            "title": "Change Email Address",
+            "subtitle": "Update your account email address securely",
+            "security": {
+                "title": "How email change works",
+                "firstLabel": "Re-authentication:",
+                "first": "Enter your current password to verify your identity",
+                "secondLabel": "Verification Email:",
+                "second": "We'll send a verification link to your new email address",
+                "thirdLabel": "Confirmation:",
+                "third": "Click the link to confirm and activate your new email address",
+                "fourthLabel": "Security Notification:",
+                "fourth": "Your old email will be notified of the change"
+            },
+            "success": {
+                "title": "Email Change Requested",
+                "subtitle": "Verification email sent successfully<",
+                "message": "Verification Email Sent",
+                "steps": {
+                    "title": "Next Steps",
+                    "first": "Check your new email inbox for the verification message",
+                    "second": "Click the verification link in the email to confirm your new email address",
+                    "third": "Your old email will receive a notification about the change for security"
+                },
+                "important": {
+                    "title": "Important:",
+                    "message": "Your current email address will remain active until you verify the new one. The verification link expires in 24 hours."
+                }
+            },
+            "form": {
+                "title": "Request Email Change",
+                "subtitle": "For security, please verify your identity and provide your new email address.",
+                "alert": {
+                    "title": "Security Notice",
+                    "subtitle": "You must verify your new email address before the change takes effect. Your current email will remain active until verification is complete."
+                },
+                "successMessage": "Email change verification sent. Please check your new email to confirm the change.",
+                "currentEmail": "Current Email Address",
+                "currentPassword": "Current Password*",
+                "currentPasswordMessage": "Enter your current password to verify your identity",
+                "newEmailAddress": "New Email Address*",
+                "newEmailAddressMessage": "We'll send a verification link to this email address",
+                "sendButton": "Send verification email",
+                "sendButtonProgressing": "Sending..."
+            },
+            "confirm": {
+                "success": {
+                    "title": "Email Changed Successfully",
+                    "subtitle": "Your email address has been successfully changed. You can now use your new email to login.",
+                    "newEmail": "Your New Email Address",
+                    "steps": {
+                        "title": "What Happens Next",
+                        "first": "Your account now uses the new email address",
+                        "second": "Use your new email for future logins",
+                        "third": "Your old email received a security notification",
+                        "fourth": "All account notifications will go to your new email"
+                    }
+                },
+                "error": {
+                    "title": "Verification Failed",
+                    "subtitle": "Email verification failed. The link may be expired or invalid.",
+                    "issues": {
+                        "title": "Common Issues",
+                        "first": "The verification link has expired (valid for 24 hours)",
+                        "second": "The link has already been used",
+                        "third": "The link was copied incorrectly"
+                    }
+                },
+                "loading": {
+                    "title": "Verifying Email Change",
+                    "subtitle": "Please wait while we confirm your new email address..."
+                },
+                "goToDashboardButton": "Go to dashboard",
+                "loginWithNewEmailButton": "Login with new email"
+            }
+        },
+        "address": {
+            "title": "My Addresses",
+            "subtitle": "Manage your delivery and billing addresses",
+            "addAddressButton": "ADD ADDRESS",
+            "emptyState": {
+                "title": "No addresses found",
+                "subtitle": "Add your first address to start shopping with us."
+            },
+            "primaryAddressLabel": "Primary Address",
+            "otherAddressesLabel": "Other Addresses",
+            "deleteAddressDialog": {
+                "title": "Delete {{address}}",
+                "description": "Are you sure you want to delete this address?",
+                "primaryAddressWarning": "This is your primary address.",
+                "destructiveWarning": "This action cannot be undone."
+            },
+            "form": {
+                "addressLabel": "Address details",
+                "addressLabelDescription": "Give your address a label to easily identify it later",
+                "labelField": "Address Label*",
+                "recipientLabel": "Recipient Information",
+                "firstName": "First Name*",
+                "lastName": "Last Name*",
+                "companyName": "Company Name",
+                "addressInformation": "Address Information",
+                "addressLine1": "Address Line 1*",
+                "addressLine2": "Address Line 2",
+                "city": "City*",
+                "state": "State / Province*",
+                "zipCode": "ZIP / Postal Code *",
+                "phone": "Phone Number",
+                "saveAddressButton": "Save Address",
+                "saveAddressButtonProgressing": "Saving...",
+                "updateAddressButton": "Update Address",
+                "updateAddressButtonProgressing": "Updating..."
+            },
+            "primaryLabel": "Primary",
+            "addedDate": "Added: {{date}}",
+            "updatedDate": "Updated: {{date}}",
+            "setPrimaryButton": "Set as primary",
+            "primaryAddressInfo": "This is your primary address for your orders. It will be selected by default for shipping and billing."
         }
     }
 }

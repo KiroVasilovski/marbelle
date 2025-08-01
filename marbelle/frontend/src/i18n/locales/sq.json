@@ -1,4 +1,14 @@
 {
+    "common": {
+        "loading": "Duke ngarkuar...",
+        "saveButton": "Ruaj",
+        "saveChangesButton": "Ruaj ndryshimet",
+        "saveChangesButtonProgressing": "Duke ruajtur...",
+        "resetButton": "Rivendos",
+        "cancelButton": "Anulo",
+        "deleteButton": "Fshi",
+        "editButton": "Redakto"
+    },
     "auth": {
         "login": {
             "title": "HYRJA",
@@ -30,16 +40,40 @@
             "passwordStrengthNeeds": "NEVOJITET"
         },
         "passwordReset": {
-            "title": "RIVENDOS FJALËKALIMIN",
+            "title": "Rivendos fjalëkalimin",
             "subtitle": "Shkruani adresën tuaj të emailit për të marrë një lidhje për rivendosjen e fjalëkalimit.",
             "emailPlaceholder": "Adresa e emailit",
-            "submitButton": "DËRGO EMAIL RIVENDOSJEJE",
-            "submitButtonLoading": "PO DËRGOHET...",
-            "cancel": "ANULO",
-            "successTitle": "KONTROLLONI EMAILIN TUAJ",
+            "submitButton": "Dërgo email rivendosjeje",
+            "submitButtonLoading": "Po dërgohet...",
+            "cancel": "Anulo",
+            "successTitle": "Kontrolloni emailin tuaj",
             "successMessage": "Nëse ky email është i regjistruar, do të merrni udhëzime për rivendosjen e fjalëkalimit tuaj.",
-            "sendAnother": "DËRGO EMAIL TJETËR",
-            "backToLogin": "KTHEHU TE HYRJA"
+            "sendAnother": "Dërgo email tjetër rivendosjeje",
+            "backToLogin": "Kthehu te hyrja",
+            "confirm": {
+                "title": "Vendos fjalëkalim të ri",
+                "subtitle": "Ju lutemi shkruani fjalëkalimin tuaj të ri më poshtë.",
+                "newPassword": "Fjalëkalimi i ri",
+                "confirmPassword": "Konfirmo fjalëkalimin e ri",
+                "submitButton": "Përditëso fjalëkalimin",
+                "submitButtonLoading": "Po përditësohet fjalëkalimi...",
+                "success": {
+                    "title": "Fjalëkalimi u përditësua me sukses",
+                    "message": "Fjalëkalimi juaj u përditësua me sukses. Tani mund të hyni me fjalëkalimin tuaj të ri.",
+                    "goToLogin": "Shko te hyrja"
+                },
+                "failure": {
+                    "title": "Rivendosja e fjalëkalimit dështoi",
+                    "message": "Kjo lidhje e rivendosjes së fjalëkalimit është e pavlefshme ose ka skaduar",
+                    "invalidToken": "Token i pavlefshëm rivendosjeje",
+                    "action": "Kërko lidhje të re rivendosjeje"
+                }
+            }
+        },
+        "errors": {
+            "loginFailed": "HYRJA DËSHTOI",
+            "registrationFailed": "REGJISTRIMI DËSHTOI",
+            "resetRequestFailed": "KËRKESA PËR RIVENDOSJE DËSHTOI"
         }
     },
     "header": {
@@ -49,6 +83,8 @@
         "about": "RRETH NESH",
         "welcome": "Përshëndetje, {{firstName}}",
         "business": "BIZNES",
+        "dashboard": "PANELI",
+        "myAccount": "Llogaria ime",
         "logout": "DALJA",
         "login": "HYRJA",
         "register": "REGJISTRIMI"
@@ -126,21 +162,25 @@
         }
     },
     "validation": {
+        "addressLabelRequired": "ETIKETA E ADRESËS ËSHTË E NEVOJSHME",
+        "addressLine1Required": "LINJA E ADRESËS 1 ËSHTË E NEVOJSHME",
+        "cityRequired": "QYTETI ËSHTË I NEVOJSHËM",
+        "stateRequired": "SHTETI/PROVINCA ËSHTË E NEVOJSHME",
+        "postalCodeRequired": "KODI POSTAR ËSHTË I NEVOJSHËM",
+        "countryRequired": "VENDI ËSHTË I NEVOJSHËM",
         "emailRequired": "EMAILI ËSHTË I NEVOJSHËM",
         "validEmailRequired": "EMAIL I VLEFSHËM ËSHTË I NEVOJSHËM",
+        "differentEmailRequired": "Emaili i ri duhet të jetë i ndryshëm nga emaili aktual",
         "passwordRequired": "FJALËKALIMI ËSHTË I NEVOJSHËM",
         "passwordRequirements": "FJALËKALIMI DUHET TË KETË TË PAKTËN 8 KARAKTERE ME SHKRONJA TË MËDHA DHE TË VOGLA DHE NUMRA",
         "firstNameRequired": "EMRI ËSHTË I NEVOJSHËM",
         "lastNameRequired": "MBIEMRI ËSHTË I NEVOJSHËM",
         "passwordConfirmationRequired": "KONFIRMIMI I FJALËKALIMIT ËSHTË I NEVOJSHËM",
         "passwordsNoMatch": "FJALËKALIMET NUK PËRPUTHEN",
-        "validPhoneRequired": "NUMRI I VLEFSHËM I TELEFONIT ËSHTË I NEVOJSHËM"
-    },
-    "errors": {
-        "loginFailed": "HYRJA DËSHTOI",
-        "registrationFailed": "REGJISTRIMI DËSHTOI",
-        "resetRequestFailed": "KËRKESA PËR RIVENDOSJE DËSHTOI",
-        "generic": "Ndodhi një gabim. Ju lutemi provoni përsëri."
+        "validPhoneRequired": "NUMRI I VLEFSHËM I TELEFONIT ËSHTË I NEVOJSHËM",
+        "currentPasswordRequired": "FJALËKALIMI AKTUAL ËSHTË I NEVOJSHËM",
+        "newPasswordRequired": "FJALËKALIMI I RI ËSHTË I NEVOJSHËM",
+        "newPasswordDifferent": "FJALËKALIMI I RI DUHET TË JETË I NDRYSHËM NGA FJALËKALIMI AKTUAL"
     },
     "shipping": {
         "drawer": {
@@ -150,6 +190,175 @@
             "languageLabel": "Gjuha",
             "languagePlaceholder": "Zgjidh gjuhën",
             "confirmButton": "Konfirmo"
+        }
+    },
+    "dashboard": {
+        "profile": {
+            "title": "Profili im",
+            "subtitle": "Menaxho informacionin tuaj personal",
+            "editProfileButton": "Redakto profilin",
+            "personalInformation": "Informacioni personal",
+            "fullName": "Emri i plotë",
+            "email": "Adresa e emailit",
+            "phone": "Numri i telefonit",
+            "company": "Emri i kompanisë",
+            "accountInformation": "Informacioni i llogarisë",
+            "accountType": "Lloji i llogarisë",
+            "memberSince": "Anëtar që nga",
+            "accountStatus": "Statusi i llogarisë",
+            "accountStatusActive": "Aktiv",
+            "changeEmailButton": "Ndrysho adresën e emailit",
+            "changePasswordButton": "Ndrysho fjalëkalimin",
+            "form": {
+                "editProfile": "Redakto profilin",
+                "editProfileDescription": "Përditëso informacionin tuaj personal.",
+                "personalInformation": "Informacioni personal",
+                "firstName": "Emri",
+                "lastName": "Mbiemri",
+                "contactInformation": "Informacioni i kontaktit",
+                "phone": "Numri i telefonit",
+                "businessInformation": "Informacioni i biznesit",
+                "companyMessage": "Shtimi i emrit të kompanisë do ta shënojë llogarinë tuaj si klient biznesi.",
+                "companyName": "Emri i kompanisë"
+            }
+        },
+        "password": {
+            "title": "Ndrysho fjalëkalimin",
+            "subtitle": "Përditëso fjalëkalimin tuaj për ta mbajtur llogarinë tuaj të sigurt",
+            "currentPassword": "Fjalëkalimi aktual",
+            "newPassword": "Fjalëkalimi i ri",
+            "confirmPassword": "Konfirmo fjalëkalimin e ri",
+            "changeButton": "Ndrysho fjalëkalimin",
+            "changing": "Po ndryshon fjalëkalimin...",
+            "success": {
+                "title": "Fjalëkalimi u ndryshua me sukses"
+            },
+            "security": {
+                "title": "Këshilla sigurie për fjalëkalimin",
+                "first": "Përdor një fjalëkalim të fortë, unik",
+                "second": "Përfshi shkronja të mëdha dhe të vogla",
+                "third": "Shto numra dhe karaktere speciale",
+                "fourth": "Shmangu informacionin personal",
+                "fifth": "Mos ripërdor fjalëkalimet nga llogaritë e tjera"
+            }
+        },
+        "emailChange": {
+            "title": "Ndrysho adresën e emailit",
+            "subtitle": "Përditëso adresën e emailit të llogarisë tuaj në mënyrë të sigurt",
+            "security": {
+                "title": "Si funksionon ndryshimi i emailit",
+                "firstLabel": "Ri-autentifikimi:",
+                "first": "Shkruani fjalëkalimin tuaj aktual për të verifikuar identitetin tuaj",
+                "secondLabel": "Email verifikimi:",
+                "second": "Do të dërgojmë një lidhje verifikimi në adresën tuaj të re të emailit",
+                "thirdLabel": "Konfirmimi:",
+                "third": "Klikoni lidhjen për të konfirmuar dhe aktivizuar adresën tuaj të re të emailit",
+                "fourthLabel": "Njoftimi i sigurisë:",
+                "fourth": "Emaili juaj i vjetër do të njoftohet për ndryshimin"
+            },
+            "success": {
+                "title": "Ndryshimi i emailit u kërkua",
+                "subtitle": "Emaili i verifikimit u dërgua me sukses",
+                "message": "Emaili i verifikimit u dërgua",
+                "steps": {
+                    "title": "Hapat e ardhshëm",
+                    "first": "Kontrolloni kutinë tuaj të emailit të ri për mesazhin e verifikimit",
+                    "second": "Klikoni lidhjen e verifikimit në email për të konfirmuar adresën tuaj të re të emailit",
+                    "third": "Emaili juaj i vjetër do të marrë një njoftim për ndryshimin për siguri"
+                },
+                "important": {
+                    "title": "E rëndësishme:",
+                    "message": "Adresa juaj aktuale e emailit do të mbetet aktive deri sa të verifikoni të renë. Lidhja e verifikimit skadon në 24 orë."
+                }
+            },
+            "form": {
+                "title": "Kërko ndryshim emaili",
+                "subtitle": "Për siguri, ju lutemi verifikoni identitetin tuaj dhe jepni adresën tuaj të re të emailit.",
+                "alert": {
+                    "title": "Njoftim sigurie",
+                    "subtitle": "Duhet të verifikoni adresën tuaj të re të emailit para se ndryshimi të hyjë në fuqi. Emaili juaj aktual do të mbetet aktiv deri sa verifikimi të përfundojë."
+                },
+                "successMessage": "Verifikimi i ndryshimit të emailit u dërgua. Ju lutemi kontrolloni emailin tuaj të ri për të konfirmuar ndryshimin.",
+                "currentEmail": "Adresa aktuale e emailit",
+                "currentPassword": "Fjalëkalimi aktual*",
+                "currentPasswordMessage": "Shkruani fjalëkalimin tuaj aktual për të verifikuar identitetin tuaj",
+                "newEmailAddress": "Adresa e re e emailit*",
+                "newEmailAddressMessage": "Do të dërgojmë një lidhje verifikimi në këtë adresë emaili",
+                "sendButton": "Dërgo email verifikimi",
+                "sendButtonProgressing": "Po dërgohet..."
+            },
+            "confirm": {
+                "success": {
+                    "title": "Emaili u ndryshua me sukses",
+                    "subtitle": "Adresa juaj e emailit u ndryshua me sukses. Tani mund të hyni me emailin tuaj të ri.",
+                    "newEmail": "Adresa juaj e re e emailit",
+                    "steps": {
+                        "title": "Çfarë ndodh tani",
+                        "first": "Llogaria juaj tani përdor adresën e re të emailit",
+                        "second": "Përdorni emailin tuaj të ri për hyrjet e ardhshme",
+                        "third": "Emaili juaj i vjetër mori një njoftim sigurie",
+                        "fourth": "Të gjitha njoftimet e llogarisë do të shkojnë në emailin tuaj të ri"
+                    }
+                },
+                "error": {
+                    "title": "Verifikimi dështoi",
+                    "subtitle": "Verifikimi i emailit dështoi. Lidhja mund të jetë skaduar ose e pavlefshme.",
+                    "issues": {
+                        "title": "Problemet e zakonshme",
+                        "first": "Lidhja e verifikimit ka skaduar (e vlefshme për 24 orë)",
+                        "second": "Lidhja është përdorur tashmë",
+                        "third": "Lidhja u kopjua gabimisht"
+                    }
+                },
+                "loading": {
+                    "title": "Po verifikohet ndryshimi i emailit",
+                    "subtitle": "Ju lutemi prisni ndërsa konfirmojmë adresën tuaj të re të emailit..."
+                },
+                "goToDashboardButton": "Shko te paneli",
+                "loginWithNewEmailButton": "Hyr me emailin e ri"
+            }
+        },
+        "address": {
+            "title": "Adresat e mia",
+            "subtitle": "Menaxho adresat e dorëzimit dhe faturimit",
+            "addAddressButton": "SHTO ADRESË",
+            "emptyState": {
+                "title": "Nuk u gjetën adresa",
+                "subtitle": "Shtoni adresën tuaj të parë për të filluar blerjet me ne."
+            },
+            "primaryAddressLabel": "Adresa kryesore",
+            "otherAddressesLabel": "Adresa të tjera",
+            "deleteAddressDialog": {
+                "title": "Fshi {{address}}",
+                "description": "Jeni të sigurt që doni të fshini këtë adresë?",
+                "primaryAddressWarning": "Kjo është adresa juaj kryesore.",
+                "destructiveWarning": "Ky veprim nuk mund të zhbëhet."
+            },
+            "form": {
+                "addressLabel": "Detajet e adresës",
+                "addressLabelDescription": "Jepini adresës suaj një etiketë për ta identifikuar lehtë më vonë",
+                "labelField": "Etiketa e adresës*",
+                "recipientLabel": "Informacioni i marrësit",
+                "firstName": "Emri*",
+                "lastName": "Mbiemri*",
+                "companyName": "Emri i kompanisë",
+                "addressInformation": "Informacioni i adresës",
+                "addressLine1": "Linja e adresës 1*",
+                "addressLine2": "Linja e adresës 2",
+                "city": "Qyteti*",
+                "state": "Shteti / Provinca*",
+                "zipCode": "ZIP / Kodi postar*",
+                "phone": "Numri i telefonit",
+                "saveAddressButton": "Ruaj adresën",
+                "saveAddressButtonProgressing": "Po ruhet...",
+                "updateAddressButton": "Përditëso adresën",
+                "updateAddressButtonProgressing": "Po përditësohet..."
+            },
+            "primaryLabel": "Kryesore",
+            "addedDate": "Shtuar: {{date}}",
+            "updatedDate": "Përditësuar: {{date}}",
+            "setPrimaryButton": "Vendos si kryesore",
+            "primaryAddressInfo": "Kjo është adresa juaj kryesore për porositë tuaja. Ajo do të zgjidhet si parazgjedhje për dërgimin dhe faturimin."
         }
     }
 }

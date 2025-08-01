@@ -398,11 +398,41 @@ import { apiClient } from '../../shared/api/ApiClient';
 import { ProductService } from '../../products/services/productService';
 ```
 
+## Form Validation System
+
+The application uses a unified form validation system for consistent behavior across all forms.
+
+### **Form Development Guidelines**
+
+**For all forms:**
+- **ALWAYS use `useFormValidation` hook** - Provides smart button states (`canSubmit`, `canReset`) and declarative validation
+- **Use validation rules from `validationRules`** - Available rules: `required`, `email`, `phone`, `password`, `minLength`, `maxLength`, `optional`, `matchesField`, `differentFromField`
+- **Follow the established pattern** - See existing forms like `ProfileForm`, `AddressForm`, `RegisterForm` for implementation examples
+
+**For password fields:**
+- **ALWAYS use `useCompletePasswordValidation` hook** - Provides professional password strength validation and matching
+- **Use `PasswordStrengthIndicator` component** - Professional progress bar with detailed feedback
+- **Use `PasswordMatchIndicator` component** - Consistent password confirmation feedback
+
+**Benefits:**
+- **Smart button enablement** - Buttons enable/disable intelligently based on form state and validation
+- **Consistent UX** - All forms behave the same way across the application
+- **Clean components** - No complex validation logic in components
+- **Type-safe** - Full TypeScript support with proper error handling
+
+### **Development Standards**
+
+- **Never write custom validation logic in components** - Use the unified hooks
+- **Always use smart button states** - `canSubmit` and `canReset` from the validation hook
+- **Follow the feature-based architecture** - Keep form validation consistent with established patterns
+- **Professional password validation** - Use the enhanced password components for all password fields
+
 ## Next Steps
 
 The foundation is complete! Ready for:
 
 - ✅ **Authentication System**: Fully implemented and production-ready
+- ✅ **Form Validation System**: Unified validation with smart button states and professional UX
 - 🔄 **Product Catalog**: Ready to implement using the same architecture pattern
 - 🔄 **Shopping Cart**: Can be added as a new feature module
 - 🔄 **Order Management**: Following the established patterns

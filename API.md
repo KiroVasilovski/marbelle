@@ -1,492 +1,380 @@
 # Marbelle API Documentation
 
-## Overview
-
-The Marbelle API is a RESTful web service that provides endpoints for managing natural stone e-commerce operations including user authentication, product catalog, and order management.
-
 **Base URL**: `http://localhost:8000/api/v1/`  
-**API Version**: v1  
-**Content-Type**: `application/json`  
-**Authentication**: JWT Bearer Token (where required)
-
-## Table of Contents
-
-- [Authentication](#authentication)
-- [Response Format](#response-format)
-- [Error Handling](#error-handling)
-- [Rate Limiting](#rate-limiting)
-- [API Endpoints](#api-endpoints)
-  - [Authentication](#authentication-endpoints)
-
----
-
-## Authentication
-
-The API uses JWT (JSON Web Token) authentication for protected endpoints. Include the JWT token in the Authorization header:
-
-```
-Authorization: Bearer <jwt_token>
-```
-
-Tokens expire after 60 minutes and can be refreshed using the refresh token endpoint.
+**Authentication**: JWT Bearer Token  
+**Content-Type**: `application/json`
 
 ## Response Format
 
-All API responses follow a consistent JSON format:
+All responses follow this format:
 
-### Success Response
 ```json
 {
-  "success": true,
-  "message": "Operation completed successfully",
-  "data": {
-    // Response data here
-  }
+  "success": true|false,
+  "message": "Description",
+  "data": {...}  // Optional
 }
 ```
 
-### Error Response
-```json
-{
-  "success": false,
-  "message": "Error description",
-  "errors": {
-    // Detailed error information
-  }
-}
-```
+## Rate Limits
 
-## Error Handling
-
-| Status Code | Description |
-|-------------|-------------|
-| 200 | OK - Request successful |
-| 201 | Created - Resource created successfully |
-| 400 | Bad Request - Invalid request data |
-| 401 | Unauthorized - Authentication required |
-| 403 | Forbidden - Access denied |
-| 404 | Not Found - Resource not found |
-| 429 | Too Many Requests - Rate limit exceeded |
-| 500 | Internal Server Error - Server error |
-
-## Rate Limiting
-
-Rate limits are applied to protect the API:
-
-- **Authentication endpoints**: 5 requests per minute for registration/login
-- **Password reset endpoints**: 3 requests per minute
-- **Email verification**: 3 requests per minute
-
-Rate limit headers are included in responses:
-- `X-RateLimit-Limit`: Maximum requests allowed
-- `X-RateLimit-Remaining`: Remaining requests in current window
-- `X-RateLimit-Reset`: Time when rate limit resets
+-   Authentication: 5/min
+-   Password reset: 3/min
+-   Email verification: 3/min
 
 ---
 
-## API Endpoints
+## Authentication Endpoints
 
-### Authentication Endpoints
+### Register
 
-#### User Registration
-
-**POST** `/auth/register/`
-
-Register a new user account. Account will be created in inactive state until email verification.
-
-**Request Body:**
-```json
-{
-  "email": "user@example.com",
-  "first_name": "John",
-  "last_name": "Doe",
-  "password": "SecurePassword123",
-  "password_confirm": "SecurePassword123",
-  "company_name": "Optional Company Name",
-  "phone": "+1234567890"
-}
+```http
+POST /auth/register/
 ```
 
-**Response (201 Created):**
 ```json
 {
-  "success": true,
-  "message": "Registration successful. Please check your email for verification instructions.",
-  "data": {
-    "user_id": 1
-  }
-}
-```
-
-**Rate Limit:** 5 requests per minute  
-**Authentication:** Not required
-
----
-
-#### User Login
-
-**POST** `/auth/login/`
-
-Authenticate user and receive JWT tokens.
-
-**Request Body:**
-```json
-{
-  "email": "user@example.com",
-  "password": "SecurePassword123"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "message": "Login successful.",
-  "data": {
-    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "user": {
-      "id": 1,
-      "email": "user@example.com",
-      "first_name": "John",
-      "last_name": "Doe",
-      "company_name": "Company Name",
-      "phone": "+1234567890",
-      "is_business_customer": true
-    }
-  }
-}
-```
-
-**Error Response (400 Bad Request):**
-```json
-{
-  "success": false,
-  "message": "Login failed.",
-  "errors": {
-    "non_field_errors": ["Account is not activated. Please check your email for verification instructions."]
-  }
-}
-```
-
-**Rate Limit:** 5 requests per minute  
-**Authentication:** Not required
-
----
-
-#### User Logout
-
-**POST** `/auth/logout/`
-
-Logout user and blacklist refresh token.
-
-**Request Body:**
-```json
-{
-  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "message": "Logout successful."
-}
-```
-
-**Authentication:** Required (Bearer token)
-
----
-
-#### Email Verification
-
-**POST** `/auth/verify-email/`
-
-Verify user email address using verification token.
-
-**Request Body:**
-```json
-{
-  "token": "verification_token_from_email"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "message": "Email verification successful. Your account is now active."
-}
-```
-
-**Rate Limit:** 3 requests per minute  
-**Authentication:** Not required
-
----
-
-#### Resend Email Verification
-
-**POST** `/auth/resend-verification/`
-
-Resend email verification to inactive user.
-
-**Request Body:**
-```json
-{
-  "email": "user@example.com"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "message": "Verification email sent."
-}
-```
-
-**Rate Limit:** 3 requests per minute  
-**Authentication:** Not required
-
----
-
-#### Password Reset Request
-
-**POST** `/auth/password-reset/`
-
-Request password reset for user account.
-
-**Request Body:**
-```json
-{
-  "email": "user@example.com"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "message": "If this email is registered, you will receive password reset instructions."
-}
-```
-
-**Rate Limit:** 3 requests per minute  
-**Authentication:** Not required
-
----
-
-#### Password Reset Confirmation
-
-**POST** `/auth/password-reset-confirm/`
-
-Confirm password reset with new password.
-
-**Request Body:**
-```json
-{
-  "token": "reset_token_from_email",
-  "new_password": "NewSecurePassword123",
-  "new_password_confirm": "NewSecurePassword123"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "message": "Password reset successful. You can now login with your new password."
-}
-```
-
-**Rate Limit:** 3 requests per minute  
-**Authentication:** Not required
-
----
-
-#### Token Verification
-
-**GET** `/auth/verify-token/`
-
-Verify JWT token validity and get current user information.
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "message": "Token is valid.",
-  "data": {
-    "id": 1,
     "email": "user@example.com",
-    "first_name": "John",
-    "last_name": "Doe",
-    "company_name": "Company Name",
-    "phone": "+1234567890",
-    "is_business_customer": true
-  }
-}
-```
-
-**Error Response (401 Unauthorized):**
-```json
-{
-  "detail": "Given token not valid for any token type",
-  "code": "token_not_valid",
-  "messages": [
-    {
-      "token_class": "AccessToken",
-      "token_type": "access",
-      "message": "Token is invalid or expired"
-    }
-  ]
-}
-```
-
-**Authentication:** Required (Bearer token)
-
----
-
-#### Token Refresh
-
-**POST** `/auth/refresh-token/`
-
-Refresh expired access token using refresh token.
-
-**Request Body:**
-```json
-{
-  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-**Authentication:** Not required (uses refresh token)
-
----
-
-## Examples
-
-### Complete Authentication Flow
-
-#### 1. Register New User
-```bash
-curl -X POST http://localhost:8000/api/v1/auth/register/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@example.com",
     "first_name": "John",
     "last_name": "Doe",
     "password": "SecurePassword123",
     "password_confirm": "SecurePassword123",
-    "company_name": "Acme Corp"
-  }'
+    "company_name": "Acme Corp",
+    "phone": "+1234567890"
+}
 ```
 
-#### 2. Get Verification Token (from email or Django shell)
-```bash
-docker-compose exec backend python manage.py shell -c "
-from users.models import EmailVerificationToken
-token = EmailVerificationToken.objects.filter(user__email='john@example.com').last()
-print('Token:', token.token if token else 'Not found')
-"
+### Login
+
+```http
+POST /auth/login/
 ```
 
-#### 3. Verify Email
+```json
+{
+    "email": "user@example.com",
+    "password": "SecurePassword123"
+}
+```
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "message": "Login successful.",
+    "data": {
+        "access": "eyJhbGciOiJIUzI1NiIs...",
+        "refresh": "eyJhbGciOiJIUzI1NiIs...",
+        "user": {
+            "id": 1,
+            "email": "user@example.com",
+            "first_name": "John",
+            "last_name": "Doe",
+            "company_name": "Acme Corp",
+            "phone": "+1234567890",
+            "is_business_customer": true
+        }
+    }
+}
+```
+
+### Other Auth Endpoints
+
+```http
+POST /auth/logout/                    # Logout user
+POST /auth/verify-email/              # Verify email with token
+POST /auth/resend-verification/       # Resend verification email
+POST /auth/password-reset/            # Request password reset
+POST /auth/password-reset-confirm/    # Confirm password reset
+GET  /auth/verify-token/              # Verify JWT token
+POST /auth/refresh-token/             # Refresh access token
+POST /auth/request-email-change/      # Request email address change
+POST /auth/confirm-email-change/      # Confirm email address change
+```
+
+---
+
+## Email Change Endpoints
+
+### Request Email Change
+
+```http
+POST /auth/request-email-change/
+```
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Request:**
+```json
+{
+    "current_password": "CurrentPassword123",
+    "new_email": "newemail@example.com"
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Email change verification sent. Please check your new email to confirm the change."
+}
+```
+
+**Security Features:**
+- Requires current password re-authentication
+- New email must be different from current email
+- New email must not already exist in system
+- Only one pending email change per user (new request overwrites old)
+- Rate limited: 1000 requests per minute per user
+
+### Confirm Email Change
+
+```http
+POST /auth/confirm-email-change/
+```
+
+**Request:**
+```json
+{
+    "token": "email_change_token_here"
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Email address changed successfully. You can now use your new email to login.",
+    "data": {
+        "id": 1,
+        "email": "newemail@example.com",
+        "first_name": "John",
+        "last_name": "Doe",
+        "company_name": "Acme Corp",
+        "phone": "+1234567890",
+        "is_business_customer": true
+    }
+}
+```
+
+**Security Features:**
+- No authentication required (uses secure token)
+- Token expires in 24 hours
+- Single-use token (becomes invalid after use)
+- Old email receives security notification
+- Username updated to match new email
+- Rate limited: 1000 requests per minute per IP
+
+### Email Change Workflow
+
+The industry-standard email change process follows these steps:
+
+1. **User Authentication**: User re-enters current password
+2. **New Email Submission**: User provides new email address
+3. **Verification Email**: Token sent to NEW email address
+4. **Email Confirmation**: User clicks link/enters token → email actually changes
+5. **Security Notification**: Old email gets notified of the change
+
+**Business Rules:**
+- Current email remains active until new one is verified
+- Failed verification keeps original email unchanged
+- User can have only one pending email change at a time
+- New requests override previous pending changes
+
+---
+
+## Dashboard Endpoints
+
+All dashboard endpoints require JWT authentication: `Authorization: Bearer <token>`
+
+### Profile Management
+
+```http
+GET  /auth/user/                      # Get user profile
+PUT  /auth/user/                      # Update user profile
+POST /auth/change-password/           # Change password
+```
+
+**Update Profile Example:**
+
+```json
+{
+    "first_name": "John",
+    "last_name": "Smith",
+    "email": "john@example.com",
+    "phone": "+1234567890",
+    "company_name": "New Company"
+}
+```
+
+**Change Password Example:**
+
+```json
+{
+    "current_password": "CurrentPassword123",
+    "new_password": "NewPassword456",
+    "new_password_confirm": "NewPassword456"
+}
+```
+
+### Address Management
+
+```http
+GET    /auth/addresses/               # List addresses
+POST   /auth/addresses/               # Create address
+PUT    /auth/addresses/{id}/          # Update address
+DELETE /auth/addresses/{id}/          # Delete address
+PATCH  /auth/addresses/{id}/set_primary/  # Set primary address
+```
+
+**Address Example:**
+
+```json
+{
+    "label": "Home",
+    "first_name": "John",
+    "last_name": "Doe",
+    "company": "Acme Corp",
+    "address_line_1": "123 Main St",
+    "address_line_2": "Apt 4B",
+    "city": "New York",
+    "state": "NY",
+    "postal_code": "10001",
+    "country": "USA",
+    "phone": "+1234567890"
+}
+```
+
+**Address Response:**
+
+```json
+{
+    "success": true,
+    "data": {
+        "addresses": [
+            {
+                "id": 1,
+                "label": "Home",
+                "first_name": "John",
+                "last_name": "Doe",
+                "company": "Acme Corp",
+                "address_line_1": "123 Main St",
+                "address_line_2": "Apt 4B",
+                "city": "New York",
+                "state": "NY",
+                "postal_code": "10001",
+                "country": "USA",
+                "phone": "+1234567890",
+                "is_primary": true,
+                "created_at": "2024-01-15T10:30:00Z",
+                "updated_at": "2024-01-15T10:30:00Z"
+            }
+        ]
+    }
+}
+```
+
+---
+
+## Business Rules
+
+### Authentication
+
+-   Account activation required via email verification
+-   JWT tokens expire in 60 minutes
+-   Refresh tokens expire in 7 days
+
+### Profile Management
+
+-   Email changes silently ignored if duplicate (security feature)
+-   Company name determines business customer status
+-   All fields support partial updates
+
+### Address Management
+
+-   Maximum 10 addresses per user
+-   First address automatically set as primary
+-   Only one primary address allowed
+-   Cannot delete last remaining address
+-   Address labels must be unique per user
+
+---
+
+## Quick Examples
+
+### Complete Authentication Flow
+
 ```bash
-curl -X POST http://localhost:8000/api/v1/auth/verify-email/ \
+# 1. Register
+curl -X POST http://localhost:8000/api/v1/auth/register/ \
   -H "Content-Type: application/json" \
-  -d '{"token": "your_verification_token_here"}'
-```
+  -d '{"email":"user@example.com","first_name":"John","last_name":"Doe","password":"Pass123","password_confirm":"Pass123"}'
 
-#### 4. Login User
-```bash
+# 2. Login
 curl -X POST http://localhost:8000/api/v1/auth/login/ \
   -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@example.com",
-    "password": "SecurePassword123"
-  }'
+  -d '{"email":"user@example.com","password":"Pass123"}'
+
+# 3. Access protected endpoint
+curl -X GET http://localhost:8000/api/v1/auth/user/ \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-#### 5. Use Protected Endpoint
+### Address Management Flow
+
 ```bash
-curl -X GET http://localhost:8000/api/v1/auth/verify-token/ \
-  -H "Authorization: Bearer your_jwt_token_here"
+# List addresses
+curl -X GET http://localhost:8000/api/v1/auth/addresses/ \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# Create address
+curl -X POST http://localhost:8000/api/v1/auth/addresses/ \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"label":"Home","first_name":"John","last_name":"Doe","address_line_1":"123 Main St","city":"NYC","state":"NY","postal_code":"10001","country":"USA"}'
+
+# Set as primary
+curl -X PATCH http://localhost:8000/api/v1/auth/addresses/1/set_primary/ \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Email Change Flow
+
+```bash
+# 1. Request email change (requires current password)
+curl -X POST http://localhost:8000/api/v1/auth/request-email-change/ \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"current_password":"CurrentPassword123","new_email":"newemail@example.com"}'
+
+# 2. User receives email at newemail@example.com with verification link
+# 3. Confirm email change using token from email
+curl -X POST http://localhost:8000/api/v1/auth/confirm-email-change/ \
+  -H "Content-Type: application/json" \
+  -d '{"token":"TOKEN_FROM_EMAIL"}'
+
+# 4. Old email receives security notification about the change
+# 5. User can now login with newemail@example.com
 ```
 
 ---
 
-## Security Considerations
+## Error Codes
 
-### Password Requirements
-- Minimum 8 characters
-- Must contain mixed case letters
-- Must contain numbers
-- Django's built-in password validators are enforced
+| Code | Description  |
+| ---- | ------------ |
+| 200  | Success      |
+| 201  | Created      |
+| 400  | Bad Request  |
+| 401  | Unauthorized |
+| 403  | Forbidden    |
+| 404  | Not Found    |
+| 429  | Rate Limited |
 
-### Token Security
-- JWT access tokens expire after 60 minutes
-- Refresh tokens expire after 7 days with rotation
-- Tokens are automatically blacklisted on logout
-- Email verification tokens expire after 24 hours
-- Password reset tokens expire after 24 hours
+## Security Notes
 
-### Rate Limiting
-All authentication endpoints are rate-limited to prevent abuse:
-- Registration/Login: 5 attempts per minute per IP
-- Password reset: 3 attempts per minute per IP
-- Email verification: 3 attempts per minute per IP
-
-### CORS Configuration
-CORS is configured to allow requests from:
-- `http://localhost:3000` (React development server)
-- `http://127.0.0.1:3000`
-
----
-
-## Development & Testing
-
-### Running Tests
-```bash
-# Run all authentication tests
-docker-compose exec backend python manage.py test users
-
-# Run specific test class
-docker-compose exec backend python manage.py test users.tests.AuthenticationAPITest
-```
-
-### Database Management
-```bash
-# Apply migrations
-docker-compose exec backend python manage.py migrate
-
-# Access Django shell
-docker-compose exec backend python manage.py shell
-```
-
-### Email Templates
-Email templates are located in `/templates/users/`:
-- `email_verification.html` - Email verification template
-- `password_reset.html` - Password reset template
-
-Both templates follow Marbelle's brand guidelines with professional styling and CAPITAL LETTERS typography.
-
----
-
-## Changelog
-
-### v1.0.0 (Current)
-- Initial API release
-- Complete authentication system
-- JWT token-based authentication
-- Email verification and password reset
-- Rate limiting and security features
-- Professional email templates
+-   **Email Enumeration Protection**: Duplicate email changes are silently ignored
+-   **Rate Limiting**: Applied to authentication endpoints
+-   **JWT Security**: Tokens blacklisted on logout
+-   **User Isolation**: Users can only access their own data

@@ -130,18 +130,12 @@ export class AuthService {
             throw new Error('No token found');
         }
 
-        try {
-            const user = await apiClient.get<User>(API_ENDPOINTS.AUTH.VERIFY_TOKEN);
+        const user = await apiClient.get<User>(API_ENDPOINTS.AUTH.VERIFY_TOKEN);
 
-            // Update stored user data
-            this.updateUserData(user);
+        // Update stored user data
+        this.updateUserData(user);
 
-            return user;
-        } catch (error) {
-            // If token verification fails, clear stored data
-            apiClient.clearTokens();
-            throw error;
-        }
+        return user;
     }
 
     /**

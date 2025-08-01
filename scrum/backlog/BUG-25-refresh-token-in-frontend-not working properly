@@ -1,0 +1,1 @@
+When the access token is expired, and the token needs to be refreshed, the frontend always logs me out even though the refresh token returns new values.

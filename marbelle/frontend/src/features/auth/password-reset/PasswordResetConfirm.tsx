@@ -2,37 +2,25 @@ import React, { useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '../../../shared/components/shadcn/button';
 import { Input } from '../../../shared/components/ui/input';
+import {
+    PasswordStrengthIndicator,
+    PasswordMatchIndicator,
+} from '../../../shared/components/ui/password-strength-indicator';
 import { AuthWindow } from '../ui/auth-window';
 import { authService } from '../services/authService';
 import { useFormValidation } from '../../../shared/hooks/useFormValidation';
-import { validationRules, getPasswordStrength } from '../../../shared/lib/validation';
+import { useCompletePasswordValidation } from '../../../shared/hooks/usePasswordValidation';
+import { validationRules } from '../../../shared/lib/validation';
 import { Eye, EyeOff } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const initialValues = {
     new_password: '',
     new_password_confirm: '',
 };
 
-const validation = {
-    new_password: [
-        {
-            validator: validationRules.required,
-            message: 'PASSWORD IS REQUIRED',
-        },
-        {
-            validator: validationRules.password,
-            message: 'PASSWORD MUST BE AT LEAST 8 CHARACTERS WITH MIXED CASE AND NUMBERS',
-        },
-    ],
-    new_password_confirm: [
-        {
-            validator: validationRules.required,
-            message: 'PASSWORD CONFIRMATION IS REQUIRED',
-        },
-    ],
-};
-
 export const PasswordResetConfirm: React.FC = () => {
+    const { t } = useTranslation();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
@@ -42,29 +30,47 @@ export const PasswordResetConfirm: React.FC = () => {
 
     const token = searchParams.get('token');
 
+    const validation = {
+        new_password: [
+            {
+                validator: validationRules.required,
+                message: t('validation.passwordRequired'),
+            },
+            {
+                validator: validationRules.password,
+                message: t('validation.passwordRequirements'),
+            },
+        ],
+        new_password_confirm: [
+            {
+                validator: validationRules.required,
+                message: t('validation.passwordConfirmationRequired'),
+            },
+        ],
+    };
+
     const { values, errors, touched, setValue, setTouched, validateAll, reset } = useFormValidation(
         initialValues,
         validation
     );
 
-    // Additional validation for password confirmation
-    const passwordMatchError =
-        values.new_password !== values.new_password_confirm && touched.new_password_confirm
-            ? 'PASSWORDS DO NOT MATCH'
-            : '';
-
-    const passwordStrength = getPasswordStrength(values.new_password);
+    // Use the enhanced password validation
+    const {
+        strength: passwordStrength,
+        match: passwordMatch,
+        isFormValid,
+    } = useCompletePasswordValidation(values.new_password, values.new_password_confirm);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitError('');
 
         if (!token) {
-            setSubmitError('INVALID RESET TOKEN');
+            setSubmitError(t('auth.passwordReset.confirm.failure.invalidToken'));
             return;
         }
 
-        if (!validateAll() || passwordMatchError) {
+        if (!validateAll() || !isFormValid) {
             return;
         }
 
@@ -74,7 +80,7 @@ export const PasswordResetConfirm: React.FC = () => {
             setShowSuccess(true);
             reset();
         } catch (error) {
-            setSubmitError(error instanceof Error ? error.message : 'PASSWORD RESET FAILED');
+            setSubmitError(error instanceof Error ? error.message : t('auth.passwordReset.confirm.failure.title'));
         } finally {
             setIsLoading(false);
         }
@@ -82,11 +88,11 @@ export const PasswordResetConfirm: React.FC = () => {
 
     if (!token) {
         return (
-            <AuthWindow title="INVALID RESET LINK">
+            <AuthWindow title={t('auth.passwordReset.confirm.failure.title')}>
                 <div className="text-center">
-                    <p className="text-gray-600 mb-6 uppercase">THIS PASSWORD RESET LINK IS INVALID OR HAS EXPIRED</p>
+                    <p className="text-gray-600 mb-6 uppercase">{t('auth.passwordReset.confirm.failure.message')}</p>
                     <Link to="/password-reset">
-                        <Button className="w-full uppercase">REQUEST NEW RESET LINK</Button>
+                        <Button className="w-full uppercase">{t('auth.passwordReset.confirm.failure.action')}</Button>
                     </Link>
                 </div>
             </AuthWindow>
@@ -98,11 +104,11 @@ export const PasswordResetConfirm: React.FC = () => {
             <AuthWindow
                 title=""
                 success={{
-                    title: 'PASSWORD RESET SUCCESSFUL',
-                    message: 'Your password has been successfully reset. You can now sign in with your new password.',
+                    title: t('auth.passwordReset.confirm.success.title'),
+                    message: t('auth.passwordReset.confirm.success.message'),
                     action: (
                         <Button onClick={() => navigate('/login')} variant="secondary" className="w-full uppercase">
-                            SIGN IN
+                            {t('auth.passwordReset.confirm.success.goToLogin')}
                         </Button>
                     ),
                 }}
@@ -112,8 +118,8 @@ export const PasswordResetConfirm: React.FC = () => {
 
     return (
         <AuthWindow
-            title="SET NEW PASSWORD"
-            subtitle="Please enter your new password below."
+            title={t('auth.passwordReset.confirm.title')}
+            subtitle={t('auth.passwordReset.confirm.subtitle')}
             error={submitError}
             isForm={true}
             onSubmit={handleSubmit}
@@ -123,11 +129,11 @@ export const PasswordResetConfirm: React.FC = () => {
                     <Input
                         id="new_password"
                         type={showPassword ? 'text' : 'password'}
+                        label={t('auth.passwordReset.confirm.newPassword')}
                         value={values.new_password}
                         onChange={(e) => setValue('new_password', e.target.value)}
                         onBlur={() => setTouched('new_password')}
-                        className={errors.new_password && touched.new_password ? 'border-red-500' : ''}
-                        placeholder="Password"
+                        error={errors.new_password && touched.new_password ? errors.new_password : undefined}
                         autoComplete="new-password"
                     />
                     <button
@@ -139,25 +145,12 @@ export const PasswordResetConfirm: React.FC = () => {
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                 </div>
-                {values.new_password && (
-                    <div className="mt-2">
-                        <div className="flex gap-1 mb-1">
-                            {[...Array(4)].map((_, i) => (
-                                <div
-                                    key={i}
-                                    className={`h-1 flex-1 rounded ${
-                                        i < passwordStrength.score ? 'bg-green-500' : 'bg-gray-200'
-                                    }`}
-                                />
-                            ))}
-                        </div>
-                        {passwordStrength.feedback.length > 0 && (
-                            <p className="text-xs text-gray-500 uppercase">
-                                NEEDS: {passwordStrength.feedback.join(', ')}
-                            </p>
-                        )}
-                    </div>
-                )}
+                <PasswordStrengthIndicator
+                    password={values.new_password}
+                    strength={passwordStrength}
+                    showDetails={true}
+                    className="mt-2"
+                />
                 {errors.new_password && touched.new_password && (
                     <p className="text-red-500 text-xs mt-1 uppercase">{errors.new_password}</p>
                 )}
@@ -167,18 +160,25 @@ export const PasswordResetConfirm: React.FC = () => {
                 <Input
                     id="new_password_confirm"
                     type="password"
+                    label={t('auth.passwordReset.confirm.confirmPassword')}
                     value={values.new_password_confirm}
                     onChange={(e) => setValue('new_password_confirm', e.target.value)}
                     onBlur={() => setTouched('new_password_confirm')}
-                    className={passwordMatchError ? 'border-red-500' : ''}
-                    placeholder="Password confirm"
+                    error={!passwordMatch.isMatch && passwordMatch.error ? passwordMatch.error : undefined}
                     autoComplete="new-password"
                 />
-                {passwordMatchError && <p className="text-red-500 text-xs mt-1 uppercase">{passwordMatchError}</p>}
+                <PasswordMatchIndicator
+                    password={values.new_password}
+                    confirmPassword={values.new_password_confirm}
+                    isMatch={passwordMatch.isMatch}
+                    error={passwordMatch.error}
+                />
             </div>
 
             <Button type="submit" variant="secondary" className="w-full uppercase" disabled={isLoading}>
-                {isLoading ? 'UPDATING PASSWORD...' : 'UPDATE PASSWORD'}
+                {isLoading
+                    ? t('auth.passwordReset.confirm.submitButtonLoading')
+                    : t('auth.passwordReset.confirm.submitButton')}
             </Button>
 
             <Button
@@ -187,7 +187,7 @@ export const PasswordResetConfirm: React.FC = () => {
                 className="w-full uppercase"
                 disabled={isLoading}
             >
-                CANCEL
+                {t('auth.common.cancelButton')}
             </Button>
         </AuthWindow>
     );
