@@ -53,7 +53,7 @@ function ShippingLanguageDialog({
 
     const languageOptions: SelectOption[] = [
         { value: 'en', label: 'English' },
-        { value: 'de', label: 'Detusch' },
+        { value: 'de', label: 'Deutsch' },
         { value: 'sq', label: 'Shqip' },
     ];
 

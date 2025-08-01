@@ -3,7 +3,7 @@
  * Handles all HTTP requests with authentication, interceptors, and error handling
  */
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse, type AxiosError } from 'axios';
-import { API_CONFIG, STORAGE_KEYS } from './apiConfig';
+import { API_CONFIG, API_ENDPOINTS, STORAGE_KEYS } from './apiConfig';
 import { localStorageService } from '../storage/LocalStorageService';
 import { ApiError } from './ApiError';
 
@@ -134,17 +134,22 @@ export class ApiClient {
         }
 
         try {
-            const response = await this.axiosInstance.post<ApiResponse<AuthTokens>>(
-                '/auth/refresh/',
+            const response = await this.axiosInstance.post<AuthTokens>(
+                API_ENDPOINTS.AUTH.REFRESH,
                 { refresh: refreshToken },
                 { skipAuth: true } as RequestOptions
             );
 
-            if (response.data.success && response.data.data) {
-                this.storeTokens(response.data.data);
-                return response.data.data.access;
+            // Django SimpleJWT returns tokens directly, not wrapped in success/data structure
+            if (response.data.access) {
+                const tokens: AuthTokens = {
+                    access: response.data.access,
+                    refresh: response.data.refresh || refreshToken, // Use new refresh token if provided, otherwise keep current
+                };
+                this.storeTokens(tokens);
+                return tokens.access;
             } else {
-                throw ApiError.fromResponse(response.status, response.data);
+                throw new Error('Invalid refresh response');
             }
         } catch (error) {
             this.clearTokens();

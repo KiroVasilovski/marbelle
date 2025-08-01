@@ -90,60 +90,83 @@ To keep Claude informed and updated on our progress, a file named `history.md` e
 - Each session's documentation must be appended to the end of the file and clearly separated from previous entries.
 - Every entry must include the date of the session.
 
-## Frontend Labels System
-The frontend uses a centralized labels system for all text content to support future internationalization and maintain consistency.
+## Frontend Internationalization System
+The frontend uses a professional internationalization (i18n) system built with `react-i18next` to support multiple languages and maintain consistency across all user-facing text.
+
+### Current Language Support
+- **English (en)** - Primary language and source of truth
+- **German (de)** - Complete translations for German market
+- **Albanian (sq)** - Complete translations for Albanian market
 
 ### Usage Instructions
-**For all new frontend components, ALWAYS use labels instead of hardcoded text:**
+**For all new frontend components, ALWAYS use translations instead of hardcoded text:**
 
 ```typescript
-import { useLabels } from '../labels'; // or appropriate path
+import { useTranslation } from 'react-i18next';
 
 const MyComponent = () => {
-    const { getLabel, t } = useLabels(); // t is an alias for getLabel
+    const { t } = useTranslation();
     
     return (
         <div>
-            <h1>{getLabel('section.title')}</h1>
-            <p>{getLabel('section.welcome', { name: user.name })}</p>
+            <h1>{t('section.title')}</h1>
+            <p>{t('section.welcome', { firstName: user.firstName })}</p>
         </div>
     );
 };
 ```
 
-### Adding New Labels
-1. **Add to Configuration**: Update `src/labels/labels.config.ts` with new labels
-2. **Update Types**: Add corresponding types to `src/labels/types.ts` if needed
-3. **Use in Components**: Replace hardcoded text with `getLabel()` calls
+### Adding New Translations
+1. **Add to English**: Update `src/i18n/locales/en.json` with new translation keys
+2. **Update Other Languages**: Add corresponding translations to `de.json` and `sq.json`
+3. **TypeScript Support**: The system automatically provides type-safe translation keys
+4. **Use in Components**: Replace hardcoded text with `t()` calls
 
-### Label Key Structure
+### Translation Key Structure
+- `common.*` - Common UI elements (buttons, loading states)
 - `auth.*` - Authentication flows (login, register, password reset)
-- `navigation.*` - Header, navigation, and menu items
-- `home.*` - Home page content
+- `header.*` - Navigation and header elements
+- `footer.*` - Footer content and links
+- `pages.*` - Page-specific content (home, about, products)
 - `validation.*` - Form validation messages
-- `errors.*` - Error messages
-- `[feature].*` - Feature-specific labels (organized by component/page)
+- `dashboard.*` - User dashboard features (profile, addresses, orders)
+- `shipping.*` - Shipping and language selection
 
 ### Examples
 ```typescript
-// Simple label
-const title = getLabel('auth.login.title');
+// Simple translation
+const title = t('auth.login.title');
 
-// Label with variables
-const welcome = getLabel('navigation.welcome', { firstName: user.firstName });
+// Translation with variables
+const welcome = t('header.welcome', { firstName: user.firstName });
 
 // Form validation
 const validation = {
     email: [{
         validator: validationRules.required,
-        message: getLabel('validation.emailRequired')
+        message: t('validation.emailRequired')
     }]
+};
+```
+
+### Language Management
+```typescript
+import { useTranslation } from 'react-i18next';
+
+const LanguageSwitcher = () => {
+    const { i18n } = useTranslation();
+    
+    const changeLanguage = (lng: string) => {
+        i18n.changeLanguage(lng); // Automatically saves to localStorage
+    };
 };
 ```
 
 ### Important Rules
 - **NEVER use hardcoded text** in JSX or component logic
-- **ALWAYS use labels** for user-facing text
-- **Group related labels** logically in the configuration
+- **ALWAYS use the `t()` function** for user-facing text
+- **English is the source of truth** - all new keys must be added to `en.json` first
+- **Maintain consistency** across all language files
 - **Use descriptive key names** that clearly indicate the text purpose
-- **Add variable interpolation** for dynamic content
+- **Support variable interpolation** with `{{variableName}}` syntax
+- **Follow the established key structure** for organization

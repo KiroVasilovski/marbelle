@@ -51,7 +51,7 @@ export const PasswordResetRequest: React.FC = () => {
             setShowSuccess(true);
             reset();
         } catch (error) {
-            setSubmitError(error instanceof Error ? error.message : t('errors.resetRequestFailed'));
+            setSubmitError(error instanceof Error ? error.message : t('auth.errors.resetRequestFailed'));
         } finally {
             setIsLoading(false);
         }
@@ -91,19 +91,16 @@ export const PasswordResetRequest: React.FC = () => {
             isForm={true}
             onSubmit={handleSubmit}
         >
-            <div>
-                <Input
-                    id="email"
-                    type="email"
-                    value={values.email}
-                    onChange={(e) => setValue('email', e.target.value)}
-                    onBlur={() => setTouched('email')}
-                    className={errors.email && touched.email ? 'border-red-500' : ''}
-                    placeholder={t('auth.passwordReset.emailPlaceholder')}
-                    autoComplete="email"
-                />
-                {errors.email && touched.email && <p className="text-red-500 text-xs mt-1 uppercase">{errors.email}</p>}
-            </div>
+            <Input
+                id="email"
+                type="email"
+                label={t('auth.passwordReset.emailPlaceholder')}
+                value={values.email}
+                onChange={(e) => setValue('email', e.target.value)}
+                onBlur={() => setTouched('email')}
+                error={errors.email && touched.email ? errors.email : undefined}
+                autoComplete="email"
+            />
 
             <Button type="submit" className="w-full uppercase" variant="secondary" disabled={isLoading}>
                 {isLoading ? t('auth.passwordReset.submitButtonLoading') : t('auth.passwordReset.submitButton')}

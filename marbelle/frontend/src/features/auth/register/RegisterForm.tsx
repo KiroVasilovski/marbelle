@@ -2,13 +2,19 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../../shared/components/shadcn/button';
 import { Input } from '../../../shared/components/ui/input';
+import {
+    PasswordStrengthIndicator,
+    PasswordMatchIndicator,
+} from '../../../shared/components/ui/password-strength-indicator';
 import { AuthWindow } from '../ui/auth-window';
 import { useAuth } from '../AuthContext';
 import { useFormValidation } from '../../../shared/hooks/useFormValidation';
-import { validationRules, getPasswordStrength } from '../../../shared/lib/validation';
+import { useCompletePasswordValidation } from '../../../shared/hooks/usePasswordValidation';
+import { validationRules } from '../../../shared/lib/validation';
 import { useTranslation } from 'react-i18next';
 import type { RegisterData } from '../types/auth';
 import { Eye, EyeOff } from 'lucide-react';
+import { CheckMark } from '@/shared/components/ui/check-mark';
 
 const initialValues = {
     email: '',
@@ -25,6 +31,7 @@ export const RegisterForm: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
     const [submitError, setSubmitError] = useState<string>('');
     const [showSuccess, setShowSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -76,22 +83,24 @@ export const RegisterForm: React.FC = () => {
         ],
     };
 
-    const { values, errors, touched, setValue, setTouched, validateAll, reset } = useFormValidation(
+    const { values, errors, touched, setValue, setTouched, validateAll, reset, canSubmit } = useFormValidation(
         initialValues,
         validation
     );
 
-    // Additional validation for password confirmation
-    const passwordMatchError =
-        values.password !== values.password_confirm && touched.password_confirm ? t('validation.passwordsNoMatch') : '';
-
-    const passwordStrength = getPasswordStrength(values.password);
+    // Use the enhanced password validation
+    const {
+        strength: passwordStrength,
+        match: passwordMatch,
+        isFormValid,
+    } = useCompletePasswordValidation(values.password, values.password_confirm);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitError('');
 
-        if (!validateAll() || passwordMatchError) {
+        // For registration, we need both form validation AND password validation
+        if (!validateAll() || !isFormValid) {
             return;
         }
 
@@ -101,7 +110,7 @@ export const RegisterForm: React.FC = () => {
             setShowSuccess(true);
             reset();
         } catch (error) {
-            setSubmitError(error instanceof Error ? error.message : t('errors.registrationFailed'));
+            setSubmitError(error instanceof Error ? error.message : t('auth.errors.registrationFailed'));
         } finally {
             setIsLoading(false);
         }
@@ -116,21 +125,7 @@ export const RegisterForm: React.FC = () => {
                     message: t('auth.register.successMessage'),
                     action: (
                         <>
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <svg
-                                    className="w-6 h-6 text-green-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M5 13l4 4L19 7"
-                                    ></path>
-                                </svg>
-                            </div>
+                            <CheckMark />
                             <Button onClick={() => navigate('/login')} variant="outline" className="w-full uppercase">
                                 {t('auth.register.goToLogin')}
                             </Button>
@@ -154,79 +149,65 @@ export const RegisterForm: React.FC = () => {
                     <Input
                         id="first_name"
                         type="text"
+                        label={t('auth.register.firstNamePlaceholder')}
                         value={values.first_name}
                         onChange={(e) => setValue('first_name', e.target.value)}
                         onBlur={() => setTouched('first_name')}
-                        className={errors.first_name && touched.first_name ? 'border-red-500' : ''}
-                        placeholder={t('auth.register.firstNamePlaceholder')}
+                        error={errors.first_name && touched.first_name ? errors.first_name : undefined}
                     />
-                    {errors.first_name && touched.first_name && (
-                        <p className="text-red-500 text-xs mt-1 uppercase">{errors.first_name}</p>
-                    )}
                 </div>
 
                 <div>
                     <Input
                         id="last_name"
                         type="text"
+                        label={t('auth.register.lastNamePlaceholder')}
                         value={values.last_name}
                         onChange={(e) => setValue('last_name', e.target.value)}
                         onBlur={() => setTouched('last_name')}
-                        className={errors.last_name && touched.last_name ? 'border-red-500' : ''}
-                        placeholder={t('auth.register.lastNamePlaceholder')}
+                        error={errors.last_name && touched.last_name ? errors.last_name : undefined}
                     />
-                    {errors.last_name && touched.last_name && (
-                        <p className="text-red-500 text-xs mt-1 uppercase">{errors.last_name}</p>
-                    )}
                 </div>
             </div>
 
-            <div>
-                <Input
-                    id="email"
-                    type="email"
-                    value={values.email}
-                    onChange={(e) => setValue('email', e.target.value)}
-                    onBlur={() => setTouched('email')}
-                    className={errors.email && touched.email ? 'border-red-500' : ''}
-                    placeholder={t('auth.register.emailPlaceholder')}
-                />
-                {errors.email && touched.email && <p className="text-red-500 text-xs mt-1 uppercase">{errors.email}</p>}
-            </div>
+            <Input
+                id="email"
+                type="email"
+                label={t('auth.register.emailPlaceholder')}
+                value={values.email}
+                onChange={(e) => setValue('email', e.target.value)}
+                onBlur={() => setTouched('email')}
+                error={errors.email && touched.email ? errors.email : undefined}
+            />
 
-            <div>
-                <Input
-                    id="company_name"
-                    type="text"
-                    value={values.company_name}
-                    onChange={(e) => setValue('company_name', e.target.value)}
-                    placeholder={t('auth.register.companyPlaceholder')}
-                />
-            </div>
+            <Input
+                id="company_name"
+                type="text"
+                label={t('auth.register.companyPlaceholder')}
+                value={values.company_name}
+                onChange={(e) => setValue('company_name', e.target.value)}
+            />
 
-            <div>
-                <Input
-                    id="phone"
-                    type="tel"
-                    value={values.phone}
-                    onChange={(e) => setValue('phone', e.target.value)}
-                    onBlur={() => setTouched('phone')}
-                    className={errors.phone && touched.phone ? 'border-red-500' : ''}
-                    placeholder={t('auth.register.phonePlaceholder')}
-                />
-                {errors.phone && touched.phone && <p className="text-red-500 text-xs mt-1 uppercase">{errors.phone}</p>}
-            </div>
+            <Input
+                id="phone"
+                type="tel"
+                label={t('auth.register.phonePlaceholder')}
+                value={values.phone}
+                onChange={(e) => setValue('phone', e.target.value)}
+                onBlur={() => setTouched('phone')}
+                error={errors.phone && touched.phone ? errors.phone : undefined}
+            />
 
             <div>
                 <div className="relative">
                     <Input
                         id="password"
                         type={showPassword ? 'text' : 'password'}
+                        label={t('auth.register.passwordPlaceholder')}
                         value={values.password}
                         onChange={(e) => setValue('password', e.target.value)}
                         onBlur={() => setTouched('password')}
-                        className={errors.password && touched.password ? 'border-red-500' : ''}
-                        placeholder={t('auth.register.passwordPlaceholder')}
+                        error={errors.password && touched.password ? errors.password : undefined}
                     />
                     <button
                         type="button"
@@ -237,44 +218,48 @@ export const RegisterForm: React.FC = () => {
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                 </div>
-                {values.password && (
-                    <div className="mt-2">
-                        <div className="flex gap-1 mb-1">
-                            {[...Array(4)].map((_, i) => (
-                                <div
-                                    key={i}
-                                    className={`h-1 flex-1 rounded ${
-                                        i < passwordStrength.score ? 'bg-green-500' : 'bg-gray-200'
-                                    }`}
-                                />
-                            ))}
-                        </div>
-                        {passwordStrength.feedback.length > 0 && (
-                            <p className="text-xs text-gray-500 uppercase">
-                                {t('auth.register.passwordStrengthNeeds')}: {passwordStrength.feedback.join(', ')}
-                            </p>
-                        )}
-                    </div>
-                )}
-                {errors.password && touched.password && (
-                    <p className="text-red-500 text-xs mt-1 uppercase">{errors.password}</p>
-                )}
+                <PasswordStrengthIndicator
+                    password={values.password}
+                    strength={passwordStrength}
+                    showDetails={true}
+                    className="mt-2"
+                />
             </div>
 
             <div>
-                <Input
-                    id="password_confirm"
-                    type="password"
-                    value={values.password_confirm}
-                    onChange={(e) => setValue('password_confirm', e.target.value)}
-                    onBlur={() => setTouched('password_confirm')}
-                    className={passwordMatchError ? 'border-red-500' : ''}
-                    placeholder={t('auth.register.confirmPasswordPlaceholder')}
+                <div className="relative">
+                    <Input
+                        id="password_confirm"
+                        type={showPasswordConfirm ? 'text' : 'password'}
+                        label={t('auth.register.confirmPasswordPlaceholder')}
+                        value={values.password_confirm}
+                        onChange={(e) => setValue('password_confirm', e.target.value)}
+                        onBlur={() => setTouched('password_confirm')}
+                        error={!passwordMatch.isMatch && passwordMatch.error ? passwordMatch.error : undefined}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                        className="absolute right-3 top-4 text-gray-500 hover:text-gray-700"
+                        tabIndex={-1}
+                    >
+                        {showPasswordConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                </div>
+                <PasswordMatchIndicator
+                    password={values.password}
+                    confirmPassword={values.password_confirm}
+                    isMatch={passwordMatch.isMatch}
+                    error={passwordMatch.error}
                 />
-                {passwordMatchError && <p className="text-red-500 text-xs mt-1 uppercase">{passwordMatchError}</p>}
             </div>
 
-            <Button type="submit" className="w-full uppercase" variant="secondary" disabled={isLoading}>
+            <Button
+                type="submit"
+                className="w-full uppercase"
+                variant="secondary"
+                disabled={isLoading || !canSubmit || !isFormValid}
+            >
                 {isLoading ? t('auth.register.submitButtonLoading') : t('auth.register.submitButton')}
             </Button>
 

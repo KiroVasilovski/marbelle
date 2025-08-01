@@ -19,6 +19,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isInitializing, setIsInitializing] = useState(true);
 
     const isAuthenticated = authService.isAuthenticated() && !!user;
 
@@ -28,18 +29,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 const storedUser = authService.getCurrentUser();
 
                 if (storedUser && authService.isAuthenticated()) {
+                    // Set user immediately from storage
+                    setUser(storedUser);
+                    
+                    // Verify token in background - ApiClient will handle refresh if needed
                     try {
-                        // Verify token is still valid
                         const userData = await authService.verifyToken();
+                        // Update user data if verification succeeds
                         setUser(userData);
-                    } catch {
-                        // Token is invalid, clear storage
-                        authService.clearAuthData();
+                    } catch (error) {
+                        // Only clear auth data if it's not a network/refresh error
+                        // The ApiClient interceptor will handle token refresh automatically
+                        console.log('Token verification failed, but user stays logged in if refresh token is valid');
                     }
                 }
             } catch (error) {
                 console.error('Auth initialization error:', error);
                 setError('Failed to initialize authentication');
+            } finally {
+                setIsInitializing(false);
             }
         };
 
@@ -142,6 +150,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const value: AuthContextType = {
         user,
         isAuthenticated,
+        isInitializing,
         error,
         login,
         logout,

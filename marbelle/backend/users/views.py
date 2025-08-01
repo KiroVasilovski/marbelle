@@ -307,10 +307,10 @@ def request_email_change(request: Request) -> Response:
     serializer = EmailChangeRequestSerializer(data=request.data, context={"request": request})
     if serializer.is_valid():
         email_change_token = serializer.save()
-        
+
         # Send verification email to new email address
         send_email_change_verification(email_change_token.user, email_change_token.new_email, email_change_token.token)
-        
+
         return Response(
             {
                 "success": True,
@@ -318,7 +318,7 @@ def request_email_change(request: Request) -> Response:
             },
             status=status.HTTP_200_OK,
         )
-    
+
     return Response(
         {"success": False, "message": "Email change request failed.", "errors": serializer.errors},
         status=status.HTTP_400_BAD_REQUEST,
@@ -338,10 +338,10 @@ def confirm_email_change(request: Request) -> Response:
         user = result["user"]
         old_email = result["old_email"]
         new_email = result["new_email"]
-        
+
         # Send notification to old email about the change
         send_email_change_notification(user, old_email, new_email)
-        
+
         return Response(
             {
                 "success": True,
@@ -350,7 +350,7 @@ def confirm_email_change(request: Request) -> Response:
             },
             status=status.HTTP_200_OK,
         )
-    
+
     return Response(
         {"success": False, "message": "Email change confirmation failed.", "errors": serializer.errors},
         status=status.HTTP_400_BAD_REQUEST,

@@ -60,7 +60,7 @@ export const LoginForm: React.FC = () => {
             await login(values as LoginCredentials);
             navigate(from, { replace: true });
         } catch (error) {
-            setSubmitError(error instanceof Error ? error.message : t('errors.loginFailed'));
+            setSubmitError(error instanceof Error ? error.message : t('auth.errors.loginFailed'));
         } finally {
             setIsLoading(false);
         }
@@ -74,29 +74,26 @@ export const LoginForm: React.FC = () => {
             isForm={true}
             onSubmit={handleSubmit}
         >
-            <div>
-                <Input
-                    id="email"
-                    type="email"
-                    value={values.email}
-                    onChange={(e) => setValue('email', e.target.value)}
-                    onBlur={() => setTouched('email')}
-                    className={errors.email && touched.email ? 'border-red-500' : ''}
-                    placeholder={t('auth.login.emailPlaceholder')}
-                    autoComplete="email"
-                />
-                {errors.email && touched.email && <p className="text-red-500 text-xs mt-1 uppercase">{errors.email}</p>}
-            </div>
+            <Input
+                id="email"
+                type="email"
+                label={t('auth.login.emailPlaceholder')}
+                value={values.email}
+                onChange={(e) => setValue('email', e.target.value)}
+                onBlur={() => setTouched('email')}
+                error={errors.email && touched.email ? errors.email : undefined}
+                autoComplete="email"
+            />
 
             <div className="relative">
                 <Input
                     id="password"
+                    label={t('auth.login.passwordPlaceholder')}
                     type={showPassword ? 'text' : 'password'}
                     value={values.password}
                     onChange={(e) => setValue('password', e.target.value)}
                     onBlur={() => setTouched('password')}
-                    className={errors.password && touched.password ? 'border-red-500 pr-10' : 'pr-10'}
-                    placeholder={t('auth.login.passwordPlaceholder')}
+                    error={errors.password && touched.password ? errors.password : undefined}
                     autoComplete="current-password"
                 />
                 <button
@@ -107,9 +104,6 @@ export const LoginForm: React.FC = () => {
                 >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
-                {errors.password && touched.password && (
-                    <p className="text-red-500 text-xs mt-1 uppercase">{errors.password}</p>
-                )}
             </div>
 
             <div className="flex items-center">
