@@ -378,3 +378,133 @@ curl -X POST http://localhost:8000/api/v1/auth/confirm-email-change/ \
 -   **Rate Limiting**: Applied to authentication endpoints
 -   **JWT Security**: Tokens blacklisted on logout
 -   **User Isolation**: Users can only access their own data
+
+---
+
+## Product Catalog Endpoints
+
+**Public Access**: No authentication required for product catalog endpoints.
+
+### Product List
+
+```http
+GET /products/
+```
+
+**Query Parameters:**
+- `page` - Page number for pagination (default: 1)
+- `search` - Search products by name, description, or SKU
+- `category` - Filter by category ID
+- `min_price` - Minimum price filter
+- `max_price` - Maximum price filter  
+- `in_stock` - Filter by stock availability (true/false)
+- `ordering` - Sort by field (name, price, created_at, stock_quantity)
+
+**Example Response:**
+
+```json
+{
+    "count": 150,
+    "next": "http://localhost:8000/api/v1/products/?page=2",
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "name": "Carrara White Marble Slab",
+            "description": "Premium Italian Carrara white marble slab...",
+            "price": "85.50",
+            "unit_of_measure": "sqft",
+            "category": 1,
+            "stock_quantity": 25,
+            "in_stock": true,
+            "sku": "CARR-WHITE-001",
+            "images": [
+                {
+                    "id": 1,
+                    "image": "http://localhost:8000/media/products/carrara_white_1.jpg",
+                    "alt_text": "Carrara White Marble close-up",
+                    "is_primary": true,
+                    "display_order": 0
+                }
+            ],
+            "created_at": "2025-06-27T10:00:00Z",
+            "updated_at": "2025-06-27T10:00:00Z"
+        }
+    ]
+}
+```
+
+### Product Detail
+
+```http
+GET /products/{id}/
+```
+
+**Response:** Single product object with same structure as list.
+
+### Category List
+
+```http
+GET /categories/
+```
+
+**Example Response:**
+
+```json
+{
+    "count": 6,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "name": "Slabs",
+            "description": "Large format natural stone slabs",
+            "product_count": 45,
+            "created_at": "2025-06-27T10:00:00Z"
+        }
+    ]
+}
+```
+
+### Category Products
+
+```http
+GET /categories/{id}/products/
+```
+
+**Description:** Get all products in a specific category. Supports same filtering and search parameters as product list.
+
+**Example Response:** Same structure as product list endpoint.
+
+---
+
+## Product Catalog Examples
+
+### Search and Filter
+
+```bash
+# Search for marble products
+curl "http://localhost:8000/api/v1/products/?search=marble"
+
+# Filter by category and price range
+curl "http://localhost:8000/api/v1/products/?category=1&min_price=50&max_price=100"
+
+# Get only in-stock products
+curl "http://localhost:8000/api/v1/products/?in_stock=true"
+
+# Get products in category 1
+curl "http://localhost:8000/api/v1/categories/1/products/"
+
+# Sort by price descending
+curl "http://localhost:8000/api/v1/products/?ordering=-price"
+```
+
+### Business Rules
+
+- Only active products and categories are returned (is_active=True)
+- Stock availability: in_stock = stock_quantity > 0  
+- Category product_count includes only active products
+- Search is case-insensitive across name, description, and SKU
+- Images sorted by display_order, then created_at
+- Pagination: 20 items per page by default

@@ -275,3 +275,53 @@ gunicorn --config gunicorn_config.py marbelle.wsgi:application
 - **API Root**: `http://localhost:8000/` - API information and endpoints
 - **Health Check**: `http://localhost:8000/health/` - Server health status
 - **Admin Panel**: `http://localhost:8000/admin/` - Django administration
+- **Product API**: `http://localhost:8000/api/v1/products/` - Product catalog endpoints
+
+## Product Catalog API
+
+### Admin Panel Management
+Access: http://localhost:8000/admin/ (admin@marbelle.com / admin123)
+
+**Add Products:**
+1. Go to Products > Products > Add Product
+2. Fill in name, description, price, category, SKU, stock
+3. Add images via inline forms (set primary image)
+
+**Update Products:**
+- Edit any product field, update stock, change images
+- Set `is_active=False` to hide products from API
+
+**Categories:**
+- Create/edit categories under Products > Categories
+- Product counts update automatically
+
+### API Usage
+
+**List Products:**
+```bash
+curl "http://localhost:8000/api/v1/products/"
+```
+
+**Search & Filter:**
+```bash
+# Search products
+curl "http://localhost:8000/api/v1/products/?search=marble"
+
+# Filter by category and price
+curl "http://localhost:8000/api/v1/products/?category=1&min_price=50&max_price=100"
+
+# In-stock products only
+curl "http://localhost:8000/api/v1/products/?in_stock=true"
+
+# Sort by price (descending)
+curl "http://localhost:8000/api/v1/products/?ordering=-price"
+```
+
+**Categories:**
+```bash
+# List categories
+curl "http://localhost:8000/api/v1/categories/"
+
+# Products in category
+curl "http://localhost:8000/api/v1/categories/1/products/"
+```

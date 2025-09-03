@@ -38,7 +38,16 @@ class ProductAdmin(admin.ModelAdmin):
     Admin configuration for Product model with inline image management.
     """
 
-    list_display = ("name", "category", "price", "unit_of_measure", "stock_quantity", "is_active", "created_at")
+    list_display = (
+        "name",
+        "description",
+        "category",
+        "price",
+        "unit_of_measure",
+        "stock_quantity",
+        "is_active",
+        "created_at",
+    )
     list_filter = ("category", "unit_of_measure", "is_active", "created_at")
     search_fields = ("name", "description", "sku")
     ordering = ("name",)

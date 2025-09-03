@@ -729,6 +729,7 @@ class EmailChangeTokenTest(TestCase):
     def test_token_expiration(self):
         """Test token expiration."""
         from datetime import timedelta
+
         from django.utils import timezone
 
         token = EmailChangeToken.objects.create(
@@ -924,6 +925,7 @@ class EmailChangeAPITest(APITestCase):
     def test_confirm_email_change_expired_token(self):
         """Test email change confirmation with expired token."""
         from datetime import timedelta
+
         from django.utils import timezone
 
         token = EmailChangeToken.objects.create(
@@ -1014,7 +1016,7 @@ class EmailChangeAPITest(APITestCase):
         # The actual rate limiting behavior would need to be tested 
         # with multiple requests, but we can at least verify the 
         # rate limiting decorator is applied by checking the view function
-        from users.views import request_email_change, confirm_email_change
+        from users.views import confirm_email_change, request_email_change
         
         # Check that rate limiting decorators are applied
         self.assertTrue(hasattr(request_email_change, '__wrapped__'))
