@@ -114,23 +114,6 @@
 - Ultra-wide: 4 columns (≥ 1440px) The whole application will simply adapt on the new screen (get bigger and persist the whole ratio)
 ```
 
-### **Component Structure**
-
-```
-ProductCatalog/
-├── ProductGrid/
-│   ├── ProductCard
-│   ├── HeroSection
-│   └── LoadingSkeletons
-├── Navigation/
-│   ├── FloatingNav
-│   ├── CategoryBurger
-│   └── FilterRow
-└── InfiniteScroll/
-    ├── ScrollSnapContainer
-    └── BufferLoader
-```
-
 ## API Integration Specifications
 
 -   Integrate with TASK-005 API endpoints

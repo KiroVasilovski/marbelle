@@ -360,5 +360,28 @@
             "setPrimaryButton": "Vendos si kryesore",
             "primaryAddressInfo": "Kjo është adresa juaj kryesore për porositë tuaja. Ajo do të zgjidhet si parazgjedhje për dërgimin dhe faturimin."
         }
+    },
+    "products": {
+        "loading": "DUKE NGARKUAR PRODUKTET...",
+        "inStock": "NË STOK",
+        "outOfStock": "JASHTË STOKUT",
+        "sku": "SKU",
+        "perUnit": {
+            "sqm": "/ M²",
+            "sqft": "/ FT²", 
+            "piece": "/ COPË",
+            "box": "/ KUTI",
+            "unit": "/ NJËSI"
+        },
+        "navigation": {
+            "categories": "KATEGORITË",
+            "allCategories": "TË GJITHA KATEGORITË",
+            "inStockOnly": "VETËM NË STOK",
+            "clearFilters": "PASTRO FILTRAT",
+            "searchPlaceholder": "KËRKO PRODUKTET..."
+        },
+        "error": {
+            "title": "GABIM NË NGARKIMIN E PRODUKTEVE"
+        }
     }
 }

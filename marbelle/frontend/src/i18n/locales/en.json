@@ -360,5 +360,28 @@
             "setPrimaryButton": "Set as primary",
             "primaryAddressInfo": "This is your primary address for your orders. It will be selected by default for shipping and billing."
         }
+    },
+    "products": {
+        "loading": "LOADING PRODUCTS...",
+        "inStock": "IN STOCK",
+        "outOfStock": "OUT OF STOCK",
+        "sku": "SKU",
+        "perUnit": {
+            "sqm": "/ SQM",
+            "sqft": "/ SQFT", 
+            "piece": "/ PIECE",
+            "box": "/ BOX",
+            "unit": "/ UNIT"
+        },
+        "navigation": {
+            "categories": "CATEGORIES",
+            "allCategories": "ALL CATEGORIES",
+            "inStockOnly": "IN STOCK ONLY",
+            "clearFilters": "CLEAR FILTERS",
+            "searchPlaceholder": "SEARCH PRODUCTS..."
+        },
+        "error": {
+            "title": "ERROR LOADING PRODUCTS"
+        }
     }
 }

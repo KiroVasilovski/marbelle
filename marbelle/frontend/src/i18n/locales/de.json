@@ -360,5 +360,28 @@
             "setPrimaryButton": "Als Hauptadresse festlegen",
             "primaryAddressInfo": "Dies ist Ihre Hauptadresse für Ihre Bestellungen. Sie wird standardmäßig für Versand und Abrechnung ausgewählt."
         }
+    },
+    "products": {
+        "loading": "PRODUKTE LADEN...",
+        "inStock": "VORRÄTIG",
+        "outOfStock": "NICHT VORRÄTIG",
+        "sku": "SKU",
+        "perUnit": {
+            "sqm": "/ QM",
+            "sqft": "/ SQFT", 
+            "piece": "/ STÜCK",
+            "box": "/ BOX",
+            "unit": "/ EINHEIT"
+        },
+        "navigation": {
+            "categories": "KATEGORIEN",
+            "allCategories": "ALLE KATEGORIEN",
+            "inStockOnly": "NUR VORRÄTIGE",
+            "clearFilters": "FILTER LÖSCHEN",
+            "searchPlaceholder": "PRODUKTE SUCHEN..."
+        },
+        "error": {
+            "title": "FEHLER BEIM LADEN DER PRODUKTE"
+        }
     }
 }
