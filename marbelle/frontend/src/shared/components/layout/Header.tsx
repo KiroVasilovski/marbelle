@@ -127,11 +127,11 @@ function Header() {
                                 <Link to="/dashboard" onClick={closeMenu}>
                                     <Button
                                         variant="ghost"
-                                        className="hidden md:flex items-center space-x-2 text-black hover:bg-black/5 font-light tracking-wide uppercase px-3 h-auto py-2"
+                                        className="hidden md:flex items-center space-x-2 text-black font-light tracking-wide uppercase px-3 h-auto py-2"
                                     >
                                         <span>{t('header.myAccount')}</span>
                                     </Button>
-                                    <Button variant="ghost" className="md:hidden p-2 text-black hover:bg-black/5">
+                                    <Button variant="ghost" className="md:hidden p-2 text-black">
                                         <User size={20} />
                                     </Button>
                                 </Link>
@@ -139,11 +139,11 @@ function Header() {
                                 <Link to="/login" onClick={closeMenu}>
                                     <Button
                                         variant="ghost"
-                                        className="hidden md:flex items-center space-x-2 text-black hover:bg-black/5 font-light tracking-wide uppercase px-3 h-auto py-2"
+                                        className="hidden md:flex items-center space-x-2 text-black font-light tracking-wide uppercase px-3 h-auto py-2"
                                     >
                                         <span>{t('header.login')}</span>
                                     </Button>
-                                    <Button variant="ghost" className="md:hidden p-2 text-black hover:bg-black/5">
+                                    <Button variant="ghost" className="md:hidden p-2 text-black">
                                         <User size={20} />
                                     </Button>
                                 </Link>
@@ -152,24 +152,24 @@ function Header() {
                             {/* Help */}
                             <Button
                                 variant="ghost"
-                                className="hidden md:flex items-center space-x-2 text-black hover:bg-black/5 font-light tracking-wide uppercase px-3 h-auto py-2"
+                                className="hidden md:flex items-center space-x-2 text-black font-light tracking-wide uppercase px-3 h-auto py-2"
                             >
                                 <span>{t('header.help')}</span>
                             </Button>
-                            <Button variant="ghost" className="md:hidden p-2 text-black hover:bg-black/5">
+                            <Button variant="ghost" className="md:hidden p-2 text-black">
                                 <HelpCircle size={20} />
                             </Button>
 
                             {/* Shopping Cart */}
                             <Button
                                 variant="ghost"
-                                className="hidden md:flex items-center space-x-2 text-black hover:bg-black/5 font-light tracking-wide uppercase px-3 h-auto py-2"
+                                className="hidden md:flex items-center space-x-2 text-black font-light tracking-wide uppercase px-3 h-auto py-2"
                             >
                                 <span>
                                     {t('header.shoppingCart')} [{cartItemCount}]
                                 </span>
                             </Button>
-                            <Button variant="ghost" className="md:hidden p-2 text-black hover:bg-black/5 relative">
+                            <Button variant="ghost" className="md:hidden p-2 text-black relative">
                                 <ShoppingCart size={20} />
                                 {cartItemCount > 0 && (
                                     <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">

@@ -4,6 +4,7 @@ import { UnauthenticatedRoute, AuthenticatedRoute } from './shared/components/Pr
 import ScrollToTop from './shared/components/ScrollToTop';
 import './i18n';
 import Layout from './shared/components/layout/Layout';
+import AuthLayout from './shared/components/layout/AuthLayout';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import About from './pages/About';
@@ -33,14 +34,37 @@ function App() {
             <Router>
                 <ScrollToTop />
                 <Routes>
-                    {/* All routes use Layout for consistent header/footer */}
+                    {/* Main pages with full header/footer layout */}
                     <Route path="/" element={<Layout />}>
-                        {/* Main pages */}
                         <Route index element={<Home />} />
                         <Route path="products" element={<Products />} />
                         <Route path="about" element={<About />} />
 
-                        {/* Authentication routes - only accessible when NOT logged in */}
+                        {/* Email change confirmation - public route */}
+                        <Route path="confirm-email-change" element={<EmailConfirmPage />} />
+
+                        {/* Dashboard routes - protected with separate layout but nested inside main Layout */}
+                        <Route
+                            path="dashboard"
+                            element={
+                                <AuthenticatedRoute>
+                                    <DashboardProvider>
+                                        <DashboardLayout />
+                                    </DashboardProvider>
+                                </AuthenticatedRoute>
+                            }
+                        >
+                            <Route index element={<DashboardPage />} />
+                            <Route path="profile" element={<ProfilePage />} />
+                            <Route path="email-change" element={<EmailChangePage />} />
+                            <Route path="addresses" element={<AddressesPage />} />
+                            <Route path="password" element={<PasswordPage />} />
+                            <Route path="orders" element={<OrdersPage />} />
+                        </Route>
+                    </Route>
+
+                    {/* Authentication routes with simplified header and no footer */}
+                    <Route path="/" element={<AuthLayout />}>
                         <Route
                             path="login"
                             element={
@@ -73,28 +97,6 @@ function App() {
                                 </UnauthenticatedRoute>
                             }
                         />
-
-                        {/* Email change confirmation - public route */}
-                        <Route path="confirm-email-change" element={<EmailConfirmPage />} />
-
-                        {/* Dashboard routes - protected with separate layout but nested inside main Layout */}
-                        <Route
-                            path="dashboard"
-                            element={
-                                <AuthenticatedRoute>
-                                    <DashboardProvider>
-                                        <DashboardLayout />
-                                    </DashboardProvider>
-                                </AuthenticatedRoute>
-                            }
-                        >
-                            <Route index element={<DashboardPage />} />
-                            <Route path="profile" element={<ProfilePage />} />
-                            <Route path="email-change" element={<EmailChangePage />} />
-                            <Route path="addresses" element={<AddressesPage />} />
-                            <Route path="password" element={<PasswordPage />} />
-                            <Route path="orders" element={<OrdersPage />} />
-                        </Route>
                     </Route>
                 </Routes>
             </Router>
