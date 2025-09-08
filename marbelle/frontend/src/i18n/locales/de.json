@@ -41,7 +41,9 @@
         "myAccount": "Mein Konto",
         "logout": "ABMELDEN",
         "login": "ANMELDEN",
-        "register": "REGISTRIEREN"
+        "register": "REGISTRIEREN",
+        "help": "HILFE",
+        "shoppingCart": "WARENKORB"
     },
     "footer": {
         "description": "Premium Naturstein für Architekten, Designer und Bauunternehmer.",

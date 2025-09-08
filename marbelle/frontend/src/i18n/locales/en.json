@@ -41,7 +41,9 @@
         "myAccount": "My account",
         "logout": "LOGOUT",
         "login": "LOGIN",
-        "register": "REGISTER"
+        "register": "REGISTER",
+        "help": "HELP",
+        "shoppingCart": "SHOPPING CART"
     },
     "footer": {
         "description": "Premium natural stone for architects, designers, and contractors.",

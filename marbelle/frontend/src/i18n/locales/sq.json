@@ -87,7 +87,9 @@
         "myAccount": "Llogaria ime",
         "logout": "DALJA",
         "login": "HYRJA",
-        "register": "REGJISTRIMI"
+        "register": "REGJISTRIMI",
+        "help": "NDIHMË",
+        "shoppingCart": "SHPORTA E BLERJEVE"
     },
     "footer": {
         "description": "Gurë natyror premium për arkitektët, dizajnerët dhe kontraktorët.",

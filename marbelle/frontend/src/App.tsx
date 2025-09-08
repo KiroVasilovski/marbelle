@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './features/auth/AuthContext';
 import { UnauthenticatedRoute, AuthenticatedRoute } from './shared/components/ProtectedRoute';
+import ScrollToTop from './shared/components/ScrollToTop';
 import './i18n';
 import Layout from './shared/components/layout/Layout';
 import Home from './pages/Home';
@@ -30,68 +31,70 @@ function App() {
     return (
         <AuthProvider>
             <Router>
+                <ScrollToTop />
                 <Routes>
-                    {/* Authentication routes - only accessible when NOT logged in */}
-                    <Route
-                        path="/login"
-                        element={
-                            <UnauthenticatedRoute>
-                                <LoginPage />
-                            </UnauthenticatedRoute>
-                        }
-                    />
-                    <Route
-                        path="/register"
-                        element={
-                            <UnauthenticatedRoute>
-                                <RegisterPage />
-                            </UnauthenticatedRoute>
-                        }
-                    />
-                    <Route
-                        path="/password-reset"
-                        element={
-                            <UnauthenticatedRoute>
-                                <PasswordResetPage />
-                            </UnauthenticatedRoute>
-                        }
-                    />
-                    <Route
-                        path="/verify-email"
-                        element={
-                            <UnauthenticatedRoute>
-                                <EmailVerifyPage />
-                            </UnauthenticatedRoute>
-                        }
-                    />
-
-                    {/* Email change confirmation - public route but can be accessed by authenticated users */}
-                    <Route path="/confirm-email-change" element={<EmailConfirmPage />} />
-
-                    {/* Main layout routes - always accessible */}
+                    {/* All routes use Layout for consistent header/footer */}
                     <Route path="/" element={<Layout />}>
+                        {/* Main pages */}
                         <Route index element={<Home />} />
                         <Route path="products" element={<Products />} />
                         <Route path="about" element={<About />} />
-                    </Route>
 
-                    {/* Dashboard routes - protected and separate layout */}
-                    <Route
-                        path="/dashboard"
-                        element={
-                            <AuthenticatedRoute>
-                                <DashboardProvider>
-                                    <DashboardLayout />
-                                </DashboardProvider>
-                            </AuthenticatedRoute>
-                        }
-                    >
-                        <Route index element={<DashboardPage />} />
-                        <Route path="profile" element={<ProfilePage />} />
-                        <Route path="email-change" element={<EmailChangePage />} />
-                        <Route path="addresses" element={<AddressesPage />} />
-                        <Route path="password" element={<PasswordPage />} />
-                        <Route path="orders" element={<OrdersPage />} />
+                        {/* Authentication routes - only accessible when NOT logged in */}
+                        <Route
+                            path="login"
+                            element={
+                                <UnauthenticatedRoute>
+                                    <LoginPage />
+                                </UnauthenticatedRoute>
+                            }
+                        />
+                        <Route
+                            path="register"
+                            element={
+                                <UnauthenticatedRoute>
+                                    <RegisterPage />
+                                </UnauthenticatedRoute>
+                            }
+                        />
+                        <Route
+                            path="password-reset"
+                            element={
+                                <UnauthenticatedRoute>
+                                    <PasswordResetPage />
+                                </UnauthenticatedRoute>
+                            }
+                        />
+                        <Route
+                            path="verify-email"
+                            element={
+                                <UnauthenticatedRoute>
+                                    <EmailVerifyPage />
+                                </UnauthenticatedRoute>
+                            }
+                        />
+
+                        {/* Email change confirmation - public route */}
+                        <Route path="confirm-email-change" element={<EmailConfirmPage />} />
+
+                        {/* Dashboard routes - protected with separate layout but nested inside main Layout */}
+                        <Route
+                            path="dashboard"
+                            element={
+                                <AuthenticatedRoute>
+                                    <DashboardProvider>
+                                        <DashboardLayout />
+                                    </DashboardProvider>
+                                </AuthenticatedRoute>
+                            }
+                        >
+                            <Route index element={<DashboardPage />} />
+                            <Route path="profile" element={<ProfilePage />} />
+                            <Route path="email-change" element={<EmailChangePage />} />
+                            <Route path="addresses" element={<AddressesPage />} />
+                            <Route path="password" element={<PasswordPage />} />
+                            <Route path="orders" element={<OrdersPage />} />
+                        </Route>
                     </Route>
                 </Routes>
             </Router>

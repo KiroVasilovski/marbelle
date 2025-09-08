@@ -45,7 +45,7 @@ export const AddressCard: React.FC<AddressCardProps> = ({ address, onEdit, onDel
         <div
             className={`
             bg-white rounded border-2 p-6 transition-all duration-200
-            ${isPrimary ? 'border-neutral-900 shadow-md' : 'border-neutral-200 hover:border-neutral-300'}
+            ${isPrimary ? 'border-neutral-900' : 'border-neutral-200 hover:border-neutral-300'}
         `}
         >
             {/* Header */}
