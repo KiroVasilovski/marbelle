@@ -325,15 +325,15 @@ class EmailChangeRequestSerializer(serializers.Serializer):
         Validate new email address.
         """
         user = self.context["request"].user
-        
+
         # Check if new email is same as current
         if user.email.lower() == value.lower():
             raise serializers.ValidationError("New email must be different from current email.")
-        
+
         # Check if new email already exists in the system
         if User.objects.filter(email__iexact=value).exists():
             raise serializers.ValidationError("This email address is already registered.")
-        
+
         return value.lower()
 
     def save(self) -> EmailChangeToken:
@@ -342,16 +342,13 @@ class EmailChangeRequestSerializer(serializers.Serializer):
         """
         user = self.context["request"].user
         new_email = self.validated_data["new_email"]
-        
+
         # Delete any existing email change tokens for this user
         EmailChangeToken.objects.filter(user=user).delete()
-        
+
         # Create new email change token
-        email_change_token = EmailChangeToken.objects.create(
-            user=user,
-            new_email=new_email
-        )
-        
+        email_change_token = EmailChangeToken.objects.create(user=user, new_email=new_email)
+
         return email_change_token
 
 
@@ -382,18 +379,14 @@ class EmailChangeConfirmSerializer(serializers.Serializer):
         email_change_token = self.validated_data["token"]
         user = email_change_token.user
         old_email = user.email
-        
+
         # Update user email
         user.email = email_change_token.new_email
         user.username = email_change_token.new_email  # Keep username in sync
         user.save()
-        
+
         # Mark token as used
         email_change_token.is_used = True
         email_change_token.save()
-        
-        return {
-            "user": user,
-            "old_email": old_email,
-            "new_email": email_change_token.new_email
-        }
+
+        return {"user": user, "old_email": old_email, "new_email": email_change_token.new_email}

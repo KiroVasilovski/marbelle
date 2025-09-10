@@ -716,10 +716,7 @@ class EmailChangeTokenTest(TestCase):
 
     def test_token_creation(self):
         """Test token is created with proper fields."""
-        token = EmailChangeToken.objects.create(
-            user=self.user,
-            new_email="newemail@example.com"
-        )
+        token = EmailChangeToken.objects.create(user=self.user, new_email="newemail@example.com")
         self.assertIsNotNone(token.token)
         self.assertIsNotNone(token.expires_at)
         self.assertEqual(token.new_email, "newemail@example.com")
@@ -729,12 +726,10 @@ class EmailChangeTokenTest(TestCase):
     def test_token_expiration(self):
         """Test token expiration."""
         from datetime import timedelta
+
         from django.utils import timezone
 
-        token = EmailChangeToken.objects.create(
-            user=self.user,
-            new_email="newemail@example.com"
-        )
+        token = EmailChangeToken.objects.create(user=self.user, new_email="newemail@example.com")
         token.expires_at = timezone.now() - timedelta(hours=1)
         token.save()
         self.assertTrue(token.is_expired)
@@ -742,20 +737,14 @@ class EmailChangeTokenTest(TestCase):
 
     def test_token_used(self):
         """Test used token validation."""
-        token = EmailChangeToken.objects.create(
-            user=self.user,
-            new_email="newemail@example.com"
-        )
+        token = EmailChangeToken.objects.create(user=self.user, new_email="newemail@example.com")
         token.is_used = True
         token.save()
         self.assertFalse(token.is_valid)
 
     def test_token_string_representation(self):
         """Test token string representation."""
-        token = EmailChangeToken.objects.create(
-            user=self.user,
-            new_email="newemail@example.com"
-        )
+        token = EmailChangeToken.objects.create(user=self.user, new_email="newemail@example.com")
         expected = f"Email change for {self.user.email} to newemail@example.com"
         self.assertEqual(str(token), expected)
 
@@ -788,10 +777,7 @@ class EmailChangeAPITest(APITestCase):
     def test_request_email_change_success(self):
         """Test successful email change request."""
         self.authenticate()
-        request_data = {
-            "current_password": "TestPassword123",
-            "new_email": "newemail@example.com"
-        }
+        request_data = {"current_password": "TestPassword123", "new_email": "newemail@example.com"}
 
         response = self.client.post(self.request_email_change_url, request_data, format="json")
 
@@ -807,10 +793,7 @@ class EmailChangeAPITest(APITestCase):
     def test_request_email_change_wrong_password(self):
         """Test email change request with wrong password."""
         self.authenticate()
-        request_data = {
-            "current_password": "WrongPassword",
-            "new_email": "newemail@example.com"
-        }
+        request_data = {"current_password": "WrongPassword", "new_email": "newemail@example.com"}
 
         response = self.client.post(self.request_email_change_url, request_data, format="json")
 
@@ -823,7 +806,7 @@ class EmailChangeAPITest(APITestCase):
         self.authenticate()
         request_data = {
             "current_password": "TestPassword123",
-            "new_email": "current@example.com"  # Same as current email
+            "new_email": "current@example.com",  # Same as current email
         }
 
         response = self.client.post(self.request_email_change_url, request_data, format="json")
@@ -842,10 +825,7 @@ class EmailChangeAPITest(APITestCase):
         )
 
         self.authenticate()
-        request_data = {
-            "current_password": "TestPassword123",
-            "new_email": "existing@example.com"
-        }
+        request_data = {"current_password": "TestPassword123", "new_email": "existing@example.com"}
 
         response = self.client.post(self.request_email_change_url, request_data, format="json")
 
@@ -855,10 +835,7 @@ class EmailChangeAPITest(APITestCase):
 
     def test_request_email_change_unauthenticated(self):
         """Test email change request without authentication."""
-        request_data = {
-            "current_password": "TestPassword123",
-            "new_email": "newemail@example.com"
-        }
+        request_data = {"current_password": "TestPassword123", "new_email": "newemail@example.com"}
 
         response = self.client.post(self.request_email_change_url, request_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -866,14 +843,11 @@ class EmailChangeAPITest(APITestCase):
     def test_request_email_change_replaces_old_token(self):
         """Test that new email change request replaces old token."""
         self.authenticate()
-        
+
         # Create first request
-        request_data = {
-            "current_password": "TestPassword123",
-            "new_email": "first@example.com"
-        }
+        request_data = {"current_password": "TestPassword123", "new_email": "first@example.com"}
         self.client.post(self.request_email_change_url, request_data, format="json")
-        
+
         first_token_count = EmailChangeToken.objects.filter(user=self.user).count()
         self.assertEqual(first_token_count, 1)
 
@@ -882,7 +856,7 @@ class EmailChangeAPITest(APITestCase):
         response = self.client.post(self.request_email_change_url, request_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         # Should still have only one token, but for the new email
         tokens = EmailChangeToken.objects.filter(user=self.user)
         self.assertEqual(tokens.count(), 1)
@@ -891,10 +865,7 @@ class EmailChangeAPITest(APITestCase):
     def test_confirm_email_change_success(self):
         """Test successful email change confirmation."""
         # Create email change token
-        token = EmailChangeToken.objects.create(
-            user=self.user,
-            new_email="confirmed@example.com"
-        )
+        token = EmailChangeToken.objects.create(user=self.user, new_email="confirmed@example.com")
 
         confirm_data = {"token": token.token}
         response = self.client.post(self.confirm_email_change_url, confirm_data, format="json")
@@ -924,12 +895,10 @@ class EmailChangeAPITest(APITestCase):
     def test_confirm_email_change_expired_token(self):
         """Test email change confirmation with expired token."""
         from datetime import timedelta
+
         from django.utils import timezone
 
-        token = EmailChangeToken.objects.create(
-            user=self.user,
-            new_email="expired@example.com"
-        )
+        token = EmailChangeToken.objects.create(user=self.user, new_email="expired@example.com")
         token.expires_at = timezone.now() - timedelta(hours=1)
         token.save()
 
@@ -942,10 +911,7 @@ class EmailChangeAPITest(APITestCase):
 
     def test_confirm_email_change_used_token(self):
         """Test email change confirmation with already used token."""
-        token = EmailChangeToken.objects.create(
-            user=self.user,
-            new_email="used@example.com"
-        )
+        token = EmailChangeToken.objects.create(user=self.user, new_email="used@example.com")
         token.is_used = True
         token.save()
 
@@ -958,10 +924,7 @@ class EmailChangeAPITest(APITestCase):
 
     def test_confirm_email_change_no_authentication_required(self):
         """Test email change confirmation doesn't require authentication."""
-        token = EmailChangeToken.objects.create(
-            user=self.user,
-            new_email="noauth@example.com"
-        )
+        token = EmailChangeToken.objects.create(user=self.user, new_email="noauth@example.com")
 
         confirm_data = {"token": token.token}
         # Don't authenticate
@@ -974,10 +937,7 @@ class EmailChangeAPITest(APITestCase):
         """Test complete email change workflow from request to confirmation."""
         # Step 1: Request email change
         self.authenticate()
-        request_data = {
-            "current_password": "TestPassword123",
-            "new_email": "workflow@example.com"
-        }
+        request_data = {"current_password": "TestPassword123", "new_email": "workflow@example.com"}
 
         response = self.client.post(self.request_email_change_url, request_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1011,11 +971,11 @@ class EmailChangeAPITest(APITestCase):
     def test_email_change_rate_limiting(self):
         """Test rate limiting on email change endpoints."""
         # Note: This test depends on rate limiting configuration
-        # The actual rate limiting behavior would need to be tested 
-        # with multiple requests, but we can at least verify the 
+        # The actual rate limiting behavior would need to be tested
+        # with multiple requests, but we can at least verify the
         # rate limiting decorator is applied by checking the view function
-        from users.views import request_email_change, confirm_email_change
-        
+        from users.views import confirm_email_change, request_email_change
+
         # Check that rate limiting decorators are applied
-        self.assertTrue(hasattr(request_email_change, '__wrapped__'))
-        self.assertTrue(hasattr(confirm_email_change, '__wrapped__'))
+        self.assertTrue(hasattr(request_email_change, "__wrapped__"))
+        self.assertTrue(hasattr(confirm_email_change, "__wrapped__"))

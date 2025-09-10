@@ -6,27 +6,33 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0004_address'),
+        ("users", "0004_address"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='EmailChangeToken',
+            name="EmailChangeToken",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('new_email', models.EmailField(help_text='The requested new email address', max_length=254)),
-                ('token', models.CharField(max_length=64, unique=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('expires_at', models.DateTimeField()),
-                ('is_used', models.BooleanField(default=False)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='email_change_tokens', to=settings.AUTH_USER_MODEL)),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("new_email", models.EmailField(help_text="The requested new email address", max_length=254)),
+                ("token", models.CharField(max_length=64, unique=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("expires_at", models.DateTimeField()),
+                ("is_used", models.BooleanField(default=False)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="email_change_tokens",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Email Change Token',
-                'verbose_name_plural': 'Email Change Tokens',
-                'db_table': 'email_change_tokens',
+                "verbose_name": "Email Change Token",
+                "verbose_name_plural": "Email Change Tokens",
+                "db_table": "email_change_tokens",
             },
         ),
     ]

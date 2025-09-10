@@ -36,6 +36,26 @@ class User(AbstractUser):
         help_text="Phone number for order communication (optional but recommended)",
     )
 
+    groups = models.ManyToManyField(
+        "auth.Group",
+        verbose_name="groups",
+        blank=True,
+        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
+        related_name="user_set",
+        related_query_name="user",
+        db_table="users_groups",
+    )
+
+    user_permissions = models.ManyToManyField(
+        "auth.Permission",
+        verbose_name="user permissions",
+        blank=True,
+        help_text="Specific permissions for this user.",
+        related_name="user_set",
+        related_query_name="user",
+        db_table="users_user_permissions",
+    )
+
     def __str__(self) -> str:
         """String representation showing user type and name."""
         if self.company_name:

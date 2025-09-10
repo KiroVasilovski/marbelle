@@ -93,6 +93,7 @@ class Migration(migrations.Migration):
                         related_query_name="user",
                         to="auth.group",
                         verbose_name="groups",
+                        db_table="users_groups",
                     ),
                 ),
                 (
@@ -104,6 +105,7 @@ class Migration(migrations.Migration):
                         related_query_name="user",
                         to="auth.permission",
                         verbose_name="user permissions",
+                        db_table="users_user_permissions",
                     ),
                 ),
             ],
