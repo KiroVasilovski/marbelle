@@ -6,7 +6,11 @@ import { useState, useEffect } from 'react';
 import { User, HelpCircle, ShoppingCart } from 'lucide-react';
 import { Drawer, DrawerTrigger } from '../shadcn/drawer';
 
-function Header() {
+interface HeaderProps {
+    isProductDetailPage?: boolean;
+}
+
+function Header({ isProductDetailPage = false }: HeaderProps) {
     const { isAuthenticated, logout } = useAuth();
     const { t } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -84,7 +88,7 @@ function Header() {
                                         aria-label="Toggle menu"
                                     >
                                         <div className="relative w-6 h-6 md:w-12 md:h-12">
-                                            <div className="absolute inset-0 flex items-center justify-center">
+                                            <div className="absolute inset-0 flex items-center justify-center cursor-pointer">
                                                 <div
                                                     className={`w-6 h-6 flex flex-col justify-center items-center space-y-1 md:space-y-2 transition-all duration-300 ${
                                                         isMenuOpen ? 'opacity-0 rotate-180' : 'opacity-100 rotate-0'
@@ -110,14 +114,16 @@ function Header() {
                                 </DrawerTrigger>
                             </Drawer>
 
-                            {/* Logo */}
-                            <Link
-                                to="/"
-                                className="text-xl md:text-5xl font-light text-black uppercase tracking-[0.2em] hover:opacity-70 transition-opacity"
-                                onClick={closeMenu}
-                            >
-                                MARBELLE
-                            </Link>
+                            {/* Logo - Hidden on product detail pages */}
+                            {!isProductDetailPage && (
+                                <Link
+                                    to="/"
+                                    className="text-xl md:text-5xl font-light text-black uppercase tracking-[0.2em] hover:opacity-70 transition-opacity"
+                                    onClick={closeMenu}
+                                >
+                                    MARBELLE
+                                </Link>
+                            )}
                         </div>
 
                         {/* Right side: Account, Help, Cart */}

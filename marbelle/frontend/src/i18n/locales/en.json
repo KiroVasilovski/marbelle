@@ -363,5 +363,46 @@
             "setPrimaryButton": "Set as primary",
             "primaryAddressInfo": "This is your primary address for your orders. It will be selected by default for shipping and billing."
         }
+    },
+    "products": {
+        "loading": "LOADING PRODUCTS...",
+        "inStock": "IN STOCK",
+        "outOfStock": "OUT OF STOCK",
+        "sku": "SKU",
+        "perUnit": {
+            "sqm": "/ SQM",
+            "sqft": "/ SQFT",
+            "piece": "/ PIECE",
+            "box": "/ BOX",
+            "unit": "/ UNIT"
+        },
+        "navigation": {
+            "categories": "CATEGORIES",
+            "allCategories": "ALL CATEGORIES",
+            "inStockOnly": "IN STOCK ONLY",
+            "clearFilters": "CLEAR FILTERS",
+            "searchPlaceholder": "SEARCH PRODUCTS..."
+        },
+        "error": {
+            "title": "ERROR LOADING PRODUCTS"
+        },
+        "detail": {
+            "loading": "LOADING PRODUCT DETAILS...",
+            "backToCatalog": "BACK TO CATALOG",
+            "price": "PRICE",
+            "description": "DESCRIPTION",
+            "specifications": "SPECIFICATIONS",
+            "stockQuantity": "STOCK QUANTITY",
+            "unitOfMeasure": "UNIT OF MEASURE",
+            "category": "CATEGORY",
+            "imageGallery": "IMAGE GALLERY",
+            "primaryImage": "Primary product image",
+            "thumbnailImage": "Product image {{index}}",
+            "error": {
+                "title": "PRODUCT NOT FOUND",
+                "message": "The product you're looking for doesn't exist or has been removed.",
+                "backButton": "BACK TO CATALOG"
+            }
+        }
     }
 }
