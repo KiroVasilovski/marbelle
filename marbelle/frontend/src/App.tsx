@@ -13,7 +13,8 @@ import RegisterPage from './features/auth/register/RegisterPage';
 import PasswordResetPage from './features/auth/password-reset/PasswordResetPage';
 import EmailVerifyPage from './features/auth/register/EmailVerifyPage';
 
-// Dashboard imports
+import { ProductDetailPage } from './features/products';
+
 import {
     DashboardProvider,
     DashboardLayout,
@@ -24,7 +25,6 @@ import {
     OrdersPage,
 } from './features/dashboard';
 
-// Email change imports
 import { EmailChangePage } from './features/dashboard/components/email-change/EmailChangePage';
 import { EmailConfirmPage } from './features/dashboard/components/email-change/EmailConfirmPage';
 
@@ -38,6 +38,7 @@ function App() {
                     <Route path="/" element={<Layout />}>
                         <Route index element={<Home />} />
                         <Route path="products" element={<Products />} />
+                        <Route path="products/:id" element={<ProductDetailPage />} />
                         <Route path="about" element={<About />} />
 
                         {/* Email change confirmation - public route */}

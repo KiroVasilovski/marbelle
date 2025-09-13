@@ -363,5 +363,46 @@
             "setPrimaryButton": "Vendos si kryesore",
             "primaryAddressInfo": "Kjo është adresa juaj kryesore për porositë tuaja. Ajo do të zgjidhet si parazgjedhje për dërgimin dhe faturimin."
         }
+    },
+    "products": {
+        "loading": "DUKE NGARKUAR PRODUKTET...",
+        "inStock": "NË STOK",
+        "outOfStock": "JASHTË STOKUT",
+        "sku": "SKU",
+        "perUnit": {
+            "sqm": "/ M²",
+            "sqft": "/ FT²",
+            "piece": "/ COPË",
+            "box": "/ KUTI",
+            "unit": "/ NJËSI"
+        },
+        "navigation": {
+            "categories": "KATEGORITË",
+            "allCategories": "TË GJITHA KATEGORITË",
+            "inStockOnly": "VETËM NË STOK",
+            "clearFilters": "PASTRO FILTRAT",
+            "searchPlaceholder": "KËRKO PRODUKTET..."
+        },
+        "error": {
+            "title": "GABIM NË NGARKIMIN E PRODUKTEVE"
+        },
+        "detail": {
+            "loading": "DUKE NGARKUAR DETAJET E PRODUKTIT...",
+            "backToCatalog": "KTHEHU TE KATALOGU",
+            "price": "ÇMIMI",
+            "description": "PËRSHKRIMI",
+            "specifications": "SPECIFIKIMET",
+            "stockQuantity": "SASIA NË STOK",
+            "unitOfMeasure": "NJËSIA E MATJES",
+            "category": "KATEGORIA",
+            "imageGallery": "GALERIA E IMAZHEVE",
+            "primaryImage": "Imazhi kryesor i produktit",
+            "thumbnailImage": "Imazhi i produktit {{index}}",
+            "error": {
+                "title": "PRODUKTI NUK U GJET",
+                "message": "Produkti që kërkoni nuk ekziston ose është hequr.",
+                "backButton": "KTHEHU TE KATALOGU"
+            }
+        }
     }
 }
