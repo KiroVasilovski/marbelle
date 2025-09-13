@@ -363,5 +363,46 @@
             "setPrimaryButton": "Als Hauptadresse festlegen",
             "primaryAddressInfo": "Dies ist Ihre Hauptadresse für Ihre Bestellungen. Sie wird standardmäßig für Versand und Abrechnung ausgewählt."
         }
+    },
+    "products": {
+        "loading": "PRODUKTE LADEN...",
+        "inStock": "VORRÄTIG",
+        "outOfStock": "NICHT VORRÄTIG",
+        "sku": "SKU",
+        "perUnit": {
+            "sqm": "/ QM",
+            "sqft": "/ SQFT",
+            "piece": "/ STÜCK",
+            "box": "/ BOX",
+            "unit": "/ EINHEIT"
+        },
+        "navigation": {
+            "categories": "KATEGORIEN",
+            "allCategories": "ALLE KATEGORIEN",
+            "inStockOnly": "NUR VORRÄTIGE",
+            "clearFilters": "FILTER LÖSCHEN",
+            "searchPlaceholder": "PRODUKTE SUCHEN..."
+        },
+        "error": {
+            "title": "FEHLER BEIM LADEN DER PRODUKTE"
+        },
+        "detail": {
+            "loading": "PRODUKTDETAILS LADEN...",
+            "backToCatalog": "ZURÜCK ZUM KATALOG",
+            "price": "PREIS",
+            "description": "BESCHREIBUNG",
+            "specifications": "SPEZIFIKATIONEN",
+            "stockQuantity": "LAGERBESTAND",
+            "unitOfMeasure": "MASSEINHEIT",
+            "category": "KATEGORIE",
+            "imageGallery": "BILDERGALERIE",
+            "primaryImage": "Hauptproduktbild",
+            "thumbnailImage": "Produktbild {{index}}",
+            "error": {
+                "title": "PRODUKT NICHT GEFUNDEN",
+                "message": "Das gesuchte Produkt existiert nicht oder wurde entfernt.",
+                "backButton": "ZURÜCK ZUM KATALOG"
+            }
+        }
     }
 }
