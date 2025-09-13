@@ -8,6 +8,7 @@ djangorestframework==3.16.0
 djangorestframework-simplejwt==5.5.0
 django-cors-headers==4.7.0
 django-ratelimit==4.1.0
+django-filter==24.3
 
 # For serving static files in production on RENDER only
 whitenoise==6.10.0
