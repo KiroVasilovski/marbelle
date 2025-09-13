@@ -11,6 +11,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 # Database for production (PostgreSQL)
 DATABASES = {
     "default": {
