@@ -118,7 +118,7 @@ function Header({ isProductDetailPage = false }: HeaderProps) {
                             {!isProductDetailPage && (
                                 <Link
                                     to="/"
-                                    className="text-xl md:text-5xl font-light text-black uppercase tracking-[0.2em] hover:opacity-70 transition-opacity"
+                                    className="text-2xl sm:text-3xl md:text-5xl font-light text-black uppercase tracking-[0.2em] hover:opacity-70 transition-opacity"
                                     onClick={closeMenu}
                                 >
                                     MARBELLE

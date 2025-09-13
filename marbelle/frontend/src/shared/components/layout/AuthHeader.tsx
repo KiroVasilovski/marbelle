@@ -29,7 +29,7 @@ function AuthHeader() {
                         {/* Logo */}
                         <Link
                             to="/"
-                            className="text-xl md:text-5xl font-light text-black uppercase tracking-[0.2em] hover:opacity-70 transition-opacity"
+                            className="text-3xl md:text-5xl font-light text-black uppercase tracking-[0.2em] hover:opacity-70 transition-opacity"
                         >
                             MARBELLE
                         </Link>

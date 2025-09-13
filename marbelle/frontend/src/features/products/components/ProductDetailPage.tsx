@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft } from 'lucide-react';
 import { useProductDetail } from '../hooks/useProductDetail';
 import { ProductInfo } from './ProductInfo';
 import type { ProductImage } from '../types/product';
