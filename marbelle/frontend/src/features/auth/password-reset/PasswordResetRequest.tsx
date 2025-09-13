@@ -60,7 +60,6 @@ export const PasswordResetRequest: React.FC = () => {
     if (showSuccess) {
         return (
             <AuthWindow
-                title=""
                 success={{
                     title: t('auth.passwordReset.successTitle'),
                     message: t('auth.passwordReset.successMessage'),
@@ -85,22 +84,23 @@ export const PasswordResetRequest: React.FC = () => {
 
     return (
         <AuthWindow
-            title={t('auth.passwordReset.title')}
             subtitle={t('auth.passwordReset.subtitle')}
             error={submitError}
             isForm={true}
             onSubmit={handleSubmit}
         >
-            <Input
-                id="email"
-                type="email"
-                label={t('auth.passwordReset.emailPlaceholder')}
-                value={values.email}
-                onChange={(e) => setValue('email', e.target.value)}
-                onBlur={() => setTouched('email')}
-                error={errors.email && touched.email ? errors.email : undefined}
-                autoComplete="email"
-            />
+            <div className="mb-12">
+                <Input
+                    id="email"
+                    type="email"
+                    label={t('auth.passwordReset.emailPlaceholder')}
+                    value={values.email}
+                    onChange={(e) => setValue('email', e.target.value)}
+                    onBlur={() => setTouched('email')}
+                    error={errors.email && touched.email ? errors.email : undefined}
+                    autoComplete="email"
+                />
+            </div>
 
             <Button type="submit" className="w-full uppercase" variant="secondary" disabled={isLoading}>
                 {isLoading ? t('auth.passwordReset.submitButtonLoading') : t('auth.passwordReset.submitButton')}

@@ -67,13 +67,7 @@ export const LoginForm: React.FC = () => {
     };
 
     return (
-        <AuthWindow
-            title={t('auth.login.title')}
-            subtitle={t('auth.login.subtitle')}
-            error={submitError}
-            isForm={true}
-            onSubmit={handleSubmit}
-        >
+        <AuthWindow subtitle={t('auth.login.subtitle')} error={submitError} isForm={true} onSubmit={handleSubmit}>
             <Input
                 id="email"
                 type="email"
@@ -115,6 +109,14 @@ export const LoginForm: React.FC = () => {
             <Button type="submit" className="w-full uppercase" variant="secondary" disabled={isLoading}>
                 {isLoading ? t('auth.login.submitButtonLoading') : t('auth.login.submitButton')}
             </Button>
+
+            <div className="relative flex py-5 items-center">
+                <div className="flex-grow border-t border-gray-300"></div>
+                <span className="flex-shrink mx-4 text-gray-500 text-sm font-medium">
+                    {t('auth.login.loginDividerText')}
+                </span>
+                <div className="flex-grow border-t border-gray-300"></div>
+            </div>
 
             <Button asChild className="w-full uppercase" variant="outline" disabled={isLoading}>
                 <Link to="/register">{t('auth.login.createAccount')}</Link>

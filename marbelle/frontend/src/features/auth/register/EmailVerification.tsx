@@ -80,7 +80,7 @@ export const EmailVerification: React.FC = () => {
     // Show loading state while verifying
     if (token && isVerifying) {
         return (
-            <AuthWindow title="VERIFYING EMAIL" subtitle="Please wait while we verify your Email address...">
+            <AuthWindow subtitle="Please wait while we verify your Email address...">
                 <div className="text-center">
                     <LoadingSpinner className="mx-auto mb-6" />
                 </div>
@@ -92,7 +92,6 @@ export const EmailVerification: React.FC = () => {
     if (verificationStatus === 'success') {
         return (
             <AuthWindow
-                title=""
                 success={{
                     title: 'EMAIL VERIFIED',
                     message:
@@ -127,7 +126,7 @@ export const EmailVerification: React.FC = () => {
     // Show error state or manual verification form
     if (verificationStatus === 'error') {
         return (
-            <AuthWindow title="EMAIL VERIFICATION">
+            <AuthWindow>
                 <div className="text-center">
                     <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,12 +166,11 @@ export const EmailVerification: React.FC = () => {
 
     return (
         <AuthWindow
-            title="EMAIL VERIFICATION"
             subtitle="Didn't receive the verification email? Enter your email below to resend it."
             isForm={true}
             onSubmit={handleResendEmail}
         >
-            <div>
+            <div className="mb-12">
                 <Input
                     id="email"
                     type="email"

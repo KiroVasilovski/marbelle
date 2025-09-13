@@ -126,6 +126,7 @@
             "submitButton": "ANMELDEN",
             "submitButtonLoading": "ANMELDEN...",
             "forgotPassword": "Passwort vergessen?",
+            "loginDividerText": "Noch kein Konto?",
             "createAccount": "KONTO ERSTELLEN"
         },
         "register": {

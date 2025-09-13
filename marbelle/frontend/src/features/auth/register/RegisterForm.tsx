@@ -119,7 +119,6 @@ export const RegisterForm: React.FC = () => {
     if (showSuccess) {
         return (
             <AuthWindow
-                title=""
                 success={{
                     title: t('auth.register.successTitle'),
                     message: t('auth.register.successMessage'),
@@ -137,13 +136,7 @@ export const RegisterForm: React.FC = () => {
     }
 
     return (
-        <AuthWindow
-            title={t('auth.register.title')}
-            subtitle={t('auth.register.subtitle')}
-            error={submitError}
-            isForm={true}
-            onSubmit={handleSubmit}
-        >
+        <AuthWindow subtitle={t('auth.register.subtitle')} error={submitError} isForm={true} onSubmit={handleSubmit}>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <Input

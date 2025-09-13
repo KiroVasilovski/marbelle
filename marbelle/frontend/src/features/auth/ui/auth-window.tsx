@@ -2,7 +2,6 @@ import React from 'react';
 import { cn } from '../../../shared/lib/utils';
 
 interface AuthWindowProps {
-    title: string;
     subtitle?: string;
     children?: React.ReactNode;
     isForm?: boolean;
@@ -17,7 +16,6 @@ interface AuthWindowProps {
 }
 
 export const AuthWindow: React.FC<AuthWindowProps> = ({
-    title,
     subtitle,
     children,
     isForm = false,
@@ -30,11 +28,7 @@ export const AuthWindow: React.FC<AuthWindowProps> = ({
 
     const content = (
         <>
-            <div className="text-center">
-                <h2 className={cn('text-2xl font-bold mb-6 uppercase', success ? 'text-green-600' : '')}>
-                    {success ? success.title : title}
-                </h2>
-
+            <div className="text-center mb-12">
                 {(subtitle || success?.message) && (
                     <p className="text-gray-600 mb-6">{success ? success.message : subtitle}</p>
                 )}

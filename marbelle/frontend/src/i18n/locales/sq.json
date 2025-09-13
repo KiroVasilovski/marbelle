@@ -18,6 +18,7 @@
             "submitButton": "HYRJA",
             "submitButtonLoading": "PO HYHET...",
             "forgotPassword": "Keni harruar fjalëkalimin?",
+            "loginDividerText": "Nuk keni ende llogari?",
             "createAccount": "KRIJO LLOGARI"
         },
         "register": {

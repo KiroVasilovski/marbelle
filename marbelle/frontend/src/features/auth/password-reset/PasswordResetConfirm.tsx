@@ -88,7 +88,7 @@ export const PasswordResetConfirm: React.FC = () => {
 
     if (!token) {
         return (
-            <AuthWindow title={t('auth.passwordReset.confirm.failure.title')}>
+            <AuthWindow>
                 <div className="text-center">
                     <p className="text-gray-600 mb-6 uppercase">{t('auth.passwordReset.confirm.failure.message')}</p>
                     <Link to="/password-reset">
@@ -102,7 +102,6 @@ export const PasswordResetConfirm: React.FC = () => {
     if (showSuccess) {
         return (
             <AuthWindow
-                title=""
                 success={{
                     title: t('auth.passwordReset.confirm.success.title'),
                     message: t('auth.passwordReset.confirm.success.message'),
@@ -118,7 +117,6 @@ export const PasswordResetConfirm: React.FC = () => {
 
     return (
         <AuthWindow
-            title={t('auth.passwordReset.confirm.title')}
             subtitle={t('auth.passwordReset.confirm.subtitle')}
             error={submitError}
             isForm={true}
