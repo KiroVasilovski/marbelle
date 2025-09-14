@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 
 from products.models import Category, Product
 
-from .models import Cart, CartItem
+from ..models import Cart, CartItem
 
 User = get_user_model()
 

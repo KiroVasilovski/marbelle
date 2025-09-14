@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .cart_views import (
+from .views.cart import (
     add_to_cart,
     clear_cart,
     get_cart,
