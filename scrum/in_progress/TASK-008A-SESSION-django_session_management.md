@@ -29,7 +29,7 @@
 ### Django Settings Configuration
 
 -   `SESSION_ENGINE` = 'django.contrib.sessions.backends.db'
--   `SESSION_COOKIE_AGE` = 4 weeks (2419200 seconds)
+-   `SESSION_COOKIE_AGE` = 2 weeks
 -   `SESSION_COOKIE_HTTPONLY` = True
 -   `SESSION_COOKIE_SECURE` = True (production)
 -   `SESSION_COOKIE_SAMESITE` = 'Lax'
