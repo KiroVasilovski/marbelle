@@ -218,6 +218,23 @@ SIMPLE_JWT = {
 
 
 # ==============================================================================
+# SESSION CONFIGURATION
+# ==============================================================================
+
+# Session engine - database backend for persistent sessions
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
+# Session behavior
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 28  # 4 weeks (2419200 seconds)
+SESSION_COOKIE_NAME = "marbelle_sessionid"
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_SAVE_EVERY_REQUEST = False  # Only save when session is modified
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Allow persistent sessions
+SESSION_SERIALIZER = "django.contrib.sessions.serializers.JSONSerializer"
+
+
+# ==============================================================================
 # CORS HEADERS CONFIGURATION
 # ==============================================================================
 

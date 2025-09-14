@@ -1,8 +1,9 @@
 # Marbelle API Documentation
 
-**Base URL**: `http://localhost:8000/api/v1/`  
-**Authentication**: JWT Bearer Token  
+**Base URL**: `http://localhost:8000/api/v1/`
+**Authentication**: JWT Bearer Token
 **Content-Type**: `application/json`
+**Session Management**: Automatic cookie-based sessions for guest users
 
 ## Response Format
 
@@ -378,6 +379,23 @@ curl -X POST http://localhost:8000/api/v1/auth/confirm-email-change/ \
 -   **Rate Limiting**: Applied to authentication endpoints
 -   **JWT Security**: Tokens blacklisted on logout
 -   **User Isolation**: Users can only access their own data
+-   **Session Security**: 4-week expiration, HttpOnly cookies, HTTPS-only in production
+
+## Session Management
+
+**Guest User Sessions:**
+- Automatic session creation on first request
+- Database-backed session storage (`django_session` table)
+- 4-week session expiration
+- Session cookies: `marbelle_sessionid`
+- Used for: Shopping cart, temporary user data
+- HTTPS-only cookies in production, HTTP allowed in development
+
+**Session Cookie Configuration:**
+- **Development**: `SESSION_COOKIE_SECURE = False` (HTTP allowed)
+- **Production**: `SESSION_COOKIE_SECURE = True` (HTTPS required)
+- **SameSite**: `Lax` for CORS compatibility
+- **HttpOnly**: `True` for XSS protection
 
 ---
 
