@@ -81,6 +81,11 @@ class Product(models.Model):
     def __str__(self) -> str:
         return f"{self.name} ({self.category.name})"
 
+    @property
+    def in_stock(self) -> bool:
+        """Check if product has stock available."""
+        return self.stock_quantity > 0
+
 
 class ProductImage(models.Model):
     """
