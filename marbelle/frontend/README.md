@@ -493,12 +493,49 @@ The application uses a unified form validation system for consistent behavior ac
 - **Follow the feature-based architecture** - Keep form validation consistent with established patterns
 - **Professional password validation** - Use the enhanced password components for all password fields
 
+## Shopping Cart System
+
+### Features Implemented
+
+- **✅ Full Cart Functionality**: Add, remove, update quantities, clear cart
+- **✅ Guest & Authenticated Users**: Session-based carts for guests, user-linked carts for authenticated users
+- **✅ Real-time Updates**: Cart count updates automatically in header
+- **✅ Stock Validation**: Prevents adding out-of-stock items with user feedback
+- **✅ Persistent Storage**: Cart data persists across browser sessions
+- **✅ Internationalized**: Full i18n support (English, German, Albanian)
+
+### Shopping Cart Components
+
+```typescript
+// Available cart components
+import { AddToCartButton } from './features/cart/components/AddToCartButton';
+import { CartIcon } from './features/cart/components/CartIcon';
+import { CartPage } from './features/cart/components/CartPage';
+
+// Cart context
+import { useCart } from './features/cart/CartContext';
+```
+
+### Using the Cart System
+
+```typescript
+// In any component
+import { useCart } from './features/cart/CartContext';
+
+function MyComponent() {
+    const { cart, addToCart, updateCartItem, removeCartItem, clearCart } = useCart();
+
+    // Add item to cart
+    await addToCart({ product_id: 1, quantity: 2 });
+}
+```
+
 ## Next Steps
 
 The foundation is complete! Ready for:
 
 - ✅ **Authentication System**: Fully implemented and production-ready
 - ✅ **Form Validation System**: Unified validation with smart button states and professional UX
+- ✅ **Shopping Cart System**: Full cart functionality for guests and authenticated users
 - 🔄 **Product Catalog**: Ready to implement using the same architecture pattern
-- 🔄 **Shopping Cart**: Can be added as a new feature module
 - 🔄 **Order Management**: Following the established patterns

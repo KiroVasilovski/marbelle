@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../shadcn/button';
 import { useAuth } from '../../../features/auth/AuthContext';
+import { CartIcon } from '../../../features/cart';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
-import { User, HelpCircle, ShoppingCart } from 'lucide-react';
+import { User, HelpCircle } from 'lucide-react';
 import { Drawer, DrawerTrigger } from '../shadcn/drawer';
 
 interface HeaderProps {
@@ -16,7 +17,6 @@ function Header({ isProductDetailPage = false }: HeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [scrollDirection, setScrollDirection] = useState<'up' | 'down' | null>(null);
     const [lastScrollY, setLastScrollY] = useState(0);
-    const cartItemCount = 0; // TODO: Replace with actual cart count
 
     const handleLogout = () => {
         logout();
@@ -167,22 +167,8 @@ function Header({ isProductDetailPage = false }: HeaderProps) {
                             </Button>
 
                             {/* Shopping Cart */}
-                            <Button
-                                variant="ghost"
-                                className="hidden md:flex items-center space-x-2 text-black font-light tracking-wide uppercase px-3 h-auto py-2"
-                            >
-                                <span>
-                                    {t('header.shoppingCart')} [{cartItemCount}]
-                                </span>
-                            </Button>
-                            <Button variant="ghost" className="md:hidden p-2 text-black relative">
-                                <ShoppingCart size={20} />
-                                {cartItemCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                        {cartItemCount}
-                                    </span>
-                                )}
-                            </Button>
+                            <CartIcon variant="desktop" />
+                            <CartIcon variant="mobile" />
                         </div>
                     </div>
                 </div>

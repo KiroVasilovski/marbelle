@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { AddToCartButton } from '../../cart';
 import type { Product } from '../types/product';
 
 interface ProductInfoProps {
@@ -58,6 +59,15 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
                         {product.in_stock ? t('products.inStock') : t('products.outOfStock')}
                     </span>
                 </div>
+            </div>
+
+            {/* Add to Cart */}
+            <div className="border-t border-gray-200 pt-6">
+                <AddToCartButton
+                    productId={product.id}
+                    disabled={!product.in_stock}
+                    className="w-full lg:w-auto"
+                />
             </div>
 
             {/* SKU */}

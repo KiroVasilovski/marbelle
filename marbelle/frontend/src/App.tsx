@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './features/auth/AuthContext';
+import { CartProvider } from './features/cart';
 import { UnauthenticatedRoute, AuthenticatedRoute } from './shared/components/ProtectedRoute';
 import ScrollToTop from './shared/components/ScrollToTop';
 import './i18n';
@@ -27,11 +28,13 @@ import {
 
 import { EmailChangePage } from './features/dashboard/components/email-change/EmailChangePage';
 import { EmailConfirmPage } from './features/dashboard/components/email-change/EmailConfirmPage';
+import { CartPage } from './features/cart';
 
 function App() {
     return (
         <AuthProvider>
-            <Router>
+            <CartProvider>
+                <Router>
                 <ScrollToTop />
                 <Routes>
                     {/* Main pages with full header/footer layout */}
@@ -40,6 +43,7 @@ function App() {
                         <Route path="products" element={<Products />} />
                         <Route path="products/:id" element={<ProductDetailPage />} />
                         <Route path="about" element={<About />} />
+                        <Route path="cart" element={<CartPage />} />
 
                         {/* Email change confirmation - public route */}
                         <Route path="confirm-email-change" element={<EmailConfirmPage />} />
@@ -100,7 +104,8 @@ function App() {
                         />
                     </Route>
                 </Routes>
-            </Router>
+                </Router>
+            </CartProvider>
         </AuthProvider>
     );
 }
