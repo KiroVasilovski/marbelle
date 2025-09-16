@@ -63,6 +63,10 @@ class Migration(migrations.Migration):
             model_name='cart',
             constraint=models.CheckConstraint(condition=models.Q(('user__isnull', False), ('session_key__isnull', False), _connector='OR'), name='cart_user_or_session_required'),
         ),
+        migrations.AddConstraint(
+            model_name='cart',
+            constraint=models.UniqueConstraint(condition=models.Q(('session_key__isnull', False), ('user__isnull', True)), fields=('session_key',), name='unique_session_cart'),
+        ),
         migrations.AlterUniqueTogether(
             name='cartitem',
             unique_together={('cart', 'product')},

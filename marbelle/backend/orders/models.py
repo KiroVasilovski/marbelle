@@ -163,6 +163,11 @@ class Cart(models.Model):
             models.CheckConstraint(
                 check=models.Q(user__isnull=False) | models.Q(session_key__isnull=False),
                 name="cart_user_or_session_required"
+            ),
+            models.UniqueConstraint(
+                fields=["session_key"],
+                condition=models.Q(session_key__isnull=False, user__isnull=True),
+                name="unique_session_cart"
             )
         ]
         indexes = [

@@ -32,7 +32,11 @@ def get_or_create_cart(request: Request) -> Cart:
             request.session.save()
             session_key = request.session.session_key
 
-        cart, _ = Cart.objects.get_or_create(session_key=session_key, defaults={"user": None})
+        cart, _ = Cart.objects.get_or_create(
+            session_key=session_key,
+            user=None,
+            defaults={}
+        )
         return cart
 
 
