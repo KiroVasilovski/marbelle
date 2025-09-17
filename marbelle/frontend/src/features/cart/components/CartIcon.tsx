@@ -10,33 +10,29 @@ interface CartIconProps {
     className?: string;
 }
 
-export const CartIcon: React.FC<CartIconProps> = ({ variant = 'desktop' }) => {
+export const CartIcon: React.FC<CartIconProps> = () => {
     const { t } = useTranslation();
     const { cart } = useCart();
 
     const itemCount = cart?.item_count || 0;
 
-    if (variant === 'desktop') {
-        return (
-            <Link to="/cart">
-                <Button
-                    variant="ghost"
-                    className="hidden md:flex items-center space-x-2 text-black font-light tracking-wide uppercase px-3 h-auto py-2"
-                >
-                    <span>
-                        {t('header.shoppingCart')} [{itemCount}]
-                    </span>
-                </Button>
-            </Link>
-        );
-    }
-
     return (
         <Link to="/cart">
+            {/* Desktop */}
+            <Button
+                variant="ghost"
+                className="hidden md:flex items-center space-x-2 text-black font-light tracking-wide uppercase px-3 h-auto py-2"
+            >
+                <span>
+                    {t('header.shoppingCart')} [{itemCount}]
+                </span>
+            </Button>
+
+            {/* Mobile */}
             <Button variant="ghost" className="md:hidden p-2 text-black relative">
                 <ShoppingCart size={20} />
                 {itemCount > 0 && (
-                    <span className="absolute -top-0 -right-0 bg-black text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                    <span className="absolute top-1 -right-0 bg-black text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                         {itemCount}
                     </span>
                 )}

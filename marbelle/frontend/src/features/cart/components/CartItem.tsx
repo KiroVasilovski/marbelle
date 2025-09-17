@@ -40,28 +40,24 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
     };
 
     return (
-        <div className="flex items-center space-x-4 py-4 border-b">
-            <div className="flex-shrink-0 w-20 h-20">
+        <div className="flex items-center space-x-4 border border-gray-200 rounded">
+            <div className="flex-shrink-0 w-22 h-22">
                 {item.product.image ? (
-                    <img
-                        src={item.product.image}
-                        alt={item.product.name}
-                        className="w-full h-full object-cover rounded"
-                    />
+                    <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
                 ) : (
-                    <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
-                        <span className="text-xs text-gray-500">No image</span>
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-xs text-gray-500 uppercase">No image</span>
                     </div>
                 )}
             </div>
 
             <div className="flex-1 min-w-0">
                 <h3 className="text-sm font-medium text-gray-900 truncate">{item.product.name}</h3>
-                <p className="text-sm text-gray-500">{t('cart.item.price')}: ${item.unit_price}</p>
+                <p className="text-sm text-gray-500">
+                    {t('cart.item.price')}: ${item.unit_price}
+                </p>
                 <p className="text-xs text-gray-400">SKU: {item.product.sku}</p>
-                {!item.product.in_stock && (
-                    <p className="text-xs text-red-600">{t('cart.item.outOfStock')}</p>
-                )}
+                {!item.product.in_stock && <p className="text-xs text-red-600">{t('cart.item.outOfStock')}</p>}
             </div>
 
             <div className="flex items-center space-x-2">
@@ -69,7 +65,7 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
                     variant="outline"
                     size="sm"
                     onClick={() => handleQuantityChange(item.quantity - 1)}
-                    disabled={isUpdating || item.quantity <= 1}
+                    disabled={isUpdating || item.quantity == 1}
                     className="w-8 h-8 p-0"
                 >
                     <Minus size={12} />
