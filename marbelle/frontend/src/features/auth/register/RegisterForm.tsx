@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../../shared/components/shadcn/button';
 import { Input } from '../../../shared/components/ui/input';
+import { PhoneInput } from '../../../shared/components/ui/phone-input';
 import {
     PasswordStrengthIndicator,
     PasswordMatchIndicator,
@@ -181,14 +182,14 @@ export const RegisterForm: React.FC = () => {
                 onChange={(e) => setValue('company_name', e.target.value)}
             />
 
-            <Input
+            <PhoneInput
                 id="phone"
-                type="tel"
-                label={t('auth.register.phonePlaceholder')}
                 value={values.phone}
-                onChange={(e) => setValue('phone', e.target.value)}
+                label={t('auth.register.phonePlaceholder')}
+                onChange={(phone) => setValue('phone', phone)}
                 onBlur={() => setTouched('phone')}
                 error={errors.phone && touched.phone ? errors.phone : undefined}
+                clearOnCountryCodeOnly={true}
             />
 
             <div>

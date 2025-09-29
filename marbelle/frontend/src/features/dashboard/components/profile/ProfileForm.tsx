@@ -7,6 +7,7 @@ import { validationRules } from '../../../../shared/lib/validation';
 import type { User } from '../../../auth/types/auth';
 import type { ProfileUpdateData } from '../../types/dashboard';
 import { useTranslation } from 'react-i18next';
+import { PhoneInput } from '@/shared/components/ui/phone-input';
 
 interface ProfileFormProps {
     user: User;
@@ -132,20 +133,16 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ user, onSuccess, onCan
                         {t('dashboard.profile.form.contactInformation')}
                     </h3>
 
-                    <div className="space-y-6">
-                        <div>
-                            <Input
-                                id="phone"
-                                type="tel"
-                                label={t('dashboard.profile.form.phone')}
-                                value={values.phone}
-                                onChange={(e) => handleInputChange('phone', e.target.value)}
-                                onBlur={() => handleBlur('phone')}
-                                error={errors.phone && touched.phone ? errors.phone : undefined}
-                                disabled={profileLoading}
-                            />
-                        </div>
-                    </div>
+                    <PhoneInput
+                        id="phone"
+                        value={values.phone}
+                        label={t('dashboard.profile.form.phone')}
+                        onChange={(phone: string) => setValue('phone', phone)}
+                        onBlur={() => setTouched('phone')}
+                        error={errors.phone && touched.phone ? errors.phone : undefined}
+                        disabled={profileLoading}
+                        clearOnCountryCodeOnly={true}
+                    />
                 </div>
                 {/* Business Information Section */}
                 <div>

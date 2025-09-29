@@ -8,8 +8,9 @@ export const validationRules = {
         return value.length >= 8 && /[a-z]/.test(value) && /[A-Z]/.test(value) && /\d/.test(value);
     },
     phone: (value: string) => {
-        if (!value) return true; // Optional field
-        return /^\+?1?\d{9,15}$/.test(value.replace(/\s/g, ''));
+        if (!value || value.trim().length === 0) return true; // Optional field
+        // Basic validation for phone format - react-international-phone handles detailed validation
+        return value.length >= 7 && /^[+]?[\d\s\-()]+$/.test(value);
     },
     // Cross-field validation helpers
     matchesField: (fieldName: string) => (value: string, allValues?: any) => {
