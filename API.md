@@ -521,8 +521,250 @@ curl "http://localhost:8000/api/v1/products/?ordering=-price"
 ### Business Rules
 
 - Only active products and categories are returned (is_active=True)
-- Stock availability: in_stock = stock_quantity > 0  
+- Stock availability: in_stock = stock_quantity > 0
 - Category product_count includes only active products
 - Search is case-insensitive across name, description, and SKU
 - Images sorted by display_order, then created_at
 - Pagination: 20 items per page by default
+
+---
+
+## Shopping Cart Endpoints
+
+**Authentication**: Optional (supports both authenticated users and guest sessions)
+**Session Management**: Guest carts are automatically created and persisted using Django sessions
+
+### Get Cart
+
+```http
+GET /cart/
+```
+
+**Description**: Retrieve current cart contents with items and calculated totals.
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "message": "Cart retrieved successfully.",
+    "data": {
+        "id": 1,
+        "item_count": 3,
+        "subtotal": "109.97",
+        "tax_amount": "9.90",
+        "total": "119.87",
+        "items": [
+            {
+                "id": 1,
+                "product": {
+                    "id": 1,
+                    "name": "Carrara White Marble Slab",
+                    "sku": "CARR-WHITE-001",
+                    "stock_quantity": 25,
+                    "in_stock": true,
+                    "image": "http://localhost:8000/media/products/carrara_white_1.jpg"
+                },
+                "quantity": 2,
+                "unit_price": "85.50",
+                "subtotal": "171.00",
+                "created_at": "2025-09-14T10:30:00Z"
+            }
+        ]
+    }
+}
+```
+
+### Add to Cart
+
+```http
+POST /cart/items/
+```
+
+**Request:**
+
+```json
+{
+    "product_id": 1,
+    "quantity": 2
+}
+```
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "message": "Added 2 x Carrara White Marble Slab to cart.",
+    "data": {
+        "item": {
+            "id": 1,
+            "product": {
+                "id": 1,
+                "name": "Carrara White Marble Slab",
+                "sku": "CARR-WHITE-001",
+                "image": "http://localhost:8000/media/products/carrara_white_1.jpg"
+            },
+            "quantity": 2,
+            "unit_price": "85.50",
+            "subtotal": "171.00"
+        },
+        "cart_totals": {
+            "item_count": 2,
+            "subtotal": "171.00",
+            "tax_amount": "15.39",
+            "total": "186.39"
+        }
+    }
+}
+```
+
+### Update Cart Item
+
+```http
+PUT /cart/items/{item_id}/
+```
+
+**Request:**
+
+```json
+{
+    "quantity": 5
+}
+```
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "message": "Cart item updated successfully.",
+    "data": {
+        "item": {
+            "id": 1,
+            "product": {
+                "id": 1,
+                "name": "Carrara White Marble Slab",
+                "sku": "CARR-WHITE-001",
+                "image": "http://localhost:8000/media/products/carrara_white_1.jpg"
+            },
+            "quantity": 5,
+            "unit_price": "85.50",
+            "subtotal": "427.50"
+        },
+        "cart_totals": {
+            "item_count": 5,
+            "subtotal": "427.50",
+            "tax_amount": "38.48",
+            "total": "465.98"
+        }
+    }
+}
+```
+
+### Remove Cart Item
+
+```http
+DELETE /cart/items/{item_id}/remove/
+```
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "message": "Removed Carrara White Marble Slab from cart.",
+    "data": {
+        "cart_totals": {
+            "item_count": 0,
+            "subtotal": "0.00",
+            "tax_amount": "0.00",
+            "total": "0.00"
+        }
+    }
+}
+```
+
+### Clear Cart
+
+```http
+DELETE /cart/clear/
+```
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "message": "Cart cleared successfully.",
+    "data": {
+        "cart_totals": {
+            "item_count": 0,
+            "subtotal": "0.00",
+            "tax_amount": "0.00",
+            "total": "0.00"
+        }
+    }
+}
+```
+
+---
+
+## Shopping Cart Examples
+
+### Complete Cart Flow
+
+```bash
+# 1. Get empty cart
+curl "http://localhost:8000/api/v1/cart/"
+
+# 2. Add item to cart
+curl -X POST http://localhost:8000/api/v1/cart/items/ \
+  -H "Content-Type: application/json" \
+  -d '{"product_id":1,"quantity":2}'
+
+# 3. Update item quantity
+curl -X PUT http://localhost:8000/api/v1/cart/items/1/ \
+  -H "Content-Type: application/json" \
+  -d '{"quantity":5}'
+
+# 4. Remove item from cart
+curl -X DELETE http://localhost:8000/api/v1/cart/items/1/remove/
+
+# 5. Clear entire cart
+curl -X DELETE http://localhost:8000/api/v1/cart/clear/
+```
+
+### With Authentication
+
+```bash
+# Add JWT token for authenticated users
+curl -X POST http://localhost:8000/api/v1/cart/items/ \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"product_id":1,"quantity":2}'
+```
+
+### Business Rules
+
+**Cart Management:**
+- Guest carts persist for 4 weeks using Django sessions
+- Authenticated users get one cart per account
+- Unit prices are frozen at add time (price changes don't affect cart)
+- Maximum 99 items per product per cart
+- Stock validation prevents overselling
+
+**Tax Calculation:**
+- 9% tax rate applied to subtotal
+- Tax amount rounded to 2 decimal places
+- Total = Subtotal + Tax
+
+**Session Handling:**
+- Guest sessions automatically created on first cart action
+- Session cookies: `marbelle_sessionid` with HttpOnly, SameSite=Lax
+- Cart data synchronized when user logs in (guest cart merges with user cart)
+
+**Error Handling:**
+- Stock validation: Prevents adding more items than available
+- Quantity limits: 1-99 items per product
+- Access control: Users can only modify their own cart items

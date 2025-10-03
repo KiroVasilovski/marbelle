@@ -404,5 +404,69 @@
                 "backButton": "ZURÜCK ZUM KATALOG"
             }
         }
+    },
+    "cart": {
+        "title": "Warenkorb",
+        "emptyState": {
+            "title": "Ihr Warenkorb ist leer",
+            "subtitle": "Fügen Sie Produkte hinzu, um zu beginnen",
+            "shopNowButton": "Jetzt einkaufen"
+        },
+        "summary": {
+            "subtotal": "Zwischensumme",
+            "tax": "Steuer",
+            "total": "Gesamt",
+            "itemCount": "{{count}} Artikel",
+            "itemCount_other": "{{count}} Artikel"
+        },
+        "item": {
+            "quantity": "Menge",
+            "price": "Preis",
+            "total": "Gesamt",
+            "remove": "Entfernen",
+            "removeConfirm": "{{productName}} aus dem Warenkorb entfernen?",
+            "outOfStock": "Nicht verfügbar",
+            "stockLimited": "Nur noch {{stock}} verfügbar"
+        },
+        "actions": {
+            "addToCart": "In den Warenkorb",
+            "addingToCart": "Wird hinzugefügt...",
+            "updateQuantity": "Aktualisieren",
+            "clearCart": "Warenkorb leeren",
+            "clearCartConfirm": "Alle Artikel aus dem Warenkorb entfernen?",
+            "checkout": "Zur Kasse"
+        },
+        "errors": {
+            "addFailed": "Artikel konnte nicht hinzugefügt werden",
+            "updateFailed": "Menge konnte nicht aktualisiert werden",
+            "removeFailed": "Artikel konnte nicht entfernt werden",
+            "clearFailed": "Warenkorb konnte nicht geleert werden",
+            "loadFailed": "Warenkorb konnte nicht geladen werden",
+            "stockUnavailable": "Nicht genügend Lagerbestand verfügbar"
+        },
+        "success": {
+            "itemAdded": "{{productName}} zum Warenkorb hinzugefügt",
+            "itemUpdated": "Menge aktualisiert",
+            "itemRemoved": "{{productName}} aus dem Warenkorb entfernt",
+            "cartCleared": "Warenkorb geleert"
+        },
+        "preview": {
+            "addedToCart": "Zum Warenkorb hinzugefügt",
+            "quantity": "Menge",
+            "itemsInCart": "{{count}} Artikel im Warenkorb",
+            "itemsInCart_other": "{{count}} Artikel im Warenkorb",
+            "continueShopping": "Weiter einkaufen",
+            "viewCart": "Warenkorb ansehen"
+        },
+        "hover": {
+            "title": "Warenkorb",
+            "itemCount": "{{count}} Artikel",
+            "itemCount_other": "{{count}} Artikel",
+            "quantity": "Anz.",
+            "subtotal": "Zwischensumme",
+            "tax": "Steuer",
+            "total": "Gesamt",
+            "viewCart": "Warenkorb ansehen"
+        }
     }
 }

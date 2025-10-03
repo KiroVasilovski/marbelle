@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useProductDetail } from '../hooks/useProductDetail';
 import { ProductInfo } from './ProductInfo';
+import { AddToCartButton } from '../../cart';
 import type { ProductImage } from '../types/product';
 
 export const ProductDetailPage: React.FC = () => {
@@ -11,9 +12,61 @@ export const ProductDetailPage: React.FC = () => {
     const navigate = useNavigate();
     const { product, loading, error } = useProductDetail(id || '');
 
+    // Refs for intersection observers
+    const productInfoRef = useRef<HTMLDivElement>(null);
+    const footerSentinelRef = useRef<HTMLDivElement>(null);
+
+    // State to control sticky bar visibility
+    const [showStickyBar, setShowStickyBar] = useState(false);
+
     const handleBackClick = () => {
         navigate('/products');
     };
+
+    // Intersection Observer for product info section
+    useEffect(() => {
+        const productInfoElement = productInfoRef.current;
+        const footerSentinelElement = footerSentinelRef.current;
+
+        if (!productInfoElement || !footerSentinelElement) return;
+
+        let isProductInfoVisible = true;
+        let isFooterVisible = false;
+
+        // Observer for when user scrolls past product info
+        const productInfoObserver = new IntersectionObserver(
+            ([entry]) => {
+                isProductInfoVisible = entry.isIntersecting;
+                // Show sticky bar when product info is NOT visible AND footer is NOT visible
+                setShowStickyBar(!isProductInfoVisible && !isFooterVisible);
+            },
+            {
+                threshold: 0,
+                rootMargin: '0px',
+            }
+        );
+
+        // Observer for when user reaches footer
+        const footerObserver = new IntersectionObserver(
+            ([entry]) => {
+                isFooterVisible = entry.isIntersecting;
+                // Show sticky bar when product info is NOT visible AND footer is NOT visible
+                setShowStickyBar(!isProductInfoVisible && !isFooterVisible);
+            },
+            {
+                threshold: 0,
+                rootMargin: '0px',
+            }
+        );
+
+        productInfoObserver.observe(productInfoElement);
+        footerObserver.observe(footerSentinelElement);
+
+        return () => {
+            productInfoObserver.disconnect();
+            footerObserver.disconnect();
+        };
+    }, [product]);
 
     if (loading) {
         return (
@@ -67,9 +120,9 @@ export const ProductDetailPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-white">
             {/* Mobile Layout: Column layout (image -> description -> gallery) */}
-            <div className="block md:hidden">
+            <div className="block lg:hidden">
                 {/* Primary Image */}
-                <div className="aspect-square p-4">
+                <div className="aspect-square">
                     <img
                         src={primaryImage?.image || placeholderImage}
                         alt={primaryImage?.alt_text || product.name}
@@ -81,82 +134,81 @@ export const ProductDetailPage: React.FC = () => {
                     />
                 </div>
 
-                {/* Product Information */}
-                <div className="p-4">
+                {/* Product Information - with ref for intersection observer */}
+                <div ref={productInfoRef} className="p-4">
                     <ProductInfo product={product} />
                 </div>
 
                 {/* Additional Images Gallery */}
                 {galleryImages.length > 0 && (
-                    <div className="p-4 space-y-4">
-                        <div className="space-y-4">
-                            {galleryImages.map((image: ProductImage) => (
-                                <div key={image.id} className="aspect-square bg-gray-100">
-                                    <img
-                                        src={image.image}
-                                        alt={image.alt_text || `${product.name} ${image.display_order}`}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.src = placeholderImage;
-                                        }}
-                                    />
-                                </div>
-                            ))}
-                        </div>
+                    <div className="space-y-4">
+                        {galleryImages.map((image: ProductImage) => (
+                            <div key={image.id} className="aspect-square bg-gray-100">
+                                <img
+                                    src={image.image}
+                                    alt={image.alt_text || `${product.name} ${image.display_order}`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = placeholderImage;
+                                    }}
+                                />
+                            </div>
+                        ))}
                     </div>
                 )}
-            </div>
 
-            {/* Desktop/Tablet Layout: Side-by-side with overlay */}
-            <div className="hidden md:block">
-                <div className="relative min-h-screen flex xl:-mt-20">
-                    {/* Primary Image - Responsive positioning based on screen size */}
-                    <div className="w-full md:w-1/2 relative">
-                        {/* Large screens (lg+): Image from top with left margin to align with burger menu */}
-                        <div className="hidden lg:block absolute inset-0 lg:pt-0">
-                            <div className="lg:ml-22 xl:ml-35 lg:h-[calc(100vh-5rem)] xl:h-screen">
-                                <img
-                                    src={primaryImage?.image || placeholderImage}
-                                    alt={primaryImage?.alt_text || product.name}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.src = placeholderImage;
-                                    }}
-                                />
+                {/* Footer Sentinel - invisible element to detect when footer is near */}
+                <div ref={footerSentinelRef} className="h-0" />
+
+                {/* Sticky Bottom Bar - appears when scrolled past product info */}
+                <div
+                    className={`fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg transition-transform duration-300 z-40 ${
+                        showStickyBar ? 'translate-y-0' : 'translate-y-full'
+                    }`}
+                >
+                    <div className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex-1 pr-4">
+                                <h2 className="text-sm font-light text-gray-900 uppercase tracking-wide line-clamp-2">
+                                    {product.name}
+                                </h2>
+                                <p className="text-lg font-light text-gray-900 mt-1">
+                                    ${product.price}
+                                    <span className="text-xs text-gray-500 ml-1 uppercase tracking-wide">
+                                        {t('products.perUnit.' + product.unit_of_measure, {
+                                            defaultValue: `/ ${product.unit_of_measure.toUpperCase()}`,
+                                        })}
+                                    </span>
+                                </p>
                             </div>
                         </div>
-
-                        {/* Medium screens (md to lg): Image after header with minimal margin */}
-                        <div className="block lg:hidden">
-                            <div className="ml-4 mr-0 h-[calc(100vh-5rem)]">
-                                <img
-                                    src={primaryImage?.image || placeholderImage}
-                                    alt={primaryImage?.alt_text || product.name}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.src = placeholderImage;
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Product Information - Right side */}
-                    <div className="absolute inset-y-0 right-0 w-full md:w-1/2 flex">
-                        <div className="w-full bg-white pl-6 pr-6 pb-6 md:pr-8 md:pl-8 md:pb-8 lg:pr-12 lg:pl-12 lg:pb-12 xl:mt-20 flex flex-col justify-start">
-                            <ProductInfo product={product} />
-                        </div>
+                        <AddToCartButton productId={product.id} disabled={!product.in_stock} className="w-full" />
                     </div>
                 </div>
+            </div>
 
-                {/* Additional Images Gallery - Below main section (desktop/tablet) */}
-                {galleryImages.length > 0 && (
-                    <div className="bg-white py-12 md:py-16 lg:py-20">
-                        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
+            {/* Desktop/Tablet Layout: Side-by-side with sticky sidebar */}
+            <div className="hidden lg:block">
+                <div className="flex lg:-mt-20">
+                    {/* Left side - Images (3/5 width) */}
+                    <div className="w-3/5">
+                        {/* Primary Image */}
+                        <div className="aspect-square">
+                            <img
+                                src={primaryImage?.image || placeholderImage}
+                                alt={primaryImage?.alt_text || product.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = placeholderImage;
+                                }}
+                            />
+                        </div>
+
+                        {/* Additional Images Gallery */}
+                        {galleryImages.length > 0 && (
+                            <div className="space-y-2 mt-2">
                                 {galleryImages.map((image: ProductImage) => (
                                     <div key={image.id} className="aspect-square bg-gray-100">
                                         <img
@@ -171,9 +223,18 @@ export const ProductDetailPage: React.FC = () => {
                                     </div>
                                 ))}
                             </div>
+                        )}
+                    </div>
+
+                    {/* Right side - Product Information (2/5 width, sticky) */}
+                    <div className="w-2/5">
+                        <div className="sticky top-0 bottom-0 p-8 lg:p-12 bg-white h-screen overflow-y-auto flex items-center">
+                            <div className="w-full">
+                                <ProductInfo product={product} />
+                            </div>
                         </div>
                     </div>
-                )}
+                </div>
             </div>
         </div>
     );
