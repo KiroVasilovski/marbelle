@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../shadcn/button';
 import { useAuth } from '../../../features/auth/AuthContext';
+import { CartIcon } from '../../../features/cart';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
-import { User, HelpCircle, ShoppingCart } from 'lucide-react';
+import { User, HelpCircle } from 'lucide-react';
 import { Drawer, DrawerTrigger } from '../shadcn/drawer';
 
 interface HeaderProps {
@@ -16,7 +17,6 @@ function Header({ isProductDetailPage = false }: HeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [scrollDirection, setScrollDirection] = useState<'up' | 'down' | null>(null);
     const [lastScrollY, setLastScrollY] = useState(0);
-    const cartItemCount = 0; // TODO: Replace with actual cart count
 
     const handleLogout = () => {
         logout();
@@ -78,7 +78,7 @@ function Header({ isProductDetailPage = false }: HeaderProps) {
                 }`}
             >
                 <div className="px-4 md:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16 md:h-20">
+                    <div className="flex items-center justify-between h-12 md:h-20">
                         {/* Left side: Burger Menu */}
                         <div className="flex items-center">
                             <Drawer direction="left" open={isMenuOpen} onOpenChange={setIsMenuOpen}>
@@ -127,17 +127,17 @@ function Header({ isProductDetailPage = false }: HeaderProps) {
                         </div>
 
                         {/* Right side: Account, Help, Cart */}
-                        <div className="flex items-center space-x-2 md:space-x-4">
+                        <div className="flex items-center space-x-1 sm:space-x-2">
                             {/* My Account / Login */}
                             {isAuthenticated ? (
                                 <Link to="/dashboard" onClick={closeMenu}>
                                     <Button
                                         variant="ghost"
-                                        className="hidden md:flex items-center space-x-2 text-black font-light tracking-wide uppercase px-3 h-auto py-2"
+                                        className="hidden md:flex font-light tracking-wide uppercase"
                                     >
-                                        <span>{t('header.myAccount')}</span>
+                                        {t('header.myAccount')}
                                     </Button>
-                                    <Button variant="ghost" className="md:hidden p-2 text-black">
+                                    <Button variant="ghost" className="md:hidden px-2">
                                         <User size={20} />
                                     </Button>
                                 </Link>
@@ -145,44 +145,26 @@ function Header({ isProductDetailPage = false }: HeaderProps) {
                                 <Link to="/login" onClick={closeMenu}>
                                     <Button
                                         variant="ghost"
-                                        className="hidden md:flex items-center space-x-2 text-black font-light tracking-wide uppercase px-3 h-auto py-2"
+                                        className="hidden md:flex font-light tracking-wide uppercase"
                                     >
-                                        <span>{t('header.login')}</span>
+                                        {t('header.login')}
                                     </Button>
-                                    <Button variant="ghost" className="md:hidden p-2 text-black">
-                                        <User size={20} />
+                                    <Button variant="ghost" className="md:hidden px-2">
+                                        <User strokeWidth={1.5} size={24} />
                                     </Button>
                                 </Link>
                             )}
 
                             {/* Help */}
-                            <Button
-                                variant="ghost"
-                                className="hidden md:flex items-center space-x-2 text-black font-light tracking-wide uppercase px-3 h-auto py-2"
-                            >
-                                <span>{t('header.help')}</span>
+                            <Button variant="ghost" className="hidden md:flex font-light tracking-wide uppercase">
+                                {t('header.help')}
                             </Button>
-                            <Button variant="ghost" className="md:hidden p-2 text-black">
-                                <HelpCircle size={20} />
+                            <Button variant="ghost" className="md:hidden px-2">
+                                <HelpCircle strokeWidth={1.5} size={24} />
                             </Button>
 
                             {/* Shopping Cart */}
-                            <Button
-                                variant="ghost"
-                                className="hidden md:flex items-center space-x-2 text-black font-light tracking-wide uppercase px-3 h-auto py-2"
-                            >
-                                <span>
-                                    {t('header.shoppingCart')} [{cartItemCount}]
-                                </span>
-                            </Button>
-                            <Button variant="ghost" className="md:hidden p-2 text-black relative">
-                                <ShoppingCart size={20} />
-                                {cartItemCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                        {cartItemCount}
-                                    </span>
-                                )}
-                            </Button>
+                            <CartIcon />
                         </div>
                     </div>
                 </div>
@@ -193,7 +175,7 @@ function Header({ isProductDetailPage = false }: HeaderProps) {
                 <>
                     {/* Overlay that doesn't cover header */}
                     <div
-                        className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm top-16 md:top-20"
+                        className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm top-12 md:top-20"
                         onClick={closeMenu}
                         onKeyDown={(e) => {
                             if (e.key === 'Escape') {
@@ -207,8 +189,8 @@ function Header({ isProductDetailPage = false }: HeaderProps) {
 
                     {/* Drawer Content */}
                     <div
-                        className={`fixed left-0 z-50 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
-                                   w-full md:w-80 border-r border-gray-200 top-16 md:top-20 bottom-0
+                        className={`fixed left-0 z-150 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
+                                   w-full md:w-80 border-r border-gray-200 top-12 md:top-20 bottom-0
                                    ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
                     >
                         <div className="p-6">
@@ -280,7 +262,7 @@ function Header({ isProductDetailPage = false }: HeaderProps) {
             )}
 
             {/* Spacer for fixed header */}
-            <div className="h-16 md:h-20" />
+            <div className="h-12 md:h-20" />
         </>
     );
 }

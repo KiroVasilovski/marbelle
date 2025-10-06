@@ -404,5 +404,69 @@
                 "backButton": "BACK TO CATALOG"
             }
         }
+    },
+    "cart": {
+        "title": "Shopping Cart",
+        "emptyState": {
+            "title": "Your cart is empty",
+            "subtitle": "Add some products to get started",
+            "shopNowButton": "Shop now"
+        },
+        "summary": {
+            "subtotal": "Subtotal",
+            "tax": "Tax",
+            "total": "Total",
+            "itemCount": "{{count}} item",
+            "itemCount_other": "{{count}} items"
+        },
+        "item": {
+            "quantity": "Quantity",
+            "price": "Price",
+            "total": "Total",
+            "remove": "Remove",
+            "removeConfirm": "Remove {{productName}} from cart?",
+            "outOfStock": "Out of stock",
+            "stockLimited": "Only {{stock}} left"
+        },
+        "actions": {
+            "addToCart": "Add to cart",
+            "addingToCart": "Adding...",
+            "updateQuantity": "Update",
+            "clearCart": "Clear cart",
+            "clearCartConfirm": "Clear all items from cart?",
+            "checkout": "Proceed to checkout"
+        },
+        "errors": {
+            "addFailed": "Failed to add item to cart",
+            "updateFailed": "Failed to update quantity",
+            "removeFailed": "Failed to remove item",
+            "clearFailed": "Failed to clear cart",
+            "loadFailed": "Failed to load cart",
+            "stockUnavailable": "Not enough stock available"
+        },
+        "success": {
+            "itemAdded": "{{productName}} added to cart",
+            "itemUpdated": "Quantity updated",
+            "itemRemoved": "{{productName}} removed from cart",
+            "cartCleared": "Cart cleared"
+        },
+        "preview": {
+            "addedToCart": "Added to Cart",
+            "quantity": "Quantity",
+            "itemsInCart": "{{count}} item in cart",
+            "itemsInCart_other": "{{count}} items in cart",
+            "continueShopping": "Continue Shopping",
+            "viewCart": "View Cart"
+        },
+        "hover": {
+            "title": "Shopping Cart",
+            "itemCount": "{{count}} item",
+            "itemCount_other": "{{count}} items",
+            "quantity": "Qty",
+            "subtotal": "Subtotal",
+            "tax": "Tax",
+            "total": "Total",
+            "viewCart": "View Cart"
+        }
     }
 }

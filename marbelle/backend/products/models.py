@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Any
 
 from django.core.exceptions import ValidationError
@@ -51,7 +52,7 @@ class Product(models.Model):
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(0.01)],
+        validators=[MinValueValidator(Decimal("0.01"))],
         help_text="Product price (must be positive)",
     )
     unit_of_measure = models.CharField(
@@ -80,6 +81,11 @@ class Product(models.Model):
 
     def __str__(self) -> str:
         return f"{self.name} ({self.category.name})"
+
+    @property
+    def in_stock(self) -> bool:
+        """Check if product has stock available."""
+        return self.stock_quantity > 0
 
 
 class ProductImage(models.Model):
@@ -113,7 +119,7 @@ class ProductImage(models.Model):
         """
         Validate that only one primary image exists per product.
         """
-        if self.is_primary:
+        if self.is_primary and self.product and self.product.pk:
             existing_primary = ProductImage.objects.filter(product=self.product, is_primary=True).exclude(pk=self.pk)
             if existing_primary.exists():
                 raise ValidationError("Only one primary image is allowed per product.")

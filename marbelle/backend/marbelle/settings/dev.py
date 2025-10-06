@@ -40,7 +40,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Session settings for development
 SESSION_COOKIE_SECURE = False  # HTTP allowed in development
-SESSION_COOKIE_DOMAIN = None   # Use default for localhost
+SESSION_COOKIE_DOMAIN = None  # Use default for localhost
 
 # Logging configuration for development
 LOGGING = {

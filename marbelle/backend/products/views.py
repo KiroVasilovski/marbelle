@@ -93,7 +93,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         """
         category = self.get_object()
         products = Product.objects.filter(category=category, is_active=True).prefetch_related("images")
-        
+
         # Apply filtering and search to products
         filterset = ProductFilter(request.GET, queryset=products)
         if filterset.is_valid():
@@ -102,13 +102,11 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         # Apply search
         search_query = request.query_params.get("search")
         if search_query:
-            products = products.filter(
-                name__icontains=search_query
-            ).distinct() | products.filter(
-                description__icontains=search_query
-            ).distinct() | products.filter(
-                sku__icontains=search_query
-            ).distinct()
+            products = (
+                products.filter(name__icontains=search_query).distinct()
+                | products.filter(description__icontains=search_query).distinct()
+                | products.filter(sku__icontains=search_query).distinct()
+            )
 
         # Apply pagination
         page = self.paginate_queryset(products)
