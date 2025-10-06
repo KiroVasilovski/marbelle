@@ -34,8 +34,8 @@ SECURE_HSTS_SECONDS = 31536000
 X_FRAME_OPTIONS = "DENY"
 
 # Session settings for production (HTTPS required)
-SESSION_COOKIE_SECURE = True   # HTTPS only
-CSRF_COOKIE_SECURE = True      # CSRF protection
+SESSION_COOKIE_SECURE = True  # HTTPS only
+CSRF_COOKIE_SECURE = True  # CSRF protection
 SESSION_COOKIE_DOMAIN = os.getenv("SESSION_COOKIE_DOMAIN", None)  # Configurable domain
 
 # Email backend for production
