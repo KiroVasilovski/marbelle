@@ -404,5 +404,69 @@
                 "backButton": "KTHEHU TE KATALOGU"
             }
         }
+    },
+    "cart": {
+        "title": "Shporta e blerjeve",
+        "emptyState": {
+            "title": "Shporta juaj është bosh",
+            "subtitle": "Shtoni disa produkte për të filluar",
+            "shopNowButton": "Blini tani"
+        },
+        "summary": {
+            "subtotal": "Nëntotali",
+            "tax": "Taksa",
+            "total": "Totali",
+            "itemCount": "{{count}} artikull",
+            "itemCount_other": "{{count}} artikuj"
+        },
+        "item": {
+            "quantity": "Sasia",
+            "price": "Çmimi",
+            "total": "Totali",
+            "remove": "Hiq",
+            "removeConfirm": "Hiq {{productName}} nga shporta?",
+            "outOfStock": "Jashtë stokut",
+            "stockLimited": "Vetëm {{stock}} të mbetura"
+        },
+        "actions": {
+            "addToCart": "Shto në shportë",
+            "addingToCart": "Duke shtuar...",
+            "updateQuantity": "Përditëso",
+            "clearCart": "Zbraz shportën",
+            "clearCartConfirm": "Zbraz të gjitha artikujt nga shporta?",
+            "checkout": "Vazhdo te pagesa"
+        },
+        "errors": {
+            "addFailed": "Dështoi shtimi i artikullit në shportë",
+            "updateFailed": "Dështoi përditësimi i sasisë",
+            "removeFailed": "Dështoi heqja e artikullit",
+            "clearFailed": "Dështoi zbrazia e shportës",
+            "loadFailed": "Dështoi ngarkimi i shportës",
+            "stockUnavailable": "Nuk ka stok të mjaftueshëm"
+        },
+        "success": {
+            "itemAdded": "{{productName}} u shtua në shportë",
+            "itemUpdated": "Sasia u përditësua",
+            "itemRemoved": "{{productName}} u hoq nga shporta",
+            "cartCleared": "Shporta u zbraz"
+        },
+        "preview": {
+            "addedToCart": "U shtua në shportë",
+            "quantity": "Sasia",
+            "itemsInCart": "{{count}} artikull në shportë",
+            "itemsInCart_other": "{{count}} artikuj në shportë",
+            "continueShopping": "Vazhdo blerjet",
+            "viewCart": "Shiko shportën"
+        },
+        "hover": {
+            "title": "Shporta",
+            "itemCount": "{{count}} artikull",
+            "itemCount_other": "{{count}} artikuj",
+            "quantity": "Sas.",
+            "subtotal": "Nëntotali",
+            "tax": "Taksa",
+            "total": "Totali",
+            "viewCart": "Shiko shportën"
+        }
     }
 }

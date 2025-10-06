@@ -37,6 +37,13 @@ export const API_ENDPOINTS = {
         DETAIL: '/products/:id/',
         CATEGORIES: '/products/categories/',
     },
+    CART: {
+        GET: '/cart/',
+        ADD_ITEM: '/cart/items/',
+        UPDATE_ITEM: '/cart/items/:id/',
+        REMOVE_ITEM: '/cart/items/:id/remove/',
+        CLEAR: '/cart/clear/',
+    },
     // TODO: Add orders endpoints when orders API is implemented
     // ORDERS: {
     //     LIST: '/orders/',
