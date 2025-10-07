@@ -49,10 +49,8 @@ class Migration(migrations.Migration):
                 (
                     "sku",
                     models.CharField(
-                        blank=True,
-                        help_text="Stock Keeping Unit (optional, must be unique if provided)",
+                        help_text="Stock Keeping Unit (unique identifier for product)",
                         max_length=50,
-                        null=True,
                         unique=True,
                     ),
                 ),

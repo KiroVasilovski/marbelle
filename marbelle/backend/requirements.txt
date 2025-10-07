@@ -12,3 +12,7 @@ django-filter==24.3
 
 # For serving static files in production on RENDER only
 whitenoise==6.10.0
+
+# Cloudinary for image storage and CDN
+cloudinary==1.41.0
+django-cloudinary-storage==0.3.0

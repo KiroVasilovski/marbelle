@@ -51,6 +51,8 @@ LOCAL_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    "cloudinary_storage",
+    "cloudinary",
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
@@ -282,3 +284,26 @@ EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False").lower() == "true"
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "info.marbelle.me@gmail.com")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "info.marbelle.me@gmail.com")
+
+
+# ==============================================================================
+# CLOUDINARY CONFIGURATION
+# ==============================================================================
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+}
+
+# Use Cloudinary only if credentials are configured
+USE_CLOUDINARY = all(
+    [
+        os.getenv("CLOUDINARY_CLOUD_NAME"),
+        os.getenv("CLOUDINARY_API_KEY"),
+        os.getenv("CLOUDINARY_API_SECRET"),
+    ]
+)
+
+if USE_CLOUDINARY:
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"

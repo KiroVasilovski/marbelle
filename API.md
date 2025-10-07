@@ -439,7 +439,7 @@ GET /products/
             "images": [
                 {
                     "id": 1,
-                    "image": "http://localhost:8000/media/products/carrara_white_1.jpg",
+                    "image": "https://res.cloudinary.com/your-cloud-name/image/upload/marbelle/products/carrara_white_1.jpg",
                     "alt_text": "Carrara White Marble close-up",
                     "is_primary": true,
                     "display_order": 0
@@ -526,6 +526,19 @@ curl "http://localhost:8000/api/v1/products/?ordering=-price"
 - Search is case-insensitive across name, description, and SKU
 - Images sorted by display_order, then created_at
 - Pagination: 20 items per page by default
+
+### Image Storage
+
+**Production**: Images stored on Cloudinary CDN with automatic optimization
+- URLs: `https://res.cloudinary.com/your-cloud-name/image/upload/marbelle/products/image.jpg`
+- Automatic format conversion (WebP for modern browsers)
+- Quality optimization: `auto:best`
+- Global CDN delivery
+
+**Development**: Images can be stored locally if Cloudinary not configured
+- URLs: `http://localhost:8000/media/products/image.jpg`
+
+The API automatically returns the correct URL format based on configuration.
 
 ---
 

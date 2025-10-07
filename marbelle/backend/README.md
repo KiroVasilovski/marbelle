@@ -394,3 +394,48 @@ curl "http://localhost:8000/api/v1/cart/" \
 For detailed API documentation, see [API.md](../../API.md) at the project root.
 
 For Safari session troubleshooting, see [SAFARI_SESSION_FIX.md](../../SAFARI_SESSION_FIX.md).
+
+## Cloudinary Image Storage
+
+The application uses **Cloudinary** for production image storage with automatic CDN delivery and image optimization.
+
+### Setup Instructions
+
+1. **Create a Cloudinary Account**:
+   - Sign up at [cloudinary.com](https://cloudinary.com)
+   - Navigate to Dashboard → Settings → API Keys
+
+2. **Configure Environment Variables**:
+
+   Add to your `.env` file:
+   ```bash
+   CLOUDINARY_CLOUD_NAME=your-cloud-name
+   CLOUDINARY_API_KEY=123456789012345
+   CLOUDINARY_API_SECRET=your-api-secret
+   ```
+
+3. **Development vs Production**:
+   - **Without Cloudinary credentials**: Images stored locally in `media/products/`
+   - **With Cloudinary credentials**: Images automatically uploaded to Cloudinary with CDN URLs
+
+### Features
+
+- **Automatic Optimization**: Images optimized with `quality: auto:best` and `fetch_format: auto`
+- **CDN Delivery**: All images served via Cloudinary's global CDN
+- **SKU-Based Organization**: Product images stored in `marbelle/products/{sku}/` folders on Cloudinary
+- **Seamless Fallback**: Works with local storage when Cloudinary credentials are not configured
+- **Easy Management**: All images for a product in one folder for bulk operations
+
+### Admin Panel Usage
+
+Upload images via Django admin panel (`/admin/products/product/`) - the system automatically:
+- Uploads to Cloudinary (if configured) or local storage
+- Generates optimized CDN URLs
+- Maintains existing admin interface (no changes needed)
+
+### Image URLs
+
+- **Local Storage**: `http://localhost:8000/media/products/CARR-WHITE-001/image.jpg`
+- **Cloudinary**: `https://res.cloudinary.com/your-cloud-name/image/upload/marbelle/products/CARR-WHITE-001/image.jpg`
+
+Images are organized in folders by product SKU for easy management. The API automatically returns the correct URL format based on your configuration.

@@ -1,6 +1,8 @@
 from decimal import Decimal
 from typing import Any
 
+from cloudinary.models import CloudinaryField
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -66,9 +68,7 @@ class Product(models.Model):
     sku = models.CharField(
         max_length=50,
         unique=True,
-        blank=True,
-        null=True,
-        help_text="Stock Keeping Unit (optional, must be unique if provided)",
+        help_text="Stock Keeping Unit (unique identifier for product)",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -93,12 +93,30 @@ class ProductImage(models.Model):
     Product image model for storing multiple images per product.
 
     Supports primary image designation and display ordering for galleries.
+    Uses Cloudinary for image storage in production, local storage in development.
     """
 
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="images", help_text="Product this image belongs to"
     )
-    image = models.ImageField(upload_to="products/", help_text="Product image file")
+
+    # Use CloudinaryField if Cloudinary is configured, otherwise use ImageField
+    if getattr(settings, "USE_CLOUDINARY", False):
+        image = CloudinaryField(
+            "image",
+            folder=lambda instance: f"marbelle/products/{instance.product.sku}",
+            transformation={
+                "quality": "auto:best",
+                "fetch_format": "auto",
+            },
+            help_text="Product image file (stored on Cloudinary)",
+        )
+    else:
+        image = models.ImageField(
+            upload_to=lambda instance, filename: f"products/{instance.product.sku}/{filename}",
+            help_text="Product image file (stored locally)",
+        )
+
     alt_text = models.CharField(max_length=200, blank=True, null=True, help_text="Alternative text for accessibility")
     is_primary = models.BooleanField(default=False, help_text="Whether this is the primary/main image for the product")
     display_order = models.PositiveIntegerField(default=0, help_text="Order for displaying images (0 = first)")
