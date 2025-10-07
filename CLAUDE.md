@@ -8,7 +8,7 @@ Marbelle is a full-stack e-commerce application designed for architects, designe
 ### Key Features:
 - **Product Catalog**: Users can explore categorized catalogs (slabs, tiles, mosaics) with high-resolution images and detailed specifications (dimensions, finish, origin).
 - **Interactive Area Calculator**: Helps users calculate material needs.
-- **Shopping Cart**: Users can add items to a cart.
+- **Shopping Cart**: Users can add items to a cart with Safari-compatible session management (hybrid cookie/header approach).
 - **Custom Quotes**: Users can request custom quotes, including options for edge profiles or polishing.
 - **Payment Gateway**: Integrated payment processing.
 - **User Accounts & Order Management**: Modular Django monolith handles user accounts, inventory, batch tracking, and order workflows.
@@ -82,6 +82,14 @@ We will follow a SCRUM-inspired workflow, using user stories to progressively bu
 - **Documentation Standards**: Follow REST API documentation best practices with request/response examples
 - **Format**: Markdown format with consistent structure for endpoints, authentication, and examples
 - **Maintenance**: API documentation must be updated whenever new endpoints are added or existing ones are modified
+
+### Session Management & Safari Compatibility
+- **Cookie-Based Sessions**: Chrome, Firefox, and Edge use secure HttpOnly cookies (`marbelle_sessionid`)
+- **Header-Based Sessions**: Safari and cookie-blocked browsers use `X-Session-ID` custom header
+- **Hybrid Approach**: Backend checks header first, then falls back to cookies
+- **Frontend Automatic**: Frontend automatically handles session persistence (cookies or localStorage)
+- **Security**: Prioritizes HttpOnly cookies when available; header fallback only when cookies fail
+- **Documentation**: See `SAFARI_SESSION_FIX.md` for deployment and troubleshooting
 
 ## Session History
 To keep Claude informed and updated on our progress, a file named `history.md` exists at the root of the project.

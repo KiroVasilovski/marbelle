@@ -375,3 +375,134 @@ class CartAPITestCase(TestCase):
 
         self.assertEqual(data["data"]["item_count"], 2)
         self.assertEqual(len(data["data"]["items"]), 1)
+
+    def test_session_id_returned_in_header_for_guest(self):
+        """Test that X-Session-ID header is returned for guest users (Safari support)."""
+        url = reverse("orders:get_cart")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Guest users should get session ID in response header
+        self.assertIn("X-Session-ID", response)
+        self.assertIsNotNone(response["X-Session-ID"])
+
+    def test_session_id_not_returned_for_authenticated_users(self):
+        """Test that X-Session-ID header is NOT returned for authenticated users."""
+        self.client.force_authenticate(user=self.user)
+        url = reverse("orders:get_cart")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Authenticated users should not get session ID (they use JWT)
+        self.assertNotIn("X-Session-ID", response)
+
+    def test_cart_persistence_with_header_session_id(self):
+        """Test that cart persists when using X-Session-ID header (Safari compatibility)."""
+        # First request: Create cart and get session ID
+        url = reverse("orders:add_to_cart")
+        payload = {"product_id": self.product.id, "quantity": 2}
+
+        response1 = self.client.post(url, payload, format="json")
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        session_id = response1["X-Session-ID"]
+
+        # Create a new client (simulating new browser context)
+        new_client = APIClient()
+
+        # Second request: Use session ID in header to access same cart
+        url = reverse("orders:get_cart")
+        response2 = new_client.get(url, HTTP_X_SESSION_ID=session_id)
+
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        data = response2.json()
+
+        # Should get the same cart with 2 items
+        self.assertEqual(data["data"]["item_count"], 2)
+        self.assertEqual(len(data["data"]["items"]), 1)
+
+    def test_add_to_cart_with_session_id_header(self):
+        """Test adding items to cart using X-Session-ID header."""
+        # Get initial session ID
+        url = reverse("orders:get_cart")
+        response1 = self.client.get(url)
+        session_id = response1["X-Session-ID"]
+
+        # Create new client and add item using session header
+        new_client = APIClient()
+        url = reverse("orders:add_to_cart")
+        payload = {"product_id": self.product.id, "quantity": 3}
+
+        response2 = new_client.post(url, payload, format="json", HTTP_X_SESSION_ID=session_id)
+
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        data = response2.json()
+
+        self.assertTrue(data["success"])
+        self.assertEqual(data["data"]["item"]["quantity"], 3)
+        self.assertEqual(data["data"]["cart_totals"]["item_count"], 3)
+
+        # Verify session ID is returned in response
+        self.assertEqual(response2["X-Session-ID"], session_id)
+
+    def test_update_cart_item_with_session_id_header(self):
+        """Test updating cart items using X-Session-ID header."""
+        # Create cart with item
+        url = reverse("orders:add_to_cart")
+        payload = {"product_id": self.product.id, "quantity": 2}
+        response1 = self.client.post(url, payload, format="json")
+        session_id = response1["X-Session-ID"]
+        cart_item_id = response1.json()["data"]["item"]["id"]
+
+        # Update item using session header in new client
+        new_client = APIClient()
+        url = reverse("orders:update_cart_item", kwargs={"item_id": cart_item_id})
+        payload = {"quantity": 5}
+
+        response2 = new_client.put(url, payload, format="json", HTTP_X_SESSION_ID=session_id)
+
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        data = response2.json()
+
+        self.assertTrue(data["success"])
+        self.assertEqual(data["data"]["item"]["quantity"], 5)
+
+    def test_remove_cart_item_with_session_id_header(self):
+        """Test removing cart items using X-Session-ID header."""
+        # Create cart with item
+        url = reverse("orders:add_to_cart")
+        payload = {"product_id": self.product.id, "quantity": 2}
+        response1 = self.client.post(url, payload, format="json")
+        session_id = response1["X-Session-ID"]
+        cart_item_id = response1.json()["data"]["item"]["id"]
+
+        # Remove item using session header in new client
+        new_client = APIClient()
+        url = reverse("orders:remove_cart_item", kwargs={"item_id": cart_item_id})
+
+        response2 = new_client.delete(url, HTTP_X_SESSION_ID=session_id)
+
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        data = response2.json()
+
+        self.assertTrue(data["success"])
+        self.assertEqual(data["data"]["cart_totals"]["item_count"], 0)
+
+    def test_clear_cart_with_session_id_header(self):
+        """Test clearing cart using X-Session-ID header."""
+        # Create cart with item
+        url = reverse("orders:add_to_cart")
+        payload = {"product_id": self.product.id, "quantity": 2}
+        response1 = self.client.post(url, payload, format="json")
+        session_id = response1["X-Session-ID"]
+
+        # Clear cart using session header in new client
+        new_client = APIClient()
+        url = reverse("orders:clear_cart")
+
+        response2 = new_client.delete(url, HTTP_X_SESSION_ID=session_id)
+
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        data = response2.json()
+
+        self.assertTrue(data["success"])
+        self.assertEqual(data["data"]["cart_totals"]["item_count"], 0)

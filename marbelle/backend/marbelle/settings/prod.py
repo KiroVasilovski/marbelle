@@ -36,7 +36,20 @@ X_FRAME_OPTIONS = "DENY"
 # Session settings for production (HTTPS required)
 SESSION_COOKIE_SECURE = True  # HTTPS only
 CSRF_COOKIE_SECURE = True  # CSRF protection
-SESSION_COOKIE_DOMAIN = os.getenv("SESSION_COOKIE_DOMAIN", None)  # Configurable domain
+
+# Cookie domain configuration for cross-subdomain support
+# Set SESSION_COOKIE_DOMAIN=.onrender.com to share cookies between subdomains
+# Leave empty (None) if frontend and backend are on same domain
+SESSION_COOKIE_DOMAIN = os.getenv("SESSION_COOKIE_DOMAIN", None)
+
+# SameSite=None required for cross-site requests (different subdomains)
+# Only use None when SESSION_COOKIE_SECURE=True (HTTPS)
+if os.getenv("ENABLE_CROSS_SITE_COOKIES", "False").lower() == "true":
+    SESSION_COOKIE_SAMESITE = "None"
+    CSRF_COOKIE_SAMESITE = "None"
+else:
+    SESSION_COOKIE_SAMESITE = "Lax"  # Default from base.py
+    CSRF_COOKIE_SAMESITE = "Lax"
 
 # Email backend for production
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

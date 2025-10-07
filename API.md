@@ -533,6 +533,7 @@ curl "http://localhost:8000/api/v1/products/?ordering=-price"
 
 **Authentication**: Optional (supports both authenticated users and guest sessions)
 **Session Management**: Guest carts are automatically created and persisted using Django sessions
+**Safari Compatibility**: Session IDs sent via `X-Session-ID` header for browsers blocking third-party cookies
 
 ### Get Cart
 
@@ -745,6 +746,36 @@ curl -X POST http://localhost:8000/api/v1/cart/items/ \
   -d '{"product_id":1,"quantity":2}'
 ```
 
+### Safari / Header-Based Session
+
+```bash
+# 1. Get cart and capture session ID from response header
+curl -v http://localhost:8000/api/v1/cart/ 2>&1 | grep -i "x-session-id"
+# Response: X-Session-ID: abc123xyz456
+
+# 2. Use session ID in subsequent requests
+SESSION_ID="abc123xyz456"
+
+curl -X POST http://localhost:8000/api/v1/cart/items/ \
+  -H "X-Session-ID: $SESSION_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"product_id":1,"quantity":2}'
+
+# 3. All cart operations with session header
+curl http://localhost:8000/api/v1/cart/ \
+  -H "X-Session-ID: $SESSION_ID"
+
+curl -X PUT http://localhost:8000/api/v1/cart/items/1/ \
+  -H "X-Session-ID: $SESSION_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"quantity":5}'
+
+curl -X DELETE http://localhost:8000/api/v1/cart/items/1/remove/ \
+  -H "X-Session-ID: $SESSION_ID"
+```
+
+**Note**: Frontend automatically handles session headers. Manual header management is only needed for API testing or non-browser clients.
+
 ### Business Rules
 
 **Cart Management:**
@@ -761,7 +792,10 @@ curl -X POST http://localhost:8000/api/v1/cart/items/ \
 
 **Session Handling:**
 - Guest sessions automatically created on first cart action
-- Session cookies: `marbelle_sessionid` with HttpOnly, SameSite=Lax
+- Session cookies: `marbelle_sessionid` with HttpOnly, SameSite=Lax (Chrome, Firefox)
+- Header-based sessions: `X-Session-ID` header for Safari and cookie-blocked browsers
+- Backend returns `X-Session-ID` in response headers for client-side storage
+- Frontend sends `X-Session-ID` in request headers to maintain session
 - Cart data synchronized when user logs in (guest cart merges with user cart)
 
 **Error Handling:**

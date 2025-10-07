@@ -249,7 +249,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Additional CORS settings for development
 CORS_ALLOW_ALL_ORIGINS = False  # Keep this False for security
-CORS_ALLOWED_HEADERS = [
+CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
     "authorization",
@@ -259,6 +259,13 @@ CORS_ALLOWED_HEADERS = [
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
+    "x-session-id",
+    "X-Session-ID",
+]
+
+# Expose session header to frontend (Safari compatibility)
+CORS_EXPOSE_HEADERS = [
+    "X-Session-ID",
 ]
 
 

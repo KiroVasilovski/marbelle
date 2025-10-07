@@ -60,12 +60,20 @@ export class ApiClient {
         this.setupInterceptors();
     }
 
+    private getSessionId(): string | null {
+        return localStorageService.getItem<string>('session_id');
+    }
+
+    private setSessionId(sessionId: string): void {
+        localStorageService.setItem('session_id', sessionId);
+    }
+
     public static getInstance(): ApiClient {
         return ApiClient.instance || (ApiClient.instance = new ApiClient());
     }
 
     private setupInterceptors(): void {
-        // Request interceptor - Add auth token to requests
+        // Request interceptor - Add auth token and session ID to requests
         this.axiosInstance.interceptors.request.use(
             (config) => {
                 const token = this.getAccessToken();
@@ -73,14 +81,28 @@ export class ApiClient {
                 if (token && !requestConfig.skipAuth) {
                     config.headers.Authorization = `Bearer ${token}`;
                 }
+
+                // Add session ID for guest users (Safari compatibility)
+                const sessionId = this.getSessionId();
+                if (sessionId && !token) {
+                    config.headers['X-Session-ID'] = sessionId;
+                }
+
                 return config;
             },
             (error) => Promise.reject(error)
         );
 
-        // Response interceptor - Handle token refresh
+        // Response interceptor - Handle token refresh and session ID storage
         this.axiosInstance.interceptors.response.use(
-            (response) => response,
+            (response) => {
+                // Store session ID from response header (Safari compatibility)
+                const sessionId = response.headers['x-session-id'];
+                if (sessionId) {
+                    this.setSessionId(sessionId);
+                }
+                return response;
+            },
             async (error: AxiosError) => {
                 const originalRequest = error.config as RequestOptions & { _retry?: boolean };
 

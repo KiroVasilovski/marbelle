@@ -325,3 +325,72 @@ curl "http://localhost:8000/api/v1/categories/"
 # Products in category
 curl "http://localhost:8000/api/v1/categories/1/products/"
 ```
+
+## Shopping Cart API
+
+### Session Management
+
+The shopping cart supports both authenticated users and guest sessions with **Safari-compatible session handling**:
+
+- **Authenticated Users**: Cart associated with user account via JWT authentication
+- **Guest Users (Chrome/Firefox/Edge)**: Cart persisted via secure HttpOnly session cookies (`marbelle_sessionid`)
+- **Guest Users (Safari)**: Cart persisted via `X-Session-ID` custom header (fallback for cookie-blocked browsers)
+
+### Safari Compatibility
+
+Safari's Intelligent Tracking Prevention (ITP) blocks third-party cookies. The cart API automatically handles this:
+
+**How It Works:**
+1. Backend always returns `X-Session-ID` in response headers for guest users
+2. Frontend stores session ID in localStorage only if cookies are blocked
+3. Future requests send `X-Session-ID` header to maintain session
+4. Backend checks header first, then falls back to cookies
+
+**Result:**
+- Chrome/Firefox/Edge users get secure HttpOnly cookies (preferred)
+- Safari users automatically use header-based sessions (fallback)
+- No manual configuration required
+
+### Environment Variables for Production
+
+When deploying with frontend/backend on different subdomains:
+
+```bash
+# Enable cross-site cookie support
+ENABLE_CROSS_SITE_COOKIES=true
+
+# CORS configuration
+CORS_ALLOWED_ORIGINS=https://your-frontend.com
+ALLOWED_HOSTS=your-backend.com
+```
+
+### API Endpoints
+
+```bash
+# Get cart
+curl "http://localhost:8000/api/v1/cart/"
+
+# Add item to cart
+curl -X POST "http://localhost:8000/api/v1/cart/items/" \
+  -H "Content-Type: application/json" \
+  -d '{"product_id": 1, "quantity": 2}'
+
+# Update cart item
+curl -X PUT "http://localhost:8000/api/v1/cart/items/1/" \
+  -H "Content-Type: application/json" \
+  -d '{"quantity": 5}'
+
+# Remove cart item
+curl -X DELETE "http://localhost:8000/api/v1/cart/items/1/remove/"
+
+# Clear cart
+curl -X DELETE "http://localhost:8000/api/v1/cart/clear/"
+
+# With session header (Safari)
+curl "http://localhost:8000/api/v1/cart/" \
+  -H "X-Session-ID: your-session-id"
+```
+
+For detailed API documentation, see [API.md](../../API.md) at the project root.
+
+For Safari session troubleshooting, see [SAFARI_SESSION_FIX.md](../../SAFARI_SESSION_FIX.md).

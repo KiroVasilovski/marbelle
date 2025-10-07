@@ -9,31 +9,40 @@ from products.models import Product
 from ..models import Cart, CartItem
 
 
-def get_or_create_cart(request: Request) -> Cart:
+def get_or_create_cart(request: Request) -> tuple[Cart, str | None]:
     """
     Get or create a cart for the current request.
 
     For authenticated users, get/create cart associated with user.
     For guest users, get/create cart associated with session key.
+
+    Returns:
+        tuple: (cart, session_key) - session_key is None for authenticated users,
+               or the session ID for guest users (to be sent back to client)
     """
     if request.user.is_authenticated:
         cart, _ = Cart.objects.get_or_create(user=request.user, defaults={"session_key": None})
-        return cart
+        return cart, None
     else:
-        # Ensure session is created for guest users
-        if not request.session.session_key:
-            request.session.create()
+        # PRIORITY 1: Check if client sent session ID via header (Safari or returning user)
+        # This allows Safari and other cookie-blocked browsers to maintain sessions
+        session_key = request.headers.get('X-Session-ID')
 
-        session_key = request.session.session_key
-
-        # If session_key is still None, it means session creation failed
+        # PRIORITY 2: If no header, try cookie-based session (Chrome, Firefox, Edge)
+        # This is more secure (HttpOnly) and happens automatically for first-time visitors
         if not session_key:
-            # Force session save and get key
-            request.session.save()
+            if not request.session.session_key:
+                request.session.create()
             session_key = request.session.session_key
 
+            # If session_key is still None, it means session creation failed
+            if not session_key:
+                # Force session save and get key
+                request.session.save()
+                session_key = request.session.session_key
+
         cart, _ = Cart.objects.get_or_create(session_key=session_key, user=None, defaults={})
-        return cart
+        return cart, session_key
 
 
 @api_view(["GET"])
@@ -46,7 +55,7 @@ def get_cart(request: Request) -> Response:
     Creates empty cart if none exists.
     """
     try:
-        cart = get_or_create_cart(request)
+        cart, session_key = get_or_create_cart(request)
 
         # Serialize cart data
         cart_data = {
@@ -84,7 +93,13 @@ def get_cart(request: Request) -> Response:
                 }
             )
 
-        return Response({"success": True, "message": "Cart retrieved successfully.", "data": cart_data})
+        response = Response({"success": True, "message": "Cart retrieved successfully.", "data": cart_data})
+
+        # Add session ID to response header for Safari compatibility
+        if session_key:
+            response['X-Session-ID'] = session_key
+
+        return response
 
     except Exception as e:
         return Response({"success": False, "message": f"Error retrieving cart: {str(e)}"}, status=500)
@@ -134,7 +149,7 @@ def add_to_cart(request: Request) -> Response:
             )
 
         # Get or create cart
-        cart = get_or_create_cart(request)
+        cart, session_key = get_or_create_cart(request)
 
         # Add or update cart item
         with transaction.atomic():
@@ -163,7 +178,7 @@ def add_to_cart(request: Request) -> Response:
             primary_image = product.images.first()
         image_url = primary_image.image.url if primary_image else None
 
-        return Response(
+        response = Response(
             {
                 "success": True,
                 "message": f"Added {quantity} x {product.name} to cart.",
@@ -189,6 +204,12 @@ def add_to_cart(request: Request) -> Response:
                 },
             }
         )
+
+        # Add session ID to response header for Safari compatibility
+        if session_key:
+            response['X-Session-ID'] = session_key
+
+        return response
 
     except Product.DoesNotExist:
         return Response({"success": False, "message": "Product not found."}, status=404)
@@ -223,7 +244,7 @@ def update_cart_item(request: Request, item_id: int) -> Response:
             return Response({"success": False, "message": "Invalid quantity value."}, status=400)
 
         # Get cart and item
-        cart = get_or_create_cart(request)
+        cart, session_key = get_or_create_cart(request)
         try:
             cart_item = CartItem.objects.get(id=item_id, cart=cart)
         except CartItem.DoesNotExist:
@@ -247,7 +268,7 @@ def update_cart_item(request: Request, item_id: int) -> Response:
             primary_image = cart_item.product.images.first()
         image_url = primary_image.image.url if primary_image else None
 
-        return Response(
+        response = Response(
             {
                 "success": True,
                 "message": "Cart item updated successfully.",
@@ -274,6 +295,12 @@ def update_cart_item(request: Request, item_id: int) -> Response:
             }
         )
 
+        # Add session ID to response header for Safari compatibility
+        if session_key:
+            response['X-Session-ID'] = session_key
+
+        return response
+
     except CartItem.DoesNotExist:
         return Response({"success": False, "message": "Cart item not found."}, status=404)
     except Exception as e:
@@ -288,7 +315,7 @@ def remove_cart_item(request: Request, item_id: int) -> Response:
     """
     try:
         # Get cart and item
-        cart = get_or_create_cart(request)
+        cart, session_key = get_or_create_cart(request)
         try:
             cart_item = CartItem.objects.get(id=item_id, cart=cart)
         except CartItem.DoesNotExist:
@@ -300,7 +327,7 @@ def remove_cart_item(request: Request, item_id: int) -> Response:
         with transaction.atomic():
             cart_item.delete()
 
-        return Response(
+        response = Response(
             {
                 "success": True,
                 "message": f"Removed {product_name} from cart.",
@@ -315,6 +342,12 @@ def remove_cart_item(request: Request, item_id: int) -> Response:
             }
         )
 
+        # Add session ID to response header for Safari compatibility
+        if session_key:
+            response['X-Session-ID'] = session_key
+
+        return response
+
     except CartItem.DoesNotExist:
         return Response({"success": False, "message": "Cart item not found."}, status=404)
     except Exception as e:
@@ -328,12 +361,12 @@ def clear_cart(request: Request) -> Response:
     Remove all items from the cart.
     """
     try:
-        cart = get_or_create_cart(request)
+        cart, session_key = get_or_create_cart(request)
 
         with transaction.atomic():
             cart.clear()
 
-        return Response(
+        response = Response(
             {
                 "success": True,
                 "message": "Cart cleared successfully.",
@@ -347,6 +380,12 @@ def clear_cart(request: Request) -> Response:
                 },
             }
         )
+
+        # Add session ID to response header for Safari compatibility
+        if session_key:
+            response['X-Session-ID'] = session_key
+
+        return response
 
     except Exception as e:
         return Response({"success": False, "message": f"Error clearing cart: {str(e)}"}, status=500)
