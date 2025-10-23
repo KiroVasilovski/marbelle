@@ -2,6 +2,7 @@ from typing import Any
 
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django_ratelimit.decorators import ratelimit
@@ -244,7 +245,11 @@ def resend_verification_email(request: Request) -> Response:
 
         return Response({"success": True, "message": "Verification email sent."}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
-        return Response({"success": False, "message": "Email not found."}, status=status.HTTP_404_NOT_FOUND)
+        # Return success to prevent email enumeration
+        return Response(
+            {"success": True, "message": "If this email is registered, a verification email has been sent."},
+            status=status.HTTP_200_OK,
+        )
 
 
 def send_verification_email(user: User, token: str) -> None:
@@ -501,14 +506,14 @@ class AddressViewSet(ModelViewSet):
         """
         Set address as primary.
         """
-        address = self.get_object()
+        with transaction.atomic():
+            address = self.get_object()
 
-        # Remove primary status from other addresses
-        Address.objects.filter(user=request.user, is_primary=True).update(is_primary=False)
+            # Lock rows for update
+            Address.objects.filter(user=request.user, is_primary=True).select_for_update().update(is_primary=False)
 
-        # Set this address as primary
-        address.is_primary = True
-        address.save()
+            address.is_primary = True
+            address.save()
 
         serializer = self.get_serializer(address)
         return Response(

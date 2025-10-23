@@ -52,6 +52,8 @@ pip install -r requirements.txt
 
 ### 2. Environment Configuration
 
+**Environment Management:** The project uses a centralized singleton (`marbelle/env_config.py`) to load and validate all environment variables once at startup. All settings files access env vars through `env_config.SECRET_KEY` instead of direct `os.getenv()` calls.
+
 Copy the `.env` file and configure your environment variables:
 
 ```bash

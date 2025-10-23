@@ -3,18 +3,14 @@ Base Django settings for marbelle project.
 Contains common settings shared across all environments.
 """
 
-import os
 from datetime import timedelta
 from pathlib import Path
 
-from dotenv import load_dotenv
+from marbelle.env_config import env_config
 
 # ==============================================================================
 # BASE SETUP
 # ==============================================================================
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # This points to the root of your Django project (where manage.py resides).
@@ -26,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # ==============================================================================
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-change-me-in-production")
+SECRET_KEY = env_config.SECRET_KEY
 
 
 # ==============================================================================
@@ -241,12 +237,8 @@ SESSION_SERIALIZER = "django.contrib.sessions.serializers.JSONSerializer"
 # ==============================================================================
 
 # CORS settings for frontend
-FRONTEND_URL = os.getenv("FRONTEND_URL")
-
-allowed_origins = os.getenv("CORS_ALLOWED_ORIGINS")
-
-CORS_ALLOWED_ORIGINS = allowed_origins.split(",") if allowed_origins else []
-
+FRONTEND_URL = env_config.FRONTEND_URL
+CORS_ALLOWED_ORIGINS = env_config.CORS_ALLOWED_ORIGINS
 CORS_ALLOW_CREDENTIALS = True
 
 # Additional CORS settings for development
@@ -270,20 +262,22 @@ CORS_EXPOSE_HEADERS = [
     "X-Session-ID",
 ]
 
+CSRF_TRUSTED_ORIGINS = env_config.CSRF_TRUSTED_ORIGINS
+
 
 # ==============================================================================
 # EMAIL CONFIGURATION
 # ==============================================================================
 
 # Email Configuration (will be configured per environment)
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
-EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False").lower() == "true"
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "info.marbelle.me@gmail.com")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "info.marbelle.me@gmail.com")
+EMAIL_BACKEND = env_config.EMAIL_BACKEND
+EMAIL_HOST = env_config.EMAIL_HOST
+EMAIL_PORT = env_config.EMAIL_PORT
+EMAIL_USE_TLS = env_config.EMAIL_USE_TLS
+EMAIL_USE_SSL = env_config.EMAIL_USE_SSL
+EMAIL_HOST_USER = env_config.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = env_config.EMAIL_HOST_PASSWORD
+DEFAULT_FROM_EMAIL = env_config.DEFAULT_FROM_EMAIL
 
 
 # ==============================================================================
@@ -291,19 +285,13 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "info.marbelle.me@gmail.com
 # ==============================================================================
 
 CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
-    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
-    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+    "CLOUD_NAME": env_config.CLOUDINARY_CLOUD_NAME,
+    "API_KEY": env_config.CLOUDINARY_API_KEY,
+    "API_SECRET": env_config.CLOUDINARY_API_SECRET,
 }
 
 # Use Cloudinary only if credentials are configured
-USE_CLOUDINARY = all(
-    [
-        os.getenv("CLOUDINARY_CLOUD_NAME"),
-        os.getenv("CLOUDINARY_API_KEY"),
-        os.getenv("CLOUDINARY_API_SECRET"),
-    ]
-)
+USE_CLOUDINARY = env_config.USE_CLOUDINARY
 
 if USE_CLOUDINARY:
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"

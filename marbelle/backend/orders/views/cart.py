@@ -26,7 +26,7 @@ def get_or_create_cart(request: Request) -> tuple[Cart, str | None]:
     else:
         # PRIORITY 1: Check if client sent session ID via header (Safari or returning user)
         # This allows Safari and other cookie-blocked browsers to maintain sessions
-        session_key = request.headers.get('X-Session-ID')
+        session_key = request.headers.get("X-Session-ID")
 
         # PRIORITY 2: If no header, try cookie-based session (Chrome, Firefox, Edge)
         # This is more secure (HttpOnly) and happens automatically for first-time visitors
@@ -97,7 +97,7 @@ def get_cart(request: Request) -> Response:
 
         # Add session ID to response header for Safari compatibility
         if session_key:
-            response['X-Session-ID'] = session_key
+            response["X-Session-ID"] = session_key
 
         return response
 
@@ -207,7 +207,7 @@ def add_to_cart(request: Request) -> Response:
 
         # Add session ID to response header for Safari compatibility
         if session_key:
-            response['X-Session-ID'] = session_key
+            response["X-Session-ID"] = session_key
 
         return response
 
@@ -297,7 +297,7 @@ def update_cart_item(request: Request, item_id: int) -> Response:
 
         # Add session ID to response header for Safari compatibility
         if session_key:
-            response['X-Session-ID'] = session_key
+            response["X-Session-ID"] = session_key
 
         return response
 
@@ -344,7 +344,7 @@ def remove_cart_item(request: Request, item_id: int) -> Response:
 
         # Add session ID to response header for Safari compatibility
         if session_key:
-            response['X-Session-ID'] = session_key
+            response["X-Session-ID"] = session_key
 
         return response
 
@@ -383,7 +383,7 @@ def clear_cart(request: Request) -> Response:
 
         # Add session ID to response header for Safari compatibility
         if session_key:
-            response['X-Session-ID'] = session_key
+            response["X-Session-ID"] = session_key
 
         return response
 

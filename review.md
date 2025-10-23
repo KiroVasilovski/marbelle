@@ -9,60 +9,6 @@
 
 ## **1. Security Vulnerabilities**
 
-TODOO ->
-
-### **CRITICAL: SECRET_KEY Fallback in Production**
-
-**Location:** `marbelle/backend/marbelle/settings/base.py:29`
-
-```python
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-change-me-in-production")
-```
-
-**Issue:** The fallback value means if `SECRET_KEY` is not set in production, Django will use the insecure default. This compromises all cryptographic operations (JWT signing, session cookies, password reset tokens, CSRF tokens).
-
-**Impact:** Complete security compromise - attackers can forge JWT tokens, session cookies, and password reset tokens.
-
-**Fix:**
-
-```python
-from django.core.exceptions import ImproperlyConfigured
-
-SECRET_KEY = os.getenv("SECRET_KEY")
-if not SECRET_KEY:
-    raise ImproperlyConfigured("SECRET_KEY environment variable is required")
-```
-
----
-
-TODOO ->
-
-### **HIGH: Email Enumeration via Resend Verification**
-
-**Location:** `marbelle/backend/users/views.py:246`
-
-```python
-except User.DoesNotExist:
-    return Response({"success": False, "message": "Email not found."}, status=status.HTTP_404_NOT_FOUND)
-```
-
-**Issue:** Attackers can enumerate valid email addresses by testing the resend verification endpoint. This contradicts your security-conscious approach in `request_password_reset` (line 142) which correctly prevents email enumeration.
-
-**Impact:** Privacy breach - attackers can build a list of registered users.
-
-**Fix:**
-
-```python
-except User.DoesNotExist:
-    # Return success to prevent email enumeration
-    return Response(
-        {"success": True, "message": "If this email is registered, a verification email has been sent."},
-        status=status.HTTP_200_OK
-    )
-```
-
----
-
 ### **MEDIUM: Broad Exception Catching Masks Security Issues**
 
 **Location:** `marbelle/backend/users/views.py:99`
@@ -85,30 +31,6 @@ logger = logging.getLogger(__name__)
 except Exception as e:
     logger.error(f"Logout failed for user {request.user.id}: {str(e)}")
     return Response({"success": False, "message": "Logout failed."}, status=status.HTTP_400_BAD_REQUEST)
-```
-
----
-
-TODOO ->
-
-### **MEDIUM: Missing CSRF Trusted Origins Configuration**
-
-**Location:** `marbelle/backend/marbelle/settings/base.py`
-
-**Issue:** While `CSRF_COOKIE_SECURE` is set in prod.py (line 38), there's no `CSRF_TRUSTED_ORIGINS` configuration for cross-origin requests. Modern browsers (Chrome 92+) require this for CSRF protection with CORS.
-
-**Impact:** CSRF protection may fail in production for cross-origin requests (frontend on different subdomain).
-
-**Fix:** Add to `settings/base.py`:
-
-```python
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if os.getenv("CSRF_TRUSTED_ORIGINS") else []
-```
-
-And in production `.env`:
-
-```bash
-CSRF_TRUSTED_ORIGINS=https://marbelle.com,https://www.marbelle.com
 ```
 
 ---
@@ -298,65 +220,6 @@ class EmailVerificationToken(models.Model):
 
 ## **3. Bugs & Edge Cases**
 
-TODOO ->
-
-### **CRITICAL: Race Condition in Address Primary Status**
-
-**Location:** `marbelle/backend/users/views.py:506-511`
-
-```python
-# Remove primary status from other addresses
-Address.objects.filter(user=request.user, is_primary=True).update(is_primary=False)
-
-# Set this address as primary
-address.is_primary = True
-address.save()
-```
-
-**Issue:** Between the two operations, another concurrent request could set a different address as primary. Two addresses could end up with `is_primary=True`, violating the business rule.
-
-**Scenario:**
-
-1. Request A: Reads addresses, finds address 1 is primary
-2. Request B: Reads addresses, finds address 1 is primary
-3. Request A: Sets address 1 to False, sets address 2 to True
-4. Request B: Sets address 1 to False, sets address 3 to True
-5. Result: Both address 2 and 3 have `is_primary=True`
-
-**Impact:** Data integrity violation - multiple primary addresses per user.
-
-**Fix:**
-
-```python
-from django.db import transaction
-
-@action(detail=True, methods=["patch"])
-def set_primary(self, request: Request, pk: int | None = None) -> Response:
-    """
-    Set address as primary with transaction safety.
-    """
-    with transaction.atomic():
-        address = self.get_object()
-
-        # Lock rows for update to prevent race conditions
-        Address.objects.filter(
-            user=request.user,
-            is_primary=True
-        ).select_for_update().update(is_primary=False)
-
-        # Set this address as primary
-        address.is_primary = True
-        address.save()
-
-    serializer = self.get_serializer(address)
-    return Response(
-        {"success": True, "message": "Primary address updated successfully.", "data": serializer.data},
-        status=status.HTTP_200_OK,
-    )
-```
-
----
-
 ### **HIGH: Silent Failure in UserProfileSerializer Update**
 
 **Location:** `marbelle/backend/users/serializers.py:199-204`
@@ -448,66 +311,6 @@ def validate_token(self, value: str) -> EmailVerificationToken:
         return verification_token
     except (EmailVerificationToken.DoesNotExist, User.DoesNotExist):
         raise serializers.ValidationError("Invalid verification token.")
-```
-
----
-
-TODOO ->
-
-### **MEDIUM: Missing Transaction Safety in Email Change**
-
-**Location:** `marbelle/backend/users/serializers.py:374-392`
-
-```python
-def save(self) -> Dict[str, Any]:
-    email_change_token = self.validated_data["token"]
-    user = email_change_token.user
-    old_email = user.email
-
-    # Update user email
-    user.email = email_change_token.new_email
-    user.username = email_change_token.new_email
-    user.save()
-
-    # Mark token as used
-    email_change_token.is_used = True
-    email_change_token.save()
-```
-
-**Issue:** If `email_change_token.save()` fails after user is updated (database error, connection lost), the token remains valid and can be reused. Email can be changed multiple times with the same token.
-
-**Scenario:**
-
-1. User confirms email change
-2. User email updated successfully
-3. Database connection lost
-4. Token not marked as used
-5. User clicks link again → email changed again (or error)
-
-**Impact:** Token reuse vulnerability, potential security issue.
-
-**Fix:**
-
-```python
-from django.db import transaction
-
-def save(self) -> Dict[str, Any]:
-    email_change_token = self.validated_data["token"]
-    user = email_change_token.user
-    old_email = user.email
-
-    with transaction.atomic():
-        # Mark token as used FIRST to prevent reuse
-        # Even if email update fails, token is invalidated
-        email_change_token.is_used = True
-        email_change_token.save()
-
-        # Then update user email
-        user.email = email_change_token.new_email
-        user.username = email_change_token.new_email
-        user.save()
-
-    return {"user": user, "old_email": old_email, "new_email": email_change_token.new_email}
 ```
 
 ---
@@ -799,37 +602,6 @@ def register_user(request: Request) -> Response:
         EmailService.send_verification_email(user, verification_token.token)
 
         return Response(...)
-```
-
----
-
-TODOO ->
-
-### **LOW: Unclear Variable Names**
-
-**Location:** `marbelle/backend/marbelle/settings/base.py:246-248`
-
-```python
-allowed_origins = os.getenv("CORS_ALLOWED_ORIGINS")
-CORS_ALLOWED_ORIGINS = allowed_origins.split(",") if allowed_origins else []
-```
-
-**Issue:** Variable `allowed_origins` (lowercase) shadows the final `CORS_ALLOWED_ORIGINS` constant, making it confusing. Same pattern on lines 12-15 in dev.py.
-
-**Impact:** Reduced code readability, potential confusion for developers.
-
-**Fix:**
-
-```python
-cors_origins_env = os.getenv("CORS_ALLOWED_ORIGINS")
-CORS_ALLOWED_ORIGINS = cors_origins_env.split(",") if cors_origins_env else []
-
-# Or more concise
-CORS_ALLOWED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
-    if origin.strip()
-]
 ```
 
 ---

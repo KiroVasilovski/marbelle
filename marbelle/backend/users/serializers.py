@@ -2,6 +2,7 @@ from typing import Any, Dict
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
+from django.db import transaction
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -380,13 +381,12 @@ class EmailChangeConfirmSerializer(serializers.Serializer):
         user = email_change_token.user
         old_email = user.email
 
-        # Update user email
-        user.email = email_change_token.new_email
-        user.username = email_change_token.new_email  # Keep username in sync
-        user.save()
+        with transaction.atomic():
+            email_change_token.is_used = True
+            email_change_token.save()
 
-        # Mark token as used
-        email_change_token.is_used = True
-        email_change_token.save()
+            user.email = email_change_token.new_email
+            user.username = email_change_token.new_email
+            user.save()
 
         return {"user": user, "old_email": old_email, "new_email": email_change_token.new_email}
