@@ -29,18 +29,26 @@ export interface Category {
     created_at: string;
 }
 
-export interface ProductListResponse {
+export interface PaginationMeta {
     count: number;
     next: string | null;
     previous: string | null;
-    results: Product[];
+}
+
+export interface ProductListResponse {
+    success: boolean;
+    message?: string;
+    data?: Product[];
+    pagination?: PaginationMeta;
+    errors?: Record<string, string[]>;
 }
 
 export interface CategoryListResponse {
-    count: number;
-    next: string | null;
-    previous: string | null;
-    results: Category[];
+    success: boolean;
+    message?: string;
+    data?: Category[];
+    pagination?: PaginationMeta;
+    errors?: Record<string, string[]>;
 }
 
 export interface ProductFilters {

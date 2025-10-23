@@ -513,7 +513,7 @@ class AddressAPITest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["success"])
-        self.assertEqual(len(response.data["data"]["addresses"]), 0)
+        self.assertEqual(len(response.data["data"]), 0)
 
     def test_create_address(self):
         """Test creating an address."""
@@ -584,10 +584,10 @@ class AddressAPITest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["success"])
-        self.assertEqual(len(response.data["data"]["addresses"]), 2)
+        self.assertEqual(len(response.data["data"]), 2)
 
         # Verify primary address comes first
-        addresses = response.data["data"]["addresses"]
+        addresses = response.data["data"]
         self.assertTrue(addresses[0]["is_primary"])
 
     def test_update_address(self):
@@ -696,7 +696,7 @@ class AddressAPITest(APITestCase):
 
         # Try to list addresses - should only see own addresses
         response = self.client.get(self.addresses_url)
-        self.assertEqual(len(response.data["data"]["addresses"]), 0)
+        self.assertEqual(len(response.data["data"]), 0)
 
     def test_addresses_require_authentication(self):
         """Test address endpoints require authentication."""

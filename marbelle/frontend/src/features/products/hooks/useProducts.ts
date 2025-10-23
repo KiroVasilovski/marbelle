@@ -30,8 +30,8 @@ export const useProducts = (): UseProductsReturn => {
                 ]);
 
                 if (isMounted) {
-                    setProducts(productsResponse.results);
-                    setCategories(categoriesResponse.results);
+                    setProducts(productsResponse.data || []);
+                    setCategories(categoriesResponse.data || []);
                     setLoading(false);
                 }
             } catch (err) {

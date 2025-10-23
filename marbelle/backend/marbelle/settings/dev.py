@@ -2,19 +2,15 @@
 Development settings for marbelle project.
 """
 
-import os
+from marbelle.env_config import env_config
 
 from .base import *  # noqa: F403,F405
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-allowed_hosts = os.getenv("ALLOWED_HOSTS")
-allowed_origins = os.getenv("CORS_ALLOWED_ORIGINS")
-
-ALLOWED_HOSTS = allowed_hosts.split(",") if allowed_hosts else []
-
-CORS_ALLOWED_ORIGINS = allowed_origins.split(",") if allowed_origins else []
+ALLOWED_HOSTS = env_config.ALLOWED_HOSTS
+CORS_ALLOWED_ORIGINS = env_config.CORS_ALLOWED_ORIGINS
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -22,11 +18,11 @@ CORS_ALLOW_CREDENTIALS = True
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME", "marbelle_db"),
-        "USER": os.getenv("DB_USER", "marbelle_user"),
-        "PASSWORD": os.getenv("DB_PASSWORD", "marbelle_password"),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", "5432"),
+        "NAME": env_config.DB_NAME,
+        "USER": env_config.DB_USER,
+        "PASSWORD": env_config.DB_PASSWORD,
+        "HOST": env_config.DB_HOST,
+        "PORT": env_config.DB_PORT,
     }
 }
 
