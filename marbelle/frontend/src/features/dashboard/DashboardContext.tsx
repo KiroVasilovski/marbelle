@@ -194,7 +194,7 @@ export const DashboardProvider: React.FC<DashboardProviderProps> = ({ children }
 
         try {
             const orderHistory = await dashboardService.getOrderHistory(1, 20);
-            setOrders(orderHistory?.orders || []);
+            setOrders(orderHistory || []);
         } catch (error) {
             // Orders API not yet implemented - don't show error, just log it
             console.info('Orders API not yet implemented, showing empty state');

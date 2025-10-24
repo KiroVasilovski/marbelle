@@ -88,31 +88,27 @@ export interface ApiResponse<T = any> {
 
 export interface AddressResponse {
     success: boolean;
-    data?: {
-        addresses: Address[];
-    };
     message?: string;
+    data?: Address[];
     errors?: Record<string, string[]>;
 }
 
 export interface ProfileResponse {
     success: boolean;
-    data?: {
-        user: User;
-    };
     message?: string;
+    data?: User;
     errors?: Record<string, string[]>;
 }
 
 export interface OrderHistoryResponse {
     success: boolean;
-    data?: {
-        orders: Order[];
+    message?: string;
+    data?: Order[];
+    pagination?: {
         count: number;
         next?: string;
         previous?: string;
     };
-    message?: string;
     errors?: Record<string, string[]>;
 }
 

@@ -15,6 +15,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from core import ResponseHandler
+
+# Note: Response is imported for type hints in function signatures
 from .constants import RateLimits, TokenExpiry
 from .models import Address, EmailVerificationToken, PasswordResetToken, User
 from .serializers import (
@@ -63,19 +66,13 @@ def register_user(request: Request) -> Response:
         # Send verification email
         send_verification_email(user, verification_token.token)
 
-        return Response(
-            {
-                "success": True,
-                "message": "Registration successful. Please check your email for verification instructions.",
-                "data": {"user_id": user.id},
-            },
-            status=status.HTTP_201_CREATED,
+        return ResponseHandler.success(
+            data={"user_id": user.id},
+            message="Registration successful. Please check your email for verification instructions.",
+            status_code=status.HTTP_201_CREATED,
         )
 
-    return Response(
-        {"success": False, "message": "Registration failed.", "errors": serializer.errors},
-        status=status.HTTP_400_BAD_REQUEST,
-    )
+    return ResponseHandler.error(message="Registration failed.", errors=serializer.errors)
 
 
 @api_view(["POST"])
@@ -90,14 +87,9 @@ def login_user(request: Request) -> Response:
         user = serializer.validated_data["user"]
         token_data = TokenSerializer.get_token_for_user(user)
 
-        return Response(
-            {"success": True, "message": "Login successful.", "data": token_data}, status=status.HTTP_200_OK
-        )
+        return ResponseHandler.success(data=token_data, message="Login successful.")
 
-    return Response(
-        {"success": False, "message": "Login failed.", "errors": serializer.errors},
-        status=status.HTTP_400_BAD_REQUEST,
-    )
+    return ResponseHandler.error(message="Login failed.", errors=serializer.errors)
 
 
 @api_view(["POST"])
@@ -112,9 +104,9 @@ def logout_user(request: Request) -> Response:
             token = RefreshToken(refresh_token)
             token.blacklist()
 
-        return Response({"success": True, "message": "Logout successful."}, status=status.HTTP_200_OK)
+        return ResponseHandler.success(message="Logout successful.")
     except Exception:
-        return Response({"success": False, "message": "Logout failed."}, status=status.HTTP_400_BAD_REQUEST)
+        return ResponseHandler.error(message="Logout failed.")
 
 
 @api_view(["POST"])
@@ -137,15 +129,9 @@ def verify_email(request: Request) -> Response:
         verification_token.is_used = True
         verification_token.save()
 
-        return Response(
-            {"success": True, "message": "Email verification successful. Your account is now active."},
-            status=status.HTTP_200_OK,
-        )
+        return ResponseHandler.success(message="Email verification successful. Your account is now active.")
 
-    return Response(
-        {"success": False, "message": "Email verification failed.", "errors": serializer.errors},
-        status=status.HTTP_400_BAD_REQUEST,
-    )
+    return ResponseHandler.error(message="Email verification failed.", errors=serializer.errors)
 
 
 @api_view(["POST"])
@@ -160,12 +146,8 @@ def request_password_reset(request: Request) -> Response:
 
     # Validate email format
     if not email or "@" not in email:
-        return Response(
-            {
-                "success": True,
-                "message": "If this email is registered, you will receive password reset instructions.",
-            },
-            status=status.HTTP_200_OK,
+        return ResponseHandler.success(
+            message="If this email is registered, you will receive password reset instructions."
         )
 
     # Try to find user, but don't reveal if they exist
@@ -181,13 +163,7 @@ def request_password_reset(request: Request) -> Response:
         pass
 
     # Always return the same success response regardless of whether email exists
-    return Response(
-        {
-            "success": True,
-            "message": "If this email is registered, you will receive password reset instructions.",
-        },
-        status=status.HTTP_200_OK,
-    )
+    return ResponseHandler.success(message="If this email is registered, you will receive password reset instructions.")
 
 
 @api_view(["POST"])
@@ -211,15 +187,9 @@ def confirm_password_reset(request: Request) -> Response:
         reset_token.is_used = True
         reset_token.save()
 
-        return Response(
-            {"success": True, "message": "Password reset successful. You can now login with your new password."},
-            status=status.HTTP_200_OK,
-        )
+        return ResponseHandler.success(message="Password reset successful. You can now login with your new password.")
 
-    return Response(
-        {"success": False, "message": "Password reset failed.", "errors": serializer.errors},
-        status=status.HTTP_400_BAD_REQUEST,
-    )
+    return ResponseHandler.error(message="Password reset failed.", errors=serializer.errors)
 
 
 @api_view(["GET"])
@@ -229,9 +199,9 @@ def verify_token(request: Request) -> Response:
     Token verification endpoint.
     """
     user = request.user
-    return Response(
-        {"success": True, "message": "Token is valid.", "data": UserSerializer(user).data},
-        status=status.HTTP_200_OK,
+    return ResponseHandler.success(
+        data=UserSerializer(user).data,
+        message="Token is valid.",
     )
 
 
@@ -244,14 +214,12 @@ def resend_verification_email(request: Request) -> Response:
     """
     email = request.data.get("email")
     if not email:
-        return Response({"success": False, "message": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+        return ResponseHandler.error(message="Email is required.")
 
     try:
         user = User.objects.get(email=email)
         if user.is_active:
-            return Response(
-                {"success": False, "message": "Account is already activated."}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return ResponseHandler.error(message="Account is already activated.")
 
         # Create new verification token
         verification_token = EmailVerificationToken.objects.create(user=user)
@@ -259,13 +227,10 @@ def resend_verification_email(request: Request) -> Response:
         # Send verification email
         send_verification_email(user, verification_token.token)
 
-        return Response({"success": True, "message": "Verification email sent."}, status=status.HTTP_200_OK)
+        return ResponseHandler.success(message="Verification email sent.")
     except User.DoesNotExist:
         # Return success to prevent email enumeration
-        return Response(
-            {"success": True, "message": "If this email is registered, a verification email has been sent."},
-            status=status.HTTP_200_OK,
-        )
+        return ResponseHandler.success(message="If this email is registered, a verification email has been sent.")
 
 
 def send_verification_email(user: User, token: str) -> None:
@@ -332,18 +297,11 @@ def request_email_change(request: Request) -> Response:
         # Send verification email to new email address
         send_email_change_verification(email_change_token.user, email_change_token.new_email, email_change_token.token)
 
-        return Response(
-            {
-                "success": True,
-                "message": "Email change verification sent. Please check your new email to confirm the change.",
-            },
-            status=status.HTTP_200_OK,
+        return ResponseHandler.success(
+            message="Email change verification sent. Please check your new email to confirm the change."
         )
 
-    return Response(
-        {"success": False, "message": "Email change request failed.", "errors": serializer.errors},
-        status=status.HTTP_400_BAD_REQUEST,
-    )
+    return ResponseHandler.error(message="Email change request failed.", errors=serializer.errors)
 
 
 @api_view(["POST"])
@@ -363,19 +321,12 @@ def confirm_email_change(request: Request) -> Response:
         # Send notification to old email about the change
         send_email_change_notification(user, old_email, new_email)
 
-        return Response(
-            {
-                "success": True,
-                "message": "Email address changed successfully. You can now use your new email to login.",
-                "data": UserSerializer(user).data,
-            },
-            status=status.HTTP_200_OK,
+        return ResponseHandler.success(
+            data=UserSerializer(user).data,
+            message="Email address changed successfully. You can now use your new email to login.",
         )
 
-    return Response(
-        {"success": False, "message": "Email change confirmation failed.", "errors": serializer.errors},
-        status=status.HTTP_400_BAD_REQUEST,
-    )
+    return ResponseHandler.error(message="Email change confirmation failed.", errors=serializer.errors)
 
 
 def send_email_change_verification(user: User, new_email: str, token: str) -> None:
@@ -446,24 +397,21 @@ def user_profile(request: Request) -> Response:
 
     if request.method == "GET":
         serializer = UserProfileSerializer(user)
-        return Response(
-            {"success": True, "message": "Profile retrieved successfully.", "data": serializer.data},
-            status=status.HTTP_200_OK,
+        return ResponseHandler.success(
+            data=serializer.data,
+            message="Profile retrieved successfully.",
         )
 
     elif request.method == "PUT":
         serializer = UserProfileSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(
-                {"success": True, "message": "Profile updated successfully.", "data": serializer.data},
-                status=status.HTTP_200_OK,
+            return ResponseHandler.success(
+                data=serializer.data,
+                message="Profile updated successfully.",
             )
 
-        return Response(
-            {"success": False, "message": "Profile update failed.", "errors": serializer.errors},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+        return ResponseHandler.error(message="Profile update failed.", errors=serializer.errors)
 
 
 @api_view(["POST"])
@@ -475,15 +423,9 @@ def change_password(request: Request) -> Response:
     serializer = PasswordChangeSerializer(data=request.data, context={"request": request})
     if serializer.is_valid():
         serializer.save()
-        return Response(
-            {"success": True, "message": "Password changed successfully."},
-            status=status.HTTP_200_OK,
-        )
+        return ResponseHandler.success(message="Password changed successfully.")
 
-    return Response(
-        {"success": False, "message": "Password change failed.", "errors": serializer.errors},
-        status=status.HTTP_400_BAD_REQUEST,
-    )
+    return ResponseHandler.error(message="Password change failed.", errors=serializer.errors)
 
 
 class AddressViewSet(ModelViewSet):
@@ -532,20 +474,20 @@ class AddressViewSet(ModelViewSet):
             address.save()
 
         serializer = self.get_serializer(address)
-        return Response(
-            {"success": True, "message": "Primary address updated successfully.", "data": serializer.data},
-            status=status.HTTP_200_OK,
+        return ResponseHandler.success(
+            data=serializer.data,
+            message="Primary address updated successfully.",
         )
 
     def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
-        Custom list response format.
+        List all addresses for the authenticated user.
         """
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
-        return Response(
-            {"success": True, "data": {"addresses": serializer.data}},
-            status=status.HTTP_200_OK,
+        return ResponseHandler.success(
+            data=serializer.data,
+            message="Addresses retrieved successfully.",
         )
 
     def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -555,14 +497,15 @@ class AddressViewSet(ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(
-                {"success": True, "message": "Address created successfully.", "data": serializer.data},
-                status=status.HTTP_201_CREATED,
+            return ResponseHandler.success(
+                data=serializer.data,
+                message="Address created successfully.",
+                status_code=status.HTTP_201_CREATED,
             )
 
-        return Response(
-            {"success": False, "message": "Address creation failed.", "errors": serializer.errors},
-            status=status.HTTP_400_BAD_REQUEST,
+        return ResponseHandler.error(
+            message="Address creation failed.",
+            errors=serializer.errors,
         )
 
     def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -575,14 +518,14 @@ class AddressViewSet(ModelViewSet):
 
         if serializer.is_valid():
             serializer.save()
-            return Response(
-                {"success": True, "message": "Address updated successfully.", "data": serializer.data},
-                status=status.HTTP_200_OK,
+            return ResponseHandler.success(
+                data=serializer.data,
+                message="Address updated successfully.",
             )
 
-        return Response(
-            {"success": False, "message": "Address update failed.", "errors": serializer.errors},
-            status=status.HTTP_400_BAD_REQUEST,
+        return ResponseHandler.error(
+            message="Address update failed.",
+            errors=serializer.errors,
         )
 
     def destroy(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -591,12 +534,6 @@ class AddressViewSet(ModelViewSet):
         """
         try:
             self.perform_destroy(self.get_object())
-            return Response(
-                {"success": True, "message": "Address deleted successfully."},
-                status=status.HTTP_200_OK,
-            )
+            return ResponseHandler.success(message="Address deleted successfully.")
         except Exception as e:
-            return Response(
-                {"success": False, "message": str(e)},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return ResponseHandler.error(message=str(e))

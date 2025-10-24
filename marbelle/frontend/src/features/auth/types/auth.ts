@@ -61,7 +61,8 @@ export interface AuthResponse {
     message?: string;
     data?: {
         user: User;
-        tokens: AuthTokens;
+        access: string;
+        refresh: string;
     };
     errors?: Record<string, string[]>;
 }
@@ -81,8 +82,7 @@ export interface RegisterResponse {
     success: boolean;
     message?: string;
     data?: {
-        user: User;
-        message: string;
+        user_id: number;
     };
     errors?: Record<string, string[]>;
 }
@@ -90,9 +90,7 @@ export interface RegisterResponse {
 export interface VerificationResponse {
     success: boolean;
     message?: string;
-    data?: {
-        user: User;
-    };
+    data?: User;
     errors?: Record<string, string[]>;
 }
 

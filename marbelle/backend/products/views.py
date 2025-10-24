@@ -1,10 +1,15 @@
+from typing import Any
+
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
+from rest_framework.request import Request
 from rest_framework.response import Response
+
+from core import Paginator, ResponseHandler
 
 from .models import Category, Product
 from .serializers import (
@@ -47,6 +52,7 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     """
 
     permission_classes = [AllowAny]
+    pagination_class = Paginator
     filterset_class = ProductFilter
     search_fields = ["name", "description", "sku"]
     ordering_fields = ["name", "price", "created_at", "stock_quantity"]
@@ -62,6 +68,18 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             return ProductDetailSerializer
         return ProductListSerializer
 
+    def retrieve(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        """
+        Retrieve a single product with standardized response format.
+        """
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        return ResponseHandler.success(
+            data=serializer.data,
+            message="Product retrieved successfully.",
+        )
+
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -71,6 +89,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """
 
     permission_classes = [AllowAny]
+    pagination_class = Paginator
     search_fields = ["name", "description"]
     ordering_fields = ["name", "created_at"]
     ordering = ["name"]
@@ -84,6 +103,17 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == "retrieve":
             return CategoryDetailSerializer
         return CategoryListSerializer
+
+    def retrieve(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        """
+        Retrieve a single category with standardized response format.
+        """
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return ResponseHandler.success(
+            data=serializer.data,
+            message="Category retrieved successfully.",
+        )
 
     @action(detail=True, methods=["get"])
     def products(self, request: HttpRequest, pk: int | None = None) -> Response:
@@ -112,7 +142,17 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         page = self.paginate_queryset(products)
         if page is not None:
             serializer = ProductListSerializer(page, many=True, context={"request": request})
-            return self.get_paginated_response(serializer.data)
+            paginator = self.paginator
+            return ResponseHandler.paginated(
+                data=serializer.data,
+                count=paginator.page.paginator.count,
+                next_url=paginator.get_next_link(),
+                previous_url=paginator.get_previous_link(),
+                message="Products retrieved successfully.",
+            )
 
         serializer = ProductListSerializer(products, many=True, context={"request": request})
-        return Response(serializer.data)
+        return ResponseHandler.success(
+            data=serializer.data,
+            message="Products retrieved successfully.",
+        )

@@ -7,15 +7,57 @@
 
 ## Response Format
 
-All responses follow this format:
+All responses follow a **standardized format** for consistency across all endpoints:
+
+### Success Response
 
 ```json
 {
-  "success": true|false,
-  "message": "Description",
-  "data": {...}  // Optional
+  "success": true,
+  "message": "Operation successful.",
+  "data": {...}  // Optional - omitted if no data
 }
 ```
+
+### Error Response
+
+```json
+{
+  "success": false,
+  "message": "Error description.",
+  "errors": {...}  // Optional - included for validation errors
+}
+```
+
+**Example Error with Validation Details:**
+
+```json
+{
+    "success": false,
+    "message": "Registration failed.",
+    "errors": {
+        "email": ["This field may not be blank."],
+        "password": ["Password must contain at least 8 characters."]
+    }
+}
+```
+
+### Paginated Response
+
+```json
+{
+  "success": true,
+  "message": "Results retrieved successfully.",
+  "data": [...],
+  "pagination": {
+    "count": 100,
+    "next": "http://localhost:8000/api/v1/products/?page=2",
+    "previous": null
+  }
+}
+```
+
+**Note:** All endpoints automatically use this standardized format via the centralized response architecture in `core/responses.py` and `core/pagination.py`.
 
 ## Rate Limits
 
@@ -107,6 +149,7 @@ POST /auth/request-email-change/
 **Headers:** `Authorization: Bearer <token>`
 
 **Request:**
+
 ```json
 {
     "current_password": "CurrentPassword123",
@@ -115,6 +158,7 @@ POST /auth/request-email-change/
 ```
 
 **Response:**
+
 ```json
 {
     "success": true,
@@ -123,11 +167,12 @@ POST /auth/request-email-change/
 ```
 
 **Security Features:**
-- Requires current password re-authentication
-- New email must be different from current email
-- New email must not already exist in system
-- Only one pending email change per user (new request overwrites old)
-- Rate limited: 1000 requests per minute per user
+
+-   Requires current password re-authentication
+-   New email must be different from current email
+-   New email must not already exist in system
+-   Only one pending email change per user (new request overwrites old)
+-   Rate limited: 1000 requests per minute per user
 
 ### Confirm Email Change
 
@@ -136,6 +181,7 @@ POST /auth/confirm-email-change/
 ```
 
 **Request:**
+
 ```json
 {
     "token": "email_change_token_here"
@@ -143,6 +189,7 @@ POST /auth/confirm-email-change/
 ```
 
 **Response:**
+
 ```json
 {
     "success": true,
@@ -160,12 +207,13 @@ POST /auth/confirm-email-change/
 ```
 
 **Security Features:**
-- No authentication required (uses secure token)
-- Token expires in 24 hours
-- Single-use token (becomes invalid after use)
-- Old email receives security notification
-- Username updated to match new email
-- Rate limited: 1000 requests per minute per IP
+
+-   No authentication required (uses secure token)
+-   Token expires in 24 hours
+-   Single-use token (becomes invalid after use)
+-   Old email receives security notification
+-   Username updated to match new email
+-   Rate limited: 1000 requests per minute per IP
 
 ### Email Change Workflow
 
@@ -178,10 +226,11 @@ The industry-standard email change process follows these steps:
 5. **Security Notification**: Old email gets notified of the change
 
 **Business Rules:**
-- Current email remains active until new one is verified
-- Failed verification keeps original email unchanged
-- User can have only one pending email change at a time
-- New requests override previous pending changes
+
+-   Current email remains active until new one is verified
+-   Failed verification keeps original email unchanged
+-   User can have only one pending email change at a time
+-   New requests override previous pending changes
 
 ---
 
@@ -247,31 +296,73 @@ PATCH  /auth/addresses/{id}/set_primary/  # Set primary address
 }
 ```
 
-**Address Response:**
+**Address List Response:**
 
 ```json
 {
     "success": true,
+    "message": "Addresses retrieved successfully.",
+    "data": [
+        {
+            "id": 1,
+            "label": "Home",
+            "first_name": "John",
+            "last_name": "Doe",
+            "company": "Acme Corp",
+            "address_line_1": "123 Main St",
+            "address_line_2": "Apt 4B",
+            "city": "New York",
+            "state": "NY",
+            "postal_code": "10001",
+            "country": "USA",
+            "phone": "+1234567890",
+            "is_primary": true,
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z"
+        },
+        {
+            "id": 2,
+            "label": "Work",
+            "first_name": "John",
+            "last_name": "Doe",
+            "company": "Acme Corp",
+            "address_line_1": "124 Main St",
+            "address_line_2": "Apt 5B",
+            "city": "New York",
+            "state": "NY",
+            "postal_code": "10021",
+            "country": "USA",
+            "phone": "+1234562890",
+            "is_primary": true,
+            "created_at": "2024-05-15T10:30:00Z",
+            "updated_at": "2024-05-15T10:30:00Z"
+        }
+    ]
+}
+```
+
+**Address Create/Update Response:**
+
+```json
+{
+    "success": true,
+    "message": "Address created successfully.",
     "data": {
-        "addresses": [
-            {
-                "id": 1,
-                "label": "Home",
-                "first_name": "John",
-                "last_name": "Doe",
-                "company": "Acme Corp",
-                "address_line_1": "123 Main St",
-                "address_line_2": "Apt 4B",
-                "city": "New York",
-                "state": "NY",
-                "postal_code": "10001",
-                "country": "USA",
-                "phone": "+1234567890",
-                "is_primary": true,
-                "created_at": "2024-01-15T10:30:00Z",
-                "updated_at": "2024-01-15T10:30:00Z"
-            }
-        ]
+        "id": 1,
+        "label": "Home",
+        "first_name": "John",
+        "last_name": "Doe",
+        "company": "Acme Corp",
+        "address_line_1": "123 Main St",
+        "address_line_2": "Apt 4B",
+        "city": "New York",
+        "state": "NY",
+        "postal_code": "10001",
+        "country": "USA",
+        "phone": "+1234567890",
+        "is_primary": true,
+        "created_at": "2024-01-15T10:30:00Z",
+        "updated_at": "2024-01-15T10:30:00Z"
     }
 }
 ```
@@ -384,18 +475,20 @@ curl -X POST http://localhost:8000/api/v1/auth/confirm-email-change/ \
 ## Session Management
 
 **Guest User Sessions:**
-- Automatic session creation on first request
-- Database-backed session storage (`django_session` table)
-- 4-week session expiration
-- Session cookies: `marbelle_sessionid`
-- Used for: Shopping cart, temporary user data
-- HTTPS-only cookies in production, HTTP allowed in development
+
+-   Automatic session creation on first request
+-   Database-backed session storage (`django_session` table)
+-   4-week session expiration
+-   Session cookies: `marbelle_sessionid`
+-   Used for: Shopping cart, temporary user data
+-   HTTPS-only cookies in production, HTTP allowed in development
 
 **Session Cookie Configuration:**
-- **Development**: `SESSION_COOKIE_SECURE = False` (HTTP allowed)
-- **Production**: `SESSION_COOKIE_SECURE = True` (HTTPS required)
-- **SameSite**: `Lax` for CORS compatibility
-- **HttpOnly**: `True` for XSS protection
+
+-   **Development**: `SESSION_COOKIE_SECURE = False` (HTTP allowed)
+-   **Production**: `SESSION_COOKIE_SECURE = True` (HTTPS required)
+-   **SameSite**: `Lax` for CORS compatibility
+-   **HttpOnly**: `True` for XSS protection
 
 ---
 
@@ -410,22 +503,22 @@ GET /products/
 ```
 
 **Query Parameters:**
-- `page` - Page number for pagination (default: 1)
-- `search` - Search products by name, description, or SKU
-- `category` - Filter by category ID
-- `min_price` - Minimum price filter
-- `max_price` - Maximum price filter  
-- `in_stock` - Filter by stock availability (true/false)
-- `ordering` - Sort by field (name, price, created_at, stock_quantity)
+
+-   `page` - Page number for pagination (default: 1)
+-   `search` - Search products by name, description, or SKU
+-   `category` - Filter by category ID
+-   `min_price` - Minimum price filter
+-   `max_price` - Maximum price filter
+-   `in_stock` - Filter by stock availability (true/false)
+-   `ordering` - Sort by field (name, price, created_at, stock_quantity)
 
 **Example Response:**
 
 ```json
 {
-    "count": 150,
-    "next": "http://localhost:8000/api/v1/products/?page=2",
-    "previous": null,
-    "results": [
+    "success": true,
+    "message": "Results retrieved successfully.",
+    "data": [
         {
             "id": 1,
             "name": "Carrara White Marble Slab",
@@ -443,12 +536,24 @@ GET /products/
                     "alt_text": "Carrara White Marble close-up",
                     "is_primary": true,
                     "display_order": 0
+                },
+                {
+                    "id": 2,
+                    "image": "https://res.cloudinary.com/your-cloud-name/image/upload/marbelle/products/carrara_white_2.jpg",
+                    "alt_text": "Carrara White Marble wide",
+                    "is_primary": false,
+                    "display_order": 1
                 }
             ],
             "created_at": "2025-06-27T10:00:00Z",
             "updated_at": "2025-06-27T10:00:00Z"
         }
-    ]
+    ],
+    "pagination": {
+        "count": 150,
+        "next": "http://localhost:8000/api/v1/products/?page=2",
+        "previous": null
+    }
 }
 ```
 
@@ -470,10 +575,9 @@ GET /categories/
 
 ```json
 {
-    "count": 6,
-    "next": null,
-    "previous": null,
-    "results": [
+    "success": true,
+    "message": "Results retrieved successfully.",
+    "data": [
         {
             "id": 1,
             "name": "Slabs",
@@ -481,7 +585,12 @@ GET /categories/
             "product_count": 45,
             "created_at": "2025-06-27T10:00:00Z"
         }
-    ]
+    ],
+    "pagination": {
+        "count": 6,
+        "next": null,
+        "previous": null
+    }
 }
 ```
 
@@ -520,23 +629,25 @@ curl "http://localhost:8000/api/v1/products/?ordering=-price"
 
 ### Business Rules
 
-- Only active products and categories are returned (is_active=True)
-- Stock availability: in_stock = stock_quantity > 0
-- Category product_count includes only active products
-- Search is case-insensitive across name, description, and SKU
-- Images sorted by display_order, then created_at
-- Pagination: 20 items per page by default
+-   Only active products and categories are returned (is_active=True)
+-   Stock availability: in_stock = stock_quantity > 0
+-   Category product_count includes only active products
+-   Search is case-insensitive across name, description, and SKU
+-   Images sorted by display_order, then created_at
+-   Pagination: 20 items per page by default
 
 ### Image Storage
 
 **Production**: Images stored on Cloudinary CDN with automatic optimization
-- URLs: `https://res.cloudinary.com/your-cloud-name/image/upload/marbelle/products/image.jpg`
-- Automatic format conversion (WebP for modern browsers)
-- Quality optimization: `auto:best`
-- Global CDN delivery
+
+-   URLs: `https://res.cloudinary.com/your-cloud-name/image/upload/marbelle/products/image.jpg`
+-   Automatic format conversion (WebP for modern browsers)
+-   Quality optimization: `auto:best`
+-   Global CDN delivery
 
 **Development**: Images can be stored locally if Cloudinary not configured
-- URLs: `http://localhost:8000/media/products/image.jpg`
+
+-   URLs: `http://localhost:8000/media/products/image.jpg`
 
 The API automatically returns the correct URL format based on configuration.
 
@@ -792,26 +903,30 @@ curl -X DELETE http://localhost:8000/api/v1/cart/items/1/remove/ \
 ### Business Rules
 
 **Cart Management:**
-- Guest carts persist for 4 weeks using Django sessions
-- Authenticated users get one cart per account
-- Unit prices are frozen at add time (price changes don't affect cart)
-- Maximum 99 items per product per cart
-- Stock validation prevents overselling
+
+-   Guest carts persist for 4 weeks using Django sessions
+-   Authenticated users get one cart per account
+-   Unit prices are frozen at add time (price changes don't affect cart)
+-   Maximum 99 items per product per cart
+-   Stock validation prevents overselling
 
 **Tax Calculation:**
-- 9% tax rate applied to subtotal
-- Tax amount rounded to 2 decimal places
-- Total = Subtotal + Tax
+
+-   9% tax rate applied to subtotal
+-   Tax amount rounded to 2 decimal places
+-   Total = Subtotal + Tax
 
 **Session Handling:**
-- Guest sessions automatically created on first cart action
-- Session cookies: `marbelle_sessionid` with HttpOnly, SameSite=Lax (Chrome, Firefox)
-- Header-based sessions: `X-Session-ID` header for Safari and cookie-blocked browsers
-- Backend returns `X-Session-ID` in response headers for client-side storage
-- Frontend sends `X-Session-ID` in request headers to maintain session
-- Cart data synchronized when user logs in (guest cart merges with user cart)
+
+-   Guest sessions automatically created on first cart action
+-   Session cookies: `marbelle_sessionid` with HttpOnly, SameSite=Lax (Chrome, Firefox)
+-   Header-based sessions: `X-Session-ID` header for Safari and cookie-blocked browsers
+-   Backend returns `X-Session-ID` in response headers for client-side storage
+-   Frontend sends `X-Session-ID` in request headers to maintain session
+-   Cart data synchronized when user logs in (guest cart merges with user cart)
 
 **Error Handling:**
-- Stock validation: Prevents adding more items than available
-- Quantity limits: 1-99 items per product
-- Access control: Users can only modify their own cart items
+
+-   Stock validation: Prevents adding more items than available
+-   Quantity limits: 1-99 items per product
+-   Access control: Users can only modify their own cart items

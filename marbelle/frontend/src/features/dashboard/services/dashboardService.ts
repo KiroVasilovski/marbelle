@@ -66,22 +66,22 @@ export class DashboardService {
     /**
      * Request email change (step 1 of email change process)
      */
-    public async requestEmailChange(data: EmailChangeRequestData): Promise<EmailChangeResponse> {
-        return await apiClient.post<EmailChangeResponse>(API_ENDPOINTS.AUTH.REQUEST_EMAIL_CHANGE, data);
+    public async requestEmailChange(data: EmailChangeRequestData): Promise<void> {
+        await apiClient.post(API_ENDPOINTS.AUTH.REQUEST_EMAIL_CHANGE, data);
     }
 
     /**
      * Confirm email change with token (step 2 of email change process)
      */
     public async confirmEmailChange(data: EmailChangeConfirmData): Promise<User> {
-        const response = await apiClient.post<EmailChangeResponse>(API_ENDPOINTS.AUTH.CONFIRM_EMAIL_CHANGE, data);
+        const response = await apiClient.post<User>(API_ENDPOINTS.AUTH.CONFIRM_EMAIL_CHANGE, data);
 
         // Update stored user data with new email
-        if (response?.data) {
-            this.updateStoredUserData(response.data);
+        if (response) {
+            this.updateStoredUserData(response);
         }
 
-        return response?.data || ({} as User);
+        return response || ({} as User);
     }
 
     // ===== ADDRESS MANAGEMENT =====
@@ -90,8 +90,8 @@ export class DashboardService {
      * Get all user addresses
      */
     public async getAddresses(): Promise<Address[]> {
-        const response = await apiClient.get<AddressResponse['data']>(API_ENDPOINTS.AUTH.ADDRESSES);
-        return response?.addresses || [];
+        const response = await apiClient.get<Address[]>(API_ENDPOINTS.AUTH.ADDRESSES);
+        return response || [];
     }
 
     /**
@@ -131,15 +131,10 @@ export class DashboardService {
      * Get user order history
      * Note: Orders API not yet implemented - returns empty array
      */
-    public async getOrderHistory(page?: number, limit?: number): Promise<OrderHistoryResponse['data']> {
+    public async getOrderHistory(page?: number, limit?: number): Promise<Order[]> {
         // TODO: Remove this mock implementation when orders API is ready
         console.log(page, limit);
-        return Promise.resolve({
-            orders: [],
-            count: 0,
-            next: undefined,
-            previous: undefined,
-        });
+        return Promise.resolve([]);
 
         // Uncomment when orders API is implemented:
         // const params = new URLSearchParams();
@@ -181,7 +176,7 @@ export class DashboardService {
         orders: Order[];
     }> {
         try {
-            const [user, addresses, orderHistory] = await Promise.all([
+            const [user, addresses, orders] = await Promise.all([
                 this.getUserProfile(),
                 this.getAddresses(),
                 this.getOrderHistory(1, 10), // Get recent orders (currently mocked)
@@ -190,7 +185,7 @@ export class DashboardService {
             return {
                 user,
                 addresses,
-                orders: orderHistory?.orders || [],
+                orders: orders || [],
             };
         } catch (error) {
             // If orders API fails, still return user and addresses

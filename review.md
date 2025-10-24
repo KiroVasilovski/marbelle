@@ -35,33 +35,6 @@ except Exception as e:
 
 ---
 
-### **LOW: Token Secrets Visible in Admin Panel**
-
-**Location:** `marbelle/backend/users/admin.py:161`
-
-```python
-readonly_fields = ("token", "created_at", "expires_at", "is_expired")
-```
-
-**Issue:** While read-only, email change tokens (and verification/reset tokens if admin is added) are fully visible in the admin panel. A compromised admin account could steal active tokens.
-
-**Impact:** Admin users can see and potentially use password reset tokens, email verification tokens, etc.
-
-**Fix:**
-
-```python
-readonly_fields = ("token_preview", "created_at", "expires_at", "is_expired")
-
-def token_preview(self, obj):
-    """Show only first/last 4 characters of token"""
-    if obj.token:
-        return f"{obj.token[:4]}...{obj.token[-4:]}"
-    return "-"
-token_preview.short_description = "Token"
-```
-
----
-
 ## **2. Performance Bottlenecks**
 
 ### **HIGH: N+1 Query Problem in Address Save**
@@ -189,34 +162,6 @@ app.conf.beat_schedule = {
     },
 }
 ```
-
----
-
-### **LOW: Missing Database Index on expires_at**
-
-**Location:** `marbelle/backend/users/models.py`
-
-**Issue:** Token cleanup queries filter by `expires_at` but there's no explicit index on this field. While the `unique=True` on `token` creates an index, `expires_at` queries will be slow.
-
-**Impact:** Slow cleanup queries as token tables grow.
-
-**Recommendation:** Add index to all token models:
-
-```python
-class EmailVerificationToken(models.Model):
-    # ... existing fields ...
-
-    class Meta:
-        verbose_name = "Email Verification Token"
-        verbose_name_plural = "Email Verification Tokens"
-        db_table = "email_verification_tokens"
-        indexes = [
-            models.Index(fields=['expires_at']),  # For efficient cleanup queries
-            models.Index(fields=['user', 'is_used']),  # For token validation
-        ]
-```
-
----
 
 ## **3. Bugs & Edge Cases**
 
@@ -367,9 +312,9 @@ phone = models.CharField(
 )
 ```
 
----
-
 ## **4. Maintainability & Readability (Code Smells)**
+
+TODOO ->
 
 ### **MEDIUM: Inconsistent Response Format**
 

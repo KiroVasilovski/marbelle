@@ -1,9 +1,11 @@
 from django.db import transaction
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from core import ResponseHandler
 from products.models import Product
 
 from ..models import Cart, CartItem
@@ -93,7 +95,10 @@ def get_cart(request: Request) -> Response:
                 }
             )
 
-        response = Response({"success": True, "message": "Cart retrieved successfully.", "data": cart_data})
+        response = ResponseHandler.success(
+            data=cart_data,
+            message="Cart retrieved successfully.",
+        )
 
         # Add session ID to response header for Safari compatibility
         if session_key:
@@ -102,7 +107,10 @@ def get_cart(request: Request) -> Response:
         return response
 
     except Exception as e:
-        return Response({"success": False, "message": f"Error retrieving cart: {str(e)}"}, status=500)
+        return ResponseHandler.error(
+            message=f"Error retrieving cart: {str(e)}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
@@ -124,29 +132,30 @@ def add_to_cart(request: Request) -> Response:
 
         # Validation
         if not product_id:
-            return Response({"success": False, "message": "Product ID is required."}, status=400)
+            return ResponseHandler.error(message="Product ID is required.")
 
         try:
             quantity = int(quantity)
             if quantity < 1 or quantity > 99:
-                return Response({"success": False, "message": "Quantity must be between 1 and 99."}, status=400)
+                return ResponseHandler.error(message="Quantity must be between 1 and 99.")
         except (ValueError, TypeError):
-            return Response({"success": False, "message": "Invalid quantity value."}, status=400)
+            return ResponseHandler.error(message="Invalid quantity value.")
 
         # Get product and validate
         try:
             product = Product.objects.get(id=product_id, is_active=True)
         except Product.DoesNotExist:
-            return Response({"success": False, "message": "Product not found."}, status=404)
+            return ResponseHandler.error(
+                message="Product not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
 
         # Check stock availability
         if not product.in_stock:
-            return Response({"success": False, "message": "Product is out of stock."}, status=400)
+            return ResponseHandler.error(message="Product is out of stock.")
 
         if product.stock_quantity < quantity:
-            return Response(
-                {"success": False, "message": f"Only {product.stock_quantity} items available in stock."}, status=400
-            )
+            return ResponseHandler.error(message=f"Only {product.stock_quantity} items available in stock.")
 
         # Get or create cart
         cart, session_key = get_or_create_cart(request)
@@ -161,13 +170,10 @@ def add_to_cart(request: Request) -> Response:
                 # Update existing item quantity
                 new_quantity = cart_item.quantity + quantity
                 if new_quantity > 99:
-                    return Response({"success": False, "message": "Maximum quantity per product is 99."}, status=400)
+                    return ResponseHandler.error(message="Maximum quantity per product is 99.")
 
                 if product.stock_quantity < new_quantity:
-                    return Response(
-                        {"success": False, "message": f"Only {product.stock_quantity} items available in stock."},
-                        status=400,
-                    )
+                    return ResponseHandler.error(message=f"Only {product.stock_quantity} items available in stock.")
 
                 cart_item.quantity = new_quantity
                 cart_item.save()
@@ -178,31 +184,31 @@ def add_to_cart(request: Request) -> Response:
             primary_image = product.images.first()
         image_url = primary_image.image.url if primary_image else None
 
-        response = Response(
-            {
-                "success": True,
-                "message": f"Added {quantity} x {product.name} to cart.",
-                "data": {
-                    "item": {
-                        "id": cart_item.id,
-                        "product": {
-                            "id": product.id,
-                            "name": product.name,
-                            "sku": product.sku,
-                            "image": image_url,
-                        },
-                        "quantity": cart_item.quantity,
-                        "unit_price": str(cart_item.unit_price),
-                        "subtotal": str(cart_item.subtotal),
-                    },
-                    "cart_totals": {
-                        "item_count": cart.item_count,
-                        "subtotal": str(cart.subtotal),
-                        "tax_amount": str(cart.tax_amount),
-                        "total": str(cart.total),
-                    },
+        item_data = {
+            "item": {
+                "id": cart_item.id,
+                "product": {
+                    "id": product.id,
+                    "name": product.name,
+                    "sku": product.sku,
+                    "image": image_url,
                 },
-            }
+                "quantity": cart_item.quantity,
+                "unit_price": str(cart_item.unit_price),
+                "subtotal": str(cart_item.subtotal),
+            },
+            "cart_totals": {
+                "item_count": cart.item_count,
+                "subtotal": str(cart.subtotal),
+                "tax_amount": str(cart.tax_amount),
+                "total": str(cart.total),
+            },
+        }
+
+        response = ResponseHandler.success(
+            data=item_data,
+            message=f"Added {quantity} x {product.name} to cart.",
+            status_code=status.HTTP_200_OK,
         )
 
         # Add session ID to response header for Safari compatibility
@@ -212,9 +218,15 @@ def add_to_cart(request: Request) -> Response:
         return response
 
     except Product.DoesNotExist:
-        return Response({"success": False, "message": "Product not found."}, status=404)
+        return ResponseHandler.error(
+            message="Product not found.",
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
     except Exception as e:
-        return Response({"success": False, "message": f"Error adding item to cart: {str(e)}"}, status=500)
+        return ResponseHandler.error(
+            message=f"Error adding item to cart: {str(e)}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["PUT"])
@@ -234,28 +246,28 @@ def update_cart_item(request: Request, item_id: int) -> Response:
 
         # Validation
         if quantity is None:
-            return Response({"success": False, "message": "Quantity is required."}, status=400)
+            return ResponseHandler.error(message="Quantity is required.")
 
         try:
             quantity = int(quantity)
             if quantity < 1 or quantity > 99:
-                return Response({"success": False, "message": "Quantity must be between 1 and 99."}, status=400)
+                return ResponseHandler.error(message="Quantity must be between 1 and 99.")
         except (ValueError, TypeError):
-            return Response({"success": False, "message": "Invalid quantity value."}, status=400)
+            return ResponseHandler.error(message="Invalid quantity value.")
 
         # Get cart and item
         cart, session_key = get_or_create_cart(request)
         try:
             cart_item = CartItem.objects.get(id=item_id, cart=cart)
         except CartItem.DoesNotExist:
-            return Response({"success": False, "message": "Cart item not found."}, status=404)
+            return ResponseHandler.error(
+                message="Cart item not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
 
         # Check stock availability
         if cart_item.product.stock_quantity < quantity:
-            return Response(
-                {"success": False, "message": f"Only {cart_item.product.stock_quantity} items available in stock."},
-                status=400,
-            )
+            return ResponseHandler.error(message=f"Only {cart_item.product.stock_quantity} items available in stock.")
 
         # Update quantity
         with transaction.atomic():
@@ -268,31 +280,30 @@ def update_cart_item(request: Request, item_id: int) -> Response:
             primary_image = cart_item.product.images.first()
         image_url = primary_image.image.url if primary_image else None
 
-        response = Response(
-            {
-                "success": True,
-                "message": "Cart item updated successfully.",
-                "data": {
-                    "item": {
-                        "id": cart_item.id,
-                        "product": {
-                            "id": cart_item.product.id,
-                            "name": cart_item.product.name,
-                            "sku": cart_item.product.sku,
-                            "image": image_url,
-                        },
-                        "quantity": cart_item.quantity,
-                        "unit_price": str(cart_item.unit_price),
-                        "subtotal": str(cart_item.subtotal),
-                    },
-                    "cart_totals": {
-                        "item_count": cart.item_count,
-                        "subtotal": str(cart.subtotal),
-                        "tax_amount": str(cart.tax_amount),
-                        "total": str(cart.total),
-                    },
+        item_data = {
+            "item": {
+                "id": cart_item.id,
+                "product": {
+                    "id": cart_item.product.id,
+                    "name": cart_item.product.name,
+                    "sku": cart_item.product.sku,
+                    "image": image_url,
                 },
-            }
+                "quantity": cart_item.quantity,
+                "unit_price": str(cart_item.unit_price),
+                "subtotal": str(cart_item.subtotal),
+            },
+            "cart_totals": {
+                "item_count": cart.item_count,
+                "subtotal": str(cart.subtotal),
+                "tax_amount": str(cart.tax_amount),
+                "total": str(cart.total),
+            },
+        }
+
+        response = ResponseHandler.success(
+            data=item_data,
+            message="Cart item updated successfully.",
         )
 
         # Add session ID to response header for Safari compatibility
@@ -302,9 +313,15 @@ def update_cart_item(request: Request, item_id: int) -> Response:
         return response
 
     except CartItem.DoesNotExist:
-        return Response({"success": False, "message": "Cart item not found."}, status=404)
+        return ResponseHandler.error(
+            message="Cart item not found.",
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
     except Exception as e:
-        return Response({"success": False, "message": f"Error updating cart item: {str(e)}"}, status=500)
+        return ResponseHandler.error(
+            message=f"Error updating cart item: {str(e)}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["DELETE"])
@@ -319,7 +336,10 @@ def remove_cart_item(request: Request, item_id: int) -> Response:
         try:
             cart_item = CartItem.objects.get(id=item_id, cart=cart)
         except CartItem.DoesNotExist:
-            return Response({"success": False, "message": "Cart item not found."}, status=404)
+            return ResponseHandler.error(
+                message="Cart item not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
 
         product_name = cart_item.product.name
 
@@ -327,19 +347,18 @@ def remove_cart_item(request: Request, item_id: int) -> Response:
         with transaction.atomic():
             cart_item.delete()
 
-        response = Response(
-            {
-                "success": True,
-                "message": f"Removed {product_name} from cart.",
-                "data": {
-                    "cart_totals": {
-                        "item_count": cart.item_count,
-                        "subtotal": str(cart.subtotal),
-                        "tax_amount": str(cart.tax_amount),
-                        "total": str(cart.total),
-                    }
-                },
+        cart_totals_data = {
+            "cart_totals": {
+                "item_count": cart.item_count,
+                "subtotal": str(cart.subtotal),
+                "tax_amount": str(cart.tax_amount),
+                "total": str(cart.total),
             }
+        }
+
+        response = ResponseHandler.success(
+            data=cart_totals_data,
+            message=f"Removed {product_name} from cart.",
         )
 
         # Add session ID to response header for Safari compatibility
@@ -349,9 +368,15 @@ def remove_cart_item(request: Request, item_id: int) -> Response:
         return response
 
     except CartItem.DoesNotExist:
-        return Response({"success": False, "message": "Cart item not found."}, status=404)
+        return ResponseHandler.error(
+            message="Cart item not found.",
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
     except Exception as e:
-        return Response({"success": False, "message": f"Error removing cart item: {str(e)}"}, status=500)
+        return ResponseHandler.error(
+            message=f"Error removing cart item: {str(e)}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["DELETE"])
@@ -366,19 +391,18 @@ def clear_cart(request: Request) -> Response:
         with transaction.atomic():
             cart.clear()
 
-        response = Response(
-            {
-                "success": True,
-                "message": "Cart cleared successfully.",
-                "data": {
-                    "cart_totals": {
-                        "item_count": 0,
-                        "subtotal": "0.00",
-                        "tax_amount": "0.00",
-                        "total": "0.00",
-                    }
-                },
+        cart_totals_data = {
+            "cart_totals": {
+                "item_count": 0,
+                "subtotal": "0.00",
+                "tax_amount": "0.00",
+                "total": "0.00",
             }
+        }
+
+        response = ResponseHandler.success(
+            data=cart_totals_data,
+            message="Cart cleared successfully.",
         )
 
         # Add session ID to response header for Safari compatibility
@@ -388,4 +412,7 @@ def clear_cart(request: Request) -> Response:
         return response
 
     except Exception as e:
-        return Response({"success": False, "message": f"Error clearing cart: {str(e)}"}, status=500)
+        return ResponseHandler.error(
+            message=f"Error clearing cart: {str(e)}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )

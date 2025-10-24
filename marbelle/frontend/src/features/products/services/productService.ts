@@ -1,14 +1,10 @@
-import axios from 'axios';
-import { API_CONFIG } from '../../../shared/api/apiConfig';
+import { apiClient } from '../../../shared/api/ApiClient';
 import type { Product, ProductListResponse, CategoryListResponse, ProductFilters } from '../types/product';
 
 class ProductService {
-    private baseURL: string;
-
-    constructor() {
-        this.baseURL = API_CONFIG.baseURL;
-    }
-
+    /**
+     * Get products with optional filters
+     */
     async getProducts(filters: ProductFilters = {}): Promise<ProductListResponse> {
         const params = new URLSearchParams();
 
@@ -19,24 +15,56 @@ class ProductService {
         });
 
         const queryString = params.toString();
-        const url = queryString ? `${this.baseURL}/products/?${queryString}` : `${this.baseURL}/products/`;
+        const url = `/products/${queryString ? `?${queryString}` : ''}`;
 
-        const response = await axios.get<ProductListResponse>(url);
-        return response.data;
+        // The backend now returns standardized response with data and pagination
+        // For paginated endpoints, we need to capture the raw response to get pagination metadata
+        const axiosInstance = apiClient.getAxiosInstance();
+        const response = await axiosInstance.get<ProductListResponse>(url);
+
+        // ApiClient wraps response, so we need to handle both the wrapper and the actual data
+        if (response.data?.success && response.data?.data) {
+            return response.data as ProductListResponse;
+        }
+
+        // Fallback for compatibility
+        return {
+            success: true,
+            message: 'Results retrieved successfully.',
+            data: (response.data?.data || []) as Product[],
+            pagination: response.data?.pagination,
+        };
     }
 
+    /**
+     * Get a single product by ID
+     */
     async getProduct(id: number): Promise<Product> {
-        const url = `${this.baseURL}/products/${id}/`;
-        const response = await axios.get<Product>(url);
-        return response.data;
+        return await apiClient.get<Product>(`/products/${id}/`, { skipAuth: true });
     }
 
+    /**
+     * Get all categories
+     */
     async getCategories(): Promise<CategoryListResponse> {
-        const url = `${this.baseURL}/categories/`;
-        const response = await axios.get<CategoryListResponse>(url);
-        return response.data;
+        const axiosInstance = apiClient.getAxiosInstance();
+        const response = await axiosInstance.get<CategoryListResponse>('/categories/');
+
+        if (response.data?.success && response.data?.data) {
+            return response.data as CategoryListResponse;
+        }
+
+        return {
+            success: true,
+            message: 'Results retrieved successfully.',
+            data: (response.data?.data || []) as any[],
+            pagination: response.data?.pagination,
+        };
     }
 
+    /**
+     * Get products for a specific category
+     */
     async getCategoryProducts(categoryId: number, filters: ProductFilters = {}): Promise<ProductListResponse> {
         const params = new URLSearchParams();
 
@@ -47,12 +75,21 @@ class ProductService {
         });
 
         const queryString = params.toString();
-        const url = queryString
-            ? `${this.baseURL}/categories/${categoryId}/products/?${queryString}`
-            : `${this.baseURL}/categories/${categoryId}/products/`;
+        const url = `/categories/${categoryId}/products/${queryString ? `?${queryString}` : ''}`;
 
-        const response = await axios.get<ProductListResponse>(url);
-        return response.data;
+        const axiosInstance = apiClient.getAxiosInstance();
+        const response = await axiosInstance.get<ProductListResponse>(url);
+
+        if (response.data?.success && response.data?.data) {
+            return response.data as ProductListResponse;
+        }
+
+        return {
+            success: true,
+            message: 'Results retrieved successfully.',
+            data: (response.data?.data || []) as Product[],
+            pagination: response.data?.pagination,
+        };
     }
 }
 

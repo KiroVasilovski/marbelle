@@ -122,7 +122,91 @@ This will start both the Django backend and PostgreSQL database.
 - **users**: User authentication, profiles, and account management
 - **products**: Product catalog, categories, and specifications
 - **orders**: Shopping cart, orders, and custom quotes
-- **core**: Shared utilities, base models, and common functionality
+- **core**: Shared utilities, base models, common functionality, and centralized API responses
+
+## Standardized API Response Architecture
+
+All API endpoints follow a **centralized response format** for consistency and maintainability:
+
+### Response Format
+
+**Success Response:**
+```json
+{
+  "success": true,
+  "message": "Operation successful.",
+  "data": {...}  // Optional - omitted if no data to return
+}
+```
+
+**Error Response:**
+```json
+{
+  "success": false,
+  "message": "Error description.",
+  "errors": {...}  // Optional - included for validation errors
+}
+```
+
+**Paginated Response:**
+```json
+{
+  "success": true,
+  "message": "Results retrieved successfully.",
+  "data": [...],
+  "pagination": {
+    "count": 100,
+    "next": "http://...",
+    "previous": "http://..."
+  }
+}
+```
+
+### Implementation
+
+The response architecture is implemented in `core/` with two main components:
+
+1. **`core/responses.py`** - `ResponseHandler` utility class for response formatting
+2. **`core/pagination.py`** - `Paginator` custom pagination class for paginated results
+
+### Usage
+
+**Function-Based Views:**
+```python
+from core import ResponseHandler
+from rest_framework import status
+
+return ResponseHandler.success(
+    data=serializer.data,
+    message="Created successfully.",
+    status_code=status.HTTP_201_CREATED
+)
+```
+
+**Class-Based Views (ViewSets):**
+```python
+from core import Paginator, ResponseHandler
+
+class ProductViewSet(viewsets.ReadOnlyModelViewSet):
+    pagination_class = Paginator  # Automatically formats paginated responses
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            # Paginator automatically wraps response via get_paginated_response()
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return ResponseHandler.success(
+            data=serializer.data,
+            message="Results retrieved successfully."
+        )
+```
+
+For a consistent API, always use `ResponseHandler` for manual responses and `Paginator` class for automatic pagination handling.
 
 ## Code Quality
 
