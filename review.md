@@ -371,84 +371,6 @@ phone = models.CharField(
 
 ## **4. Maintainability & Readability (Code Smells)**
 
-### **HIGH: Magic Numbers and Hardcoded Values**
-
-**Location:** Multiple files
-
-**Examples:**
-
--   `users/views.py:34`: `@ratelimit(key="ip", rate="5/m", method="POST")`
--   `users/views.py:105`: `@ratelimit(key="ip", rate="3/m", method="POST")`
--   `users/views.py:301`: `@ratelimit(key="user", rate="1000/m", method="POST")`
--   `users/serializers.py:257`: `if not self.instance and Address.objects.filter(user=user).count() >= 10:`
--   `settings/base.py:230`: `SESSION_COOKIE_AGE = 60 * 60 * 24 * 28`
--   `users/models.py:96`: `self.expires_at = timezone.now() + timedelta(hours=24)`
-
-**Issue:** Magic numbers scattered throughout the code make it hard to:
-
--   Understand business rules at a glance
--   Change limits consistently across the codebase
--   Test with different configurations
-
-**Fix:** Create a constants file:
-
-```python
-# users/constants.py
-from datetime import timedelta
-
-class RateLimits:
-    """Rate limiting configuration for authentication endpoints."""
-    AUTH_REQUESTS = "5/m"  # Login, register, logout
-    PASSWORD_RESET = "3/m"  # Password reset, email verification
-    EMAIL_VERIFICATION = "3/m"
-    EMAIL_CHANGE = "1000/m"  # Higher limit for authenticated users
-
-class UserLimits:
-    """Business rules for user accounts."""
-    MAX_ADDRESSES_PER_USER = 10
-
-class TokenExpiry:
-    """Token expiration timeframes."""
-    EMAIL_VERIFICATION_HOURS = 24
-    PASSWORD_RESET_HOURS = 24
-    EMAIL_CHANGE_HOURS = 24
-
-    @classmethod
-    def get_verification_expiry(cls):
-        return timedelta(hours=cls.EMAIL_VERIFICATION_HOURS)
-
-    @classmethod
-    def get_reset_expiry(cls):
-        return timedelta(hours=cls.PASSWORD_RESET_HOURS)
-
-class SessionConfig:
-    """Session management configuration."""
-    COOKIE_AGE = timedelta(weeks=4)
-    COOKIE_NAME = "marbelle_sessionid"
-
-# Usage in views.py
-from .constants import RateLimits, UserLimits
-
-@ratelimit(key="ip", rate=RateLimits.AUTH_REQUESTS, method="POST")
-def register_user(request: Request) -> Response:
-    ...
-
-# Usage in serializers.py
-if not self.instance and Address.objects.filter(user=user).count() >= UserLimits.MAX_ADDRESSES_PER_USER:
-    raise serializers.ValidationError(
-        f"Maximum {UserLimits.MAX_ADDRESSES_PER_USER} addresses allowed per user."
-    )
-
-# Usage in models.py
-self.expires_at = timezone.now() + TokenExpiry.get_verification_expiry()
-
-# Usage in settings/base.py
-from users.constants import SessionConfig
-SESSION_COOKIE_AGE = int(SessionConfig.COOKIE_AGE.total_seconds())
-```
-
----
-
 ### **MEDIUM: Inconsistent Response Format**
 
 **Location:** `marbelle/backend/users/views.py`
@@ -649,83 +571,7 @@ class Address(models.Model):
     )
 ```
 
----
-
 ## **5. Best Practices & Idiomatic Code**
-
-### **MEDIUM: Missing Type Hints on Class Methods**
-
-**Location:** `marbelle/backend/users/models.py:92-97`, `127-132`, `163-168`, `225-234`
-
-```python
-def save(self, *args: Any, **kwargs: Any):
-    if not self.token:
-        self.token = secrets.token_urlsafe(32)
-    if not self.expires_at:
-        self.expires_at = timezone.now() + timedelta(hours=24)
-    super().save(*args, **kwargs)
-```
-
-**Issue:** The return type is missing. While Python doesn't enforce it, type hints improve:
-
--   IDE autocomplete and type checking
--   Code documentation
--   Catching bugs at development time
-
-**Impact:** Reduced developer experience, harder to catch type-related bugs.
-
-**Fix:**
-
-```python
-def save(self, *args: Any, **kwargs: Any) -> None:
-    if not self.token:
-        self.token = secrets.token_urlsafe(32)
-    if not self.expires_at:
-        self.expires_at = timezone.now() + timedelta(hours=24)
-    super().save(*args, **kwargs)
-```
-
-Apply this to all model `save()` methods and other methods missing return type hints.
-
----
-
-### **MEDIUM: Not Using Django's get_or_create Pattern**
-
-**Location:** `marbelle/backend/users/views.py:43-47`
-
-```python
-user = serializer.save()
-
-# Create email verification token
-verification_token = EmailVerificationToken.objects.create(user=user)
-```
-
-**Issue:** While this works in the registration flow, if called twice rapidly (race condition or retry), it could create duplicate tokens for the same user. The unique constraint on `token` field prevents duplicates, but you get an unnecessary IntegrityError.
-
-**Impact:** Potential race condition, unnecessary exception handling.
-
-**Better Pattern:**
-
-```python
-user = serializer.save()
-
-# Get or create email verification token (idempotent)
-verification_token, created = EmailVerificationToken.objects.get_or_create(
-    user=user,
-    is_used=False,
-    defaults={
-        'expires_at': timezone.now() + timedelta(hours=24)
-    }
-)
-
-if not created:
-    # Token already exists, check if it's still valid
-    if not verification_token.is_valid:
-        # Create new token if old one is expired
-        verification_token = EmailVerificationToken.objects.create(user=user)
-```
-
----
 
 ### **MEDIUM: Missing Logging Throughout**
 
@@ -837,28 +683,6 @@ LOGGING = {
     },
 }
 ```
-
----
-
-### **LOW: Outdated ASGI Configuration**
-
-**Location:** `marbelle/backend/marbelle/asgi.py:14`
-
-```python
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "marbelle.settings")
-```
-
-**Issue:** This defaults to a non-existent module (`marbelle.settings` doesn't exist, only `marbelle.settings.dev` and `marbelle.settings.prod`). If ASGI is used without setting the env var, it will fail.
-
-**Impact:** ASGI server (Daphne, Uvicorn) won't start without explicit environment variable.
-
-**Fix:**
-
-```python
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "marbelle.settings.prod")
-```
-
-Match the WSGI default (line 17 of wsgi.py).
 
 ---
 
@@ -1243,139 +1067,17 @@ def request_password_reset(request: Request) -> Response:
 -   Better separation of concerns
 -   Easier to optimize queries in one place
 
----
-
-### **LOW: Missing Settings Validation on Startup**
-
-**Location:** `marbelle/backend/marbelle/settings/base.py`
-
-**Issue:** If critical environment variables (like `FRONTEND_URL`, database credentials, email config) are missing, the app may start successfully but fail at runtime when those features are used.
-
-**Scenario:**
-
-1. Deploy to production
-2. Forget to set `FRONTEND_URL`
-3. App starts successfully
-4. Users register
-5. Email verification links are broken (`None/verify-email?token=...`)
-6. Users can't activate accounts
-
-**Impact:** Silent failures in production, poor user experience.
-
-**Fix:** Add startup validation:
-
-```python
-# settings/base.py
-from django.core.exceptions import ImproperlyConfigured
-
-def validate_required_settings():
-    """
-    Validate required environment variables on startup.
-    Fails fast if critical configuration is missing.
-    """
-    required_settings = {
-        'SECRET_KEY': os.getenv('SECRET_KEY'),
-        'DB_NAME': os.getenv('DB_NAME'),
-        'DB_USER': os.getenv('DB_USER'),
-        'DB_PASSWORD': os.getenv('DB_PASSWORD'),
-        'FRONTEND_URL': os.getenv('FRONTEND_URL'),
-    }
-
-    missing = [key for key, value in required_settings.items() if not value]
-
-    if missing:
-        raise ImproperlyConfigured(
-            f"Missing required environment variables: {', '.join(missing)}\n"
-            f"Please set these in your .env file or environment."
-        )
-
-# Only validate in production (not in development)
-if os.getenv('DJANGO_SETTINGS_MODULE', '').endswith('.prod'):
-    validate_required_settings()
-```
-
----
-
-### **LOW: CORS Configuration Too Permissive for Development**
-
-**Location:** `marbelle/backend/marbelle/settings/dev.py:12-19`
-
-```python
-allowed_hosts = os.getenv("ALLOWED_HOSTS")
-allowed_origins = os.getenv("CORS_ALLOWED_ORIGINS")
-
-ALLOWED_HOSTS = allowed_hosts.split(",") if allowed_hosts else []
-CORS_ALLOWED_ORIGINS = allowed_origins.split(",") if allowed_origins else []
-```
-
-**Issue:** If env vars aren't set in development, both are empty lists. Django will block all requests, making development frustrating.
-
-**Impact:**
-
--   New developers can't run the app without configuring `.env` first
--   Poor developer experience
--   Common source of "why isn't it working?" questions
-
-**Fix:**
-
-```python
-# settings/dev.py
-ALLOWED_HOSTS = allowed_hosts.split(",") if allowed_hosts else [
-    "localhost",
-    "127.0.0.1",
-    "0.0.0.0",
-    "[::1]",  # IPv6 localhost
-]
-
-CORS_ALLOWED_ORIGINS = allowed_origins.split(",") if allowed_origins else [
-    "http://localhost:3000",  # React dev server
-    "http://localhost:5173",  # Vite dev server
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",
-]
-
-# Also helpful for development
-CORS_ALLOW_ALL_ORIGINS = False  # Keep this False even in dev for security practice
-```
-
----
-
-## **Summary of Critical Issues**
-
-| Priority     | Count | Category                                                            | Urgency                 |
-| ------------ | ----- | ------------------------------------------------------------------- | ----------------------- |
-| **CRITICAL** | 3     | Security (SECRET_KEY), Data Integrity (Race Condition, Silent Save) | Fix before production   |
-| **HIGH**     | 6     | Security (Email Enumeration), Performance (N+1), Architecture (DRY) | Fix in next sprint      |
-| **MEDIUM**   | 12    | Security, Performance, Bugs, Maintainability                        | Fix within 1-2 months   |
-| **LOW**      | 8     | Code Quality, Best Practices                                        | Address when convenient |
-
----
-
 ## **Recommended Action Plan**
 
 ### **Phase 1: Critical Fixes (Sprint 1 - This Week)**
 
 **Must be completed before production deployment:**
 
-1. ✅ **Fix SECRET_KEY fallback** (`settings/base.py:29`)
-
-    - Add validation to raise error if not set
-    - Prevents complete security compromise
-
-2. ✅ **Fix race condition in Address.set_primary()** (`users/views.py:506-511`)
-
-    - Add transaction with `select_for_update()`
-    - Prevents data integrity violation
-
 3. ✅ **Fix silent failure in UserProfileSerializer** (`users/serializers.py:199-204`)
 
     - Only catch IntegrityError for email duplication
     - Re-raise other exceptions
     - Prevents data loss
-
-4. ✅ **Fix email enumeration in resend_verification** (`users/views.py:246`)
-    - Return generic success message
-    - Consistent with password reset behavior
 
 ### **Phase 2: High Priority (Sprint 2-3 - Next 2 Weeks)**
 
@@ -1396,12 +1098,7 @@ CORS_ALLOW_ALL_ORIGINS = False  # Keep this False even in dev for security pract
     - Easier testing
     - Cleaner code organization
 
-8. ✅ **Add transaction safety to email change** (`users/serializers.py:374-392`)
-
-    - Prevents token reuse vulnerability
-    - Mark token as used FIRST
-
-9. ✅ **Add comprehensive logging** (throughout codebase)
+8. ✅ **Add comprehensive logging** (throughout codebase)
     - Security events (login, password reset, etc.)
     - Failed attempts
     - Audit trail
@@ -1414,23 +1111,12 @@ CORS_ALLOW_ALL_ORIGINS = False  # Keep this False even in dev for security pract
     -   Delete expired tokens older than 7 days
     -   Add database index on `expires_at`
 
-11. ✅ **Create constants file** (`users/constants.py`)
-
-    -   Extract all magic numbers
-    -   Rate limits, user limits, token expiry
-    -   Better maintainability
-
-12. ✅ **Standardize API response format**
+11. ✅ **Standardize API response format**
 
     -   Consistent structure across all endpoints
     -   Better frontend developer experience
 
-13. ✅ **Add missing CSRF_TRUSTED_ORIGINS** (`settings/base.py`)
-
-    -   Required for modern browsers
-    -   Prevents CSRF errors in production
-
-14. ✅ **Improve phone validation** (`users/models.py:27`)
+12. ✅ **Improve phone validation** (`users/models.py:27`)
     -   Use `phonenumbers` library
     -   Support international numbers
 
@@ -1448,15 +1134,6 @@ CORS_ALLOW_ALL_ORIGINS = False  # Keep this False even in dev for security pract
     -   Cleaner architecture
     -   Reusable logic
 
-17. ⏳ **Add startup validation** (`settings/base.py`)
-
-    -   Fail fast if config missing
-    -   Better error messages
-
-18. ⏳ **Improve development defaults** (`settings/dev.py`)
-    -   Default ALLOWED_HOSTS and CORS_ALLOWED_ORIGINS
-    -   Better developer experience
-
 ---
 
 ## **Testing Recommendations**
@@ -1466,10 +1143,6 @@ For each fix above, add corresponding tests:
 ```python
 # tests/test_security.py
 class SecurityTests(TestCase):
-    def test_secret_key_required_in_production(self):
-        """Test that SECRET_KEY raises error if not set"""
-        # Implementation
-
     def test_email_enumeration_prevented(self):
         """Test that invalid emails return generic message"""
         # Implementation
@@ -1488,63 +1161,3 @@ class PerformanceTests(TestCase):
         with self.assertNumQueries(1):
             response = self.client.get('/api/v1/auth/addresses/')
 ```
-
----
-
-## **Positive Observations**
-
-**What you're doing right:**
-
-1. ✅ **Excellent security practices:**
-
-    - Email enumeration prevention in password reset
-    - Rate limiting on sensitive endpoints
-    - JWT with proper expiration and blacklisting
-    - HttpOnly cookies with SameSite protection
-
-2. ✅ **Good code organization:**
-
-    - Separate settings for dev/prod
-    - Custom user model
-    - Proper use of serializers
-    - Type hints in most places
-
-3. ✅ **Comprehensive features:**
-
-    - Email verification
-    - Password reset flow
-    - Email change with verification
-    - Address management with business rules
-    - Safari session compatibility
-
-4. ✅ **Good API design:**
-
-    - Consistent response format (with minor exceptions)
-    - Proper HTTP status codes
-    - Clear error messages
-    - RESTful endpoints
-
-5. ✅ **Database best practices:**
-    - Custom table names
-    - Proper indexes on addresses
-    - Unique constraints
-    - Foreign key relationships
-
----
-
-## **Final Notes**
-
-This codebase demonstrates solid Django knowledge and security awareness. The issues identified are typical of an evolving production application and are fixable with focused refactoring.
-
-The most critical items (SECRET_KEY, race condition, silent failures) should be addressed immediately before any production deployment. The remaining issues can be tackled incrementally as part of your normal development cycle.
-
-The suggested architectural improvements (repository pattern, service layer) are optional but would significantly improve long-term maintainability and testability.
-
-**Overall Grade: B+ (Very Good)**
-
--   Security: A- (excellent practices, minor gaps)
--   Performance: B (good, but N+1 issues exist)
--   Code Quality: B+ (clean, but some duplication)
--   Architecture: B (solid foundation, room for improvement)
-
-With the critical fixes implemented, this would be a production-ready A- codebase.

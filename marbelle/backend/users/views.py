@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.db import transaction
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.html import strip_tags
 from django_ratelimit.decorators import ratelimit
 from rest_framework import status
@@ -14,6 +15,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from .constants import RateLimits, TokenExpiry
 from .models import Address, EmailVerificationToken, PasswordResetToken, User
 from .serializers import (
     AddressSerializer,
@@ -32,7 +34,7 @@ from .serializers import (
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-@ratelimit(key="ip", rate="5/m", method="POST")
+@ratelimit(key="ip", rate=RateLimits.AUTH_REQUESTS, method="POST")
 def register_user(request: Request) -> Response:
     """
     User registration endpoint.
@@ -41,8 +43,22 @@ def register_user(request: Request) -> Response:
     if serializer.is_valid():
         user = serializer.save()
 
-        # Create email verification token
-        verification_token = EmailVerificationToken.objects.create(user=user)
+        # Get or create email verification token
+        verification_token, created = EmailVerificationToken.objects.get_or_create(
+            user=user,
+            is_used=False,
+            defaults={
+                "expires_at": timezone.now() + TokenExpiry.get_verification_expiry(),
+            },
+        )
+
+        # If token already exists and is not expired, reuse it
+        if not created and verification_token.is_valid:
+            # Token already exists and is valid, use it as-is
+            pass
+        elif not created and not verification_token.is_valid:
+            # Token exists but is expired, create a new one
+            verification_token = EmailVerificationToken.objects.create(user=user)
 
         # Send verification email
         send_verification_email(user, verification_token.token)
@@ -64,7 +80,7 @@ def register_user(request: Request) -> Response:
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-@ratelimit(key="ip", rate="5/m", method="POST")
+@ratelimit(key="ip", rate=RateLimits.AUTH_REQUESTS, method="POST")
 def login_user(request: Request) -> Response:
     """
     User login endpoint.
@@ -103,7 +119,7 @@ def logout_user(request: Request) -> Response:
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-@ratelimit(key="ip", rate="3/m", method="POST")
+@ratelimit(key="ip", rate=RateLimits.EMAIL_VERIFICATION, method="POST")
 def verify_email(request: Request) -> Response:
     """
     Email verification endpoint.
@@ -134,7 +150,7 @@ def verify_email(request: Request) -> Response:
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-@ratelimit(key="ip", rate="3/m", method="POST")
+@ratelimit(key="ip", rate=RateLimits.PASSWORD_RESET, method="POST")
 def request_password_reset(request: Request) -> Response:
     """
     Password reset request endpoint.
@@ -176,7 +192,7 @@ def request_password_reset(request: Request) -> Response:
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-@ratelimit(key="ip", rate="3/m", method="POST")
+@ratelimit(key="ip", rate=RateLimits.PASSWORD_RESET, method="POST")
 def confirm_password_reset(request: Request) -> Response:
     """
     Password reset confirmation endpoint.
@@ -221,7 +237,7 @@ def verify_token(request: Request) -> Response:
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-@ratelimit(key="ip", rate="3/m", method="POST")
+@ratelimit(key="ip", rate=RateLimits.EMAIL_VERIFICATION, method="POST")
 def resend_verification_email(request: Request) -> Response:
     """
     Resend email verification endpoint.

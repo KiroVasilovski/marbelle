@@ -1,11 +1,12 @@
 import secrets
-from datetime import timedelta
 from typing import Any
 
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
+
+from .constants import TokenExpiry
 
 
 class User(AbstractUser):
@@ -63,7 +64,7 @@ class User(AbstractUser):
         return self.get_full_name() or self.username
 
     @property
-    def is_business_customer(self):
+    def is_business_customer(self) -> bool:
         """
         Determine if user is a business customer based on company_name.
 
@@ -89,19 +90,19 @@ class EmailVerificationToken(models.Model):
     expires_at = models.DateTimeField()
     is_used = models.BooleanField(default=False)
 
-    def save(self, *args: Any, **kwargs: Any):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.token:
             self.token = secrets.token_urlsafe(32)
         if not self.expires_at:
-            self.expires_at = timezone.now() + timedelta(hours=24)
+            self.expires_at = timezone.now() + TokenExpiry.get_verification_expiry()
         super().save(*args, **kwargs)
 
     @property
-    def is_expired(self):
+    def is_expired(self) -> bool:
         return timezone.now() > self.expires_at
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         return not self.is_used and not self.is_expired
 
     def __str__(self) -> str:
@@ -124,19 +125,19 @@ class PasswordResetToken(models.Model):
     expires_at = models.DateTimeField()
     is_used = models.BooleanField(default=False)
 
-    def save(self, *args: Any, **kwargs: Any):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.token:
             self.token = secrets.token_urlsafe(32)
         if not self.expires_at:
-            self.expires_at = timezone.now() + timedelta(hours=24)
+            self.expires_at = timezone.now() + TokenExpiry.get_reset_expiry()
         super().save(*args, **kwargs)
 
     @property
-    def is_expired(self):
+    def is_expired(self) -> bool:
         return timezone.now() > self.expires_at
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         return not self.is_used and not self.is_expired
 
     def __str__(self) -> str:
@@ -160,19 +161,19 @@ class EmailChangeToken(models.Model):
     expires_at = models.DateTimeField()
     is_used = models.BooleanField(default=False)
 
-    def save(self, *args: Any, **kwargs: Any):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.token:
             self.token = secrets.token_urlsafe(32)
         if not self.expires_at:
-            self.expires_at = timezone.now() + timedelta(hours=24)
+            self.expires_at = timezone.now() + TokenExpiry.get_email_change_expiry()
         super().save(*args, **kwargs)
 
     @property
-    def is_expired(self):
+    def is_expired(self) -> bool:
         return timezone.now() > self.expires_at
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         return not self.is_used and not self.is_expired
 
     def __str__(self) -> str:
@@ -222,7 +223,7 @@ class Address(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def save(self, *args: Any, **kwargs: Any):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         # Ensure only one primary address per user
         if self.is_primary:
             Address.objects.filter(user=self.user, is_primary=True).update(is_primary=False)
