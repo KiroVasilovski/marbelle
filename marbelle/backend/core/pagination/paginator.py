@@ -10,7 +10,7 @@ from typing import Any
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from .responses import ResponseHandler
+from ..responses import ResponseHandler
 
 
 class Paginator(PageNumberPagination):

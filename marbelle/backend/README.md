@@ -4,11 +4,11 @@ Django backend for the Marbelle e-commerce natural stone application.
 
 ## Technology Stack
 
-- **Django**: 5.2 LTS
-- **Python**: 3.12.11
-- **Database**: PostgreSQL 16+ with psycopg2-binary
-- **Environment Management**: python-dotenv
-- **Code Quality**: ruff linting
+-   **Django**: 5.2 LTS
+-   **Python**: 3.12.11
+-   **Database**: PostgreSQL 16+ with psycopg2-binary
+-   **Environment Management**: python-dotenv
+-   **Code Quality**: ruff linting
 
 ## Project Structure
 
@@ -34,6 +34,45 @@ backend/
 ├── Dockerfile              # Docker container config
 └── manage.py               # Django management script
 ```
+
+## Modular Architecture
+
+Each Django app follows a **feature-based, modular structure** for better organization and maintainability:
+
+### App Structure Pattern
+
+```
+app_name/
+├── models.py              # All models (unified for clarity)
+├── admin.py               # Django admin configuration
+├── urls.py                # URL routing
+├── tests.py / tests/      # Unit tests
+│
+├── serializers/           # DRF serializers (split by feature)
+│   ├── __init__.py
+│   ├── feature1.py
+│   └── feature2.py
+│
+└── views/                 # API views/ViewSets (split by feature)
+    ├── __init__.py
+    ├── feature1.py
+    └── feature2.py
+```
+
+### Why This Structure?
+
+-   **Models**: Kept unified in `models.py` (Django convention) - provides clear schema overview
+-   **Serializers**: Split into focused modules - each handles related serializer classes
+-   **Views**: Split into focused modules - each handles related endpoints/logic
+-   **Benefit**: Easy to navigate, understand relationships, avoid merge conflicts
+
+### Key Principles
+
+✅ **Feature-Based**: Each serializer/view module handles a complete feature
+✅ **Single Responsibility**: Each module has one clear purpose
+✅ **Consistency**: All apps follow the same organizational pattern
+✅ **Scalability**: Easy to add new features without bloating files
+✅ **Import Clarity**: `from users.serializers import UserRegistrationSerializer` is explicit and clear
 
 ## Setup Instructions
 
@@ -102,11 +141,12 @@ python manage.py createsuperuser --settings=marbelle.settings.dev
 ```
 
 **Database Connection Details:**
-- Host: localhost
-- Port: 5432
-- Database: marbelle_db
-- User: marbelle_user
-- Password: marbelle_password
+
+-   Host: localhost
+-   Port: 5432
+-   Database: marbelle_db
+-   User: marbelle_user
+-   Password: marbelle_password
 
 ### 5. Docker Development
 
@@ -119,10 +159,10 @@ This will start both the Django backend and PostgreSQL database.
 
 ## Django Apps
 
-- **users**: User authentication, profiles, and account management
-- **products**: Product catalog, categories, and specifications
-- **orders**: Shopping cart, orders, and custom quotes
-- **core**: Shared utilities, base models, common functionality, and centralized API responses
+-   **users**: User authentication, profiles, and account management
+-   **products**: Product catalog, categories, and specifications
+-   **orders**: Shopping cart, orders, and custom quotes
+-   **core**: Shared utilities, base models, common functionality, and centralized API responses
 
 ## Standardized API Response Architecture
 
@@ -131,6 +171,7 @@ All API endpoints follow a **centralized response format** for consistency and m
 ### Response Format
 
 **Success Response:**
+
 ```json
 {
   "success": true,
@@ -140,6 +181,7 @@ All API endpoints follow a **centralized response format** for consistency and m
 ```
 
 **Error Response:**
+
 ```json
 {
   "success": false,
@@ -149,6 +191,7 @@ All API endpoints follow a **centralized response format** for consistency and m
 ```
 
 **Paginated Response:**
+
 ```json
 {
   "success": true,
@@ -172,6 +215,7 @@ The response architecture is implemented in `core/` with two main components:
 ### Usage
 
 **Function-Based Views:**
+
 ```python
 from core import ResponseHandler
 from rest_framework import status
@@ -184,6 +228,7 @@ return ResponseHandler.success(
 ```
 
 **Class-Based Views (ViewSets):**
+
 ```python
 from core import Paginator, ResponseHandler
 
@@ -223,14 +268,16 @@ ruff check . --fix
 ## Database
 
 Configured to use PostgreSQL 16+ for all environments:
-- **Development**: PostgreSQL via Docker Compose
-- **Production**: PostgreSQL with environment variables
+
+-   **Development**: PostgreSQL via Docker Compose
+-   **Production**: PostgreSQL with environment variables
 
 **Admin Access:**
-- Username: admin
-- Email: admin@marbelle.com  
-- Password: admin123
-- URL: http://localhost:8000/admin/
+
+-   Username: admin
+-   Email: admin@marbelle.com
+-   Password: admin123
+-   URL: http://localhost:8000/admin/
 
 ## Database Migrations
 
@@ -255,6 +302,7 @@ docker-compose exec backend python manage.py makemigrations users
 ### Development Best Practices
 
 **During Development (before production):**
+
 ```bash
 # If you need to rollback and redo migrations cleanly
 docker-compose exec backend python manage.py migrate users zero  # Rollback to initial state
@@ -264,10 +312,11 @@ docker-compose exec backend python manage.py migrate              # Apply clean 
 ```
 
 **For table name changes in development:**
-Instead of creating a separate migration for table renames, modify the model's `Meta.db_table` 
+Instead of creating a separate migration for table renames, modify the model's `Meta.db_table`
 before creating the initial migration to avoid unnecessary rename operations.
 
 **Database Reset (Development Only):**
+
 ```bash
 # Complete database reset
 docker-compose exec postgres psql -U marbelle_user -d marbelle_db -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
@@ -278,6 +327,7 @@ docker-compose exec backend python manage.py migrate
 
 **Inconsistent Migration History:**
 If you see migration dependency errors, you may need to reset the database:
+
 ```bash
 # Check which migrations Django thinks are applied
 docker-compose exec backend python manage.py showmigrations
@@ -289,12 +339,13 @@ docker-compose exec backend python manage.py migrate
 
 **Custom Table Names:**
 All models use custom table names via `db_table` in their Meta class:
-- `users.CustomUser` → `users` table
-- `products.Category` → `categories` table
-- `products.Product` → `products` table
-- `products.ProductImage` → `product_images` table
-- `orders.Order` → `orders` table
-- `orders.OrderItem` → `order_items` table
+
+-   `users.CustomUser` → `users` table
+-   `products.Category` → `categories` table
+-   `products.Product` → `products` table
+-   `products.ProductImage` → `product_images` table
+-   `orders.Order` → `orders` table
+-   `orders.OrderItem` → `order_items` table
 
 ## Production Deployment
 
@@ -303,6 +354,7 @@ All models use custom table names via `db_table` in their Meta class:
 The project includes production-ready server configuration using Gunicorn WSGI server.
 
 #### Docker Production Build
+
 ```bash
 # Build production Docker image
 docker build -f backend/Dockerfile -t marbelle-backend-prod backend/
@@ -314,6 +366,7 @@ docker run -p 8000:8000 --env-file backend/.env marbelle-backend-prod
 #### Local Production WSGI Server
 
 **Method 1: Custom Management Command**
+
 ```bash
 # Set production environment
 export DJANGO_SETTINGS_MODULE=marbelle.settings.prod
@@ -326,6 +379,7 @@ python manage.py rungunicorn --workers 4 --port 8000
 ```
 
 **Method 2: Direct Gunicorn Command**
+
 ```bash
 # Set production environment and run Gunicorn
 export DJANGO_SETTINGS_MODULE=marbelle.settings.prod
@@ -337,6 +391,7 @@ gunicorn --bind 0.0.0.0:8000 --workers 4 --timeout 30 marbelle.wsgi:application
 ```
 
 **Method 3: Environment Variable in .env**
+
 ```bash
 # Update .env file
 echo "DJANGO_SETTINGS_MODULE=marbelle.settings.prod" >> .env
@@ -346,49 +401,58 @@ gunicorn --config gunicorn_config.py marbelle.wsgi:application
 ```
 
 #### Production Configuration
-- **Dockerfile**: Production-ready with Gunicorn server
-- **Dockerfile.dev**: Development version with Django dev server
-- **gunicorn_config.py**: Optimized Gunicorn settings for production
-- **Environment Variables**: GUNICORN_WORKERS and GUNICORN_TIMEOUT configurable
+
+-   **Dockerfile**: Production-ready with Gunicorn server
+-   **Dockerfile.dev**: Development version with Django dev server
+-   **gunicorn_config.py**: Optimized Gunicorn settings for production
+-   **Environment Variables**: GUNICORN_WORKERS and GUNICORN_TIMEOUT configurable
 
 #### Key Differences from Development
-- Uses Gunicorn instead of Django development server
-- Production security settings (HTTPS, secure cookies, etc.)
-- Error logging to files instead of console
-- No DEBUG mode
+
+-   Uses Gunicorn instead of Django development server
+-   Production security settings (HTTPS, secure cookies, etc.)
+-   Error logging to files instead of console
+-   No DEBUG mode
 
 #### Available Endpoints
-- **API Root**: `http://localhost:8000/` - API information and endpoints
-- **Health Check**: `http://localhost:8000/health/` - Server health status
-- **Admin Panel**: `http://localhost:8000/admin/` - Django administration
-- **Product API**: `http://localhost:8000/api/v1/products/` - Product catalog endpoints
+
+-   **API Root**: `http://localhost:8000/` - API information and endpoints
+-   **Health Check**: `http://localhost:8000/health/` - Server health status
+-   **Admin Panel**: `http://localhost:8000/admin/` - Django administration
+-   **Product API**: `http://localhost:8000/api/v1/products/` - Product catalog endpoints
 
 ## Product Catalog API
 
 ### Admin Panel Management
+
 Access: http://localhost:8000/admin/ (admin@marbelle.com / admin123)
 
 **Add Products:**
+
 1. Go to Products > Products > Add Product
 2. Fill in name, description, price, category, SKU, stock
 3. Add images via inline forms (set primary image)
 
 **Update Products:**
-- Edit any product field, update stock, change images
-- Set `is_active=False` to hide products from API
+
+-   Edit any product field, update stock, change images
+-   Set `is_active=False` to hide products from API
 
 **Categories:**
-- Create/edit categories under Products > Categories
-- Product counts update automatically
+
+-   Create/edit categories under Products > Categories
+-   Product counts update automatically
 
 ### API Usage
 
 **List Products:**
+
 ```bash
 curl "http://localhost:8000/api/v1/products/"
 ```
 
 **Search & Filter:**
+
 ```bash
 # Search products
 curl "http://localhost:8000/api/v1/products/?search=marble"
@@ -404,6 +468,7 @@ curl "http://localhost:8000/api/v1/products/?ordering=-price"
 ```
 
 **Categories:**
+
 ```bash
 # List categories
 curl "http://localhost:8000/api/v1/categories/"
@@ -418,24 +483,26 @@ curl "http://localhost:8000/api/v1/categories/1/products/"
 
 The shopping cart supports both authenticated users and guest sessions with **Safari-compatible session handling**:
 
-- **Authenticated Users**: Cart associated with user account via JWT authentication
-- **Guest Users (Chrome/Firefox/Edge)**: Cart persisted via secure HttpOnly session cookies (`marbelle_sessionid`)
-- **Guest Users (Safari)**: Cart persisted via `X-Session-ID` custom header (fallback for cookie-blocked browsers)
+-   **Authenticated Users**: Cart associated with user account via JWT authentication
+-   **Guest Users (Chrome/Firefox/Edge)**: Cart persisted via secure HttpOnly session cookies (`marbelle_sessionid`)
+-   **Guest Users (Safari)**: Cart persisted via `X-Session-ID` custom header (fallback for cookie-blocked browsers)
 
 ### Safari Compatibility
 
 Safari's Intelligent Tracking Prevention (ITP) blocks third-party cookies. The cart API automatically handles this:
 
 **How It Works:**
+
 1. Backend always returns `X-Session-ID` in response headers for guest users
 2. Frontend stores session ID in localStorage only if cookies are blocked
 3. Future requests send `X-Session-ID` header to maintain session
 4. Backend checks header first, then falls back to cookies
 
 **Result:**
-- Chrome/Firefox/Edge users get secure HttpOnly cookies (preferred)
-- Safari users automatically use header-based sessions (fallback)
-- No manual configuration required
+
+-   Chrome/Firefox/Edge users get secure HttpOnly cookies (preferred)
+-   Safari users automatically use header-based sessions (fallback)
+-   No manual configuration required
 
 ### Environment Variables for Production
 
@@ -488,40 +555,43 @@ The application uses **Cloudinary** for production image storage with automatic 
 ### Setup Instructions
 
 1. **Create a Cloudinary Account**:
-   - Sign up at [cloudinary.com](https://cloudinary.com)
-   - Navigate to Dashboard → Settings → API Keys
+
+    - Sign up at [cloudinary.com](https://cloudinary.com)
+    - Navigate to Dashboard → Settings → API Keys
 
 2. **Configure Environment Variables**:
 
-   Add to your `.env` file:
-   ```bash
-   CLOUDINARY_CLOUD_NAME=your-cloud-name
-   CLOUDINARY_API_KEY=123456789012345
-   CLOUDINARY_API_SECRET=your-api-secret
-   ```
+    Add to your `.env` file:
+
+    ```bash
+    CLOUDINARY_CLOUD_NAME=your-cloud-name
+    CLOUDINARY_API_KEY=123456789012345
+    CLOUDINARY_API_SECRET=your-api-secret
+    ```
 
 3. **Development vs Production**:
-   - **Without Cloudinary credentials**: Images stored locally in `media/products/`
-   - **With Cloudinary credentials**: Images automatically uploaded to Cloudinary with CDN URLs
+    - **Without Cloudinary credentials**: Images stored locally in `media/products/`
+    - **With Cloudinary credentials**: Images automatically uploaded to Cloudinary with CDN URLs
 
 ### Features
 
-- **Automatic Optimization**: Images optimized with `quality: auto:best` and `fetch_format: auto`
-- **CDN Delivery**: All images served via Cloudinary's global CDN
-- **SKU-Based Organization**: Product images stored in `marbelle/products/{sku}/` folders on Cloudinary
-- **Seamless Fallback**: Works with local storage when Cloudinary credentials are not configured
-- **Easy Management**: All images for a product in one folder for bulk operations
+-   **Automatic Optimization**: Images optimized with `quality: auto:best` and `fetch_format: auto`
+-   **CDN Delivery**: All images served via Cloudinary's global CDN
+-   **SKU-Based Organization**: Product images stored in `marbelle/products/{sku}/` folders on Cloudinary
+-   **Seamless Fallback**: Works with local storage when Cloudinary credentials are not configured
+-   **Easy Management**: All images for a product in one folder for bulk operations
 
 ### Admin Panel Usage
 
 Upload images via Django admin panel (`/admin/products/product/`) - the system automatically:
-- Uploads to Cloudinary (if configured) or local storage
-- Generates optimized CDN URLs
-- Maintains existing admin interface (no changes needed)
+
+-   Uploads to Cloudinary (if configured) or local storage
+-   Generates optimized CDN URLs
+-   Maintains existing admin interface (no changes needed)
 
 ### Image URLs
 
-- **Local Storage**: `http://localhost:8000/media/products/CARR-WHITE-001/image.jpg`
-- **Cloudinary**: `https://res.cloudinary.com/your-cloud-name/image/upload/marbelle/products/CARR-WHITE-001/image.jpg`
+-   **Local Storage**: `http://localhost:8000/media/products/CARR-WHITE-001/image.jpg`
+-   **Cloudinary**: `https://res.cloudinary.com/your-cloud-name/image/upload/marbelle/products/CARR-WHITE-001/image.jpg`
 
 Images are organized in folders by product SKU for easy management. The API automatically returns the correct URL format based on your configuration.
