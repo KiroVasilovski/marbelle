@@ -1,5 +1,6 @@
 """
 Address serializer for user address management.
+Delegates business logic to AddressService.
 """
 
 from typing import Any, Dict
@@ -7,11 +8,13 @@ from typing import Any, Dict
 from rest_framework import serializers
 
 from ..models import Address
+from ..services import AddressService
 
 
 class AddressSerializer(serializers.ModelSerializer):
     """
     Serializer for address management.
+    Validates address data, delegates creation/update to AddressService.
     """
 
     class Meta:
@@ -40,31 +43,37 @@ class AddressSerializer(serializers.ModelSerializer):
         Validate address label uniqueness per user.
         """
         user = self.context["request"].user
-        address_id = self.instance.id if self.instance else None
+        address = self.instance if self.instance else None
 
-        existing = Address.objects.filter(user=user, label=value)
-        if address_id:
-            existing = existing.exclude(id=address_id)
-
-        if existing.exists():
+        # Use AddressService to validate label uniqueness
+        if not AddressService.validate_label_uniqueness(user, value, exclude_address=address):
             raise serializers.ValidationError("An address with this label already exists.")
         return value
 
     def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Validate address count limit.
+        Validate address count limit (via AddressService).
         """
-        user = self.context["request"].user
-
-        # Check address count limit for new addresses
-        if not self.instance and Address.objects.filter(user=user).count() >= 10:
-            raise serializers.ValidationError("Maximum 10 addresses allowed per user.")
-
+        # AddressService validation happens in create/update methods
+        # This ensures validation is consistent across all usage paths
         return attrs
 
     def create(self, validated_data: Dict[str, Any]) -> Address:
         """
-        Create address with user assignment.
+        Create address via AddressService.
+        Service handles:
+        - User assignment
+        - Address count validation
+        - Auto-primary assignment for first address
         """
-        validated_data["user"] = self.context["request"].user
-        return super().create(validated_data)
+        user = self.context["request"].user
+        return AddressService.create_address(user, validated_data)
+
+    def update(self, instance: Address, validated_data: Dict[str, Any]) -> Address:
+        """
+        Update address via AddressService.
+        Service handles:
+        - Data persistence
+        - Validation
+        """
+        return AddressService.update_address(instance, validated_data)

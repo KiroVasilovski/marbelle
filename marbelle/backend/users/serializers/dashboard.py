@@ -8,11 +8,13 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from ..models import User
+from ..services import UserService
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for user profile management.
+    Delegates profile updates to UserService for business logic.
     """
 
     class Meta:
@@ -36,32 +38,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
         """
         Update user profile with email change handling.
 
-        Silently ignores email changes if the new email already exists
-        to prevent email enumeration attacks.
+        Delegates to UserService.update_user_profile() which handles:
+        - Email enumeration protection
+        - Email duplicate checking
+        - Atomic save operations
         """
-        # Check if email is being changed and if it already exists
-        if "email" in validated_data and instance.email != validated_data["email"]:
-            new_email = validated_data["email"]
-            if User.objects.filter(email=new_email).exists():
-                # Silently ignore the email change for security
-                validated_data.pop("email")
-
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-
-        try:
-            instance.save()
-        except Exception:
-            # If there's still a database constraint error (edge case),
-            # silently ignore it for security reasons
-            pass
-
-        return instance
+        return UserService.update_user_profile(instance, validated_data)
 
 
 class PasswordChangeSerializer(serializers.Serializer):
     """
     Serializer for password change.
+    Validates current password and new password confirmation.
+    Delegates password update to UserService for business logic.
     """
 
     current_password = serializers.CharField(write_only=True)
@@ -87,8 +76,10 @@ class PasswordChangeSerializer(serializers.Serializer):
 
     def save(self) -> None:
         """
-        Save new password.
+        Save new password using UserService.
+        Delegates to UserService.change_password() which handles password update.
         """
         user = self.context["request"].user
-        user.set_password(self.validated_data["new_password"])
-        user.save()
+        current_password = self.validated_data["current_password"]
+        new_password = self.validated_data["new_password"]
+        UserService.change_password(user, current_password, new_password)

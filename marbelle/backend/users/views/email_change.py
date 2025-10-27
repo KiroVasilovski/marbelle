@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from core import ResponseHandler
 
 from ..serializers import EmailChangeConfirmSerializer, EmailChangeRequestSerializer, UserSerializer
-from .email_service import send_email_change_notification, send_email_change_verification
+from ..services import AuthenticationService
 
 
 @api_view(["POST"])
@@ -23,15 +23,19 @@ def request_email_change(request: Request) -> Response:
     Industry-standard: requires current password + new email.
     """
     serializer = EmailChangeRequestSerializer(data=request.data, context={"request": request})
+
     if serializer.is_valid():
-        email_change_token = serializer.save()
+        current_password = serializer.validated_data["current_password"]
+        new_email = serializer.validated_data["new_email"]
 
-        # Send verification email to new email address
-        send_email_change_verification(email_change_token.user, email_change_token.new_email, email_change_token.token)
+        # Use service to request email change
+        email_change_token = AuthenticationService.request_email_change(request.user, current_password, new_email)
 
-        return ResponseHandler.success(
-            message="Email change verification sent. Please check your new email to confirm the change."
-        )
+        if email_change_token:
+            return ResponseHandler.success(
+                message="Email change verification sent. Please check your new email to confirm the change."
+            )
+        return ResponseHandler.error(message="Email change request failed. Invalid password or email already in use.")
 
     return ResponseHandler.error(message="Email change request failed.", errors=serializer.errors)
 
@@ -44,18 +48,19 @@ def confirm_email_change(request: Request) -> Response:
     Email change confirmation endpoint.
     """
     serializer = EmailChangeConfirmSerializer(data=request.data)
+
     if serializer.is_valid():
-        result = serializer.save()
-        user = result["user"]
-        old_email = result["old_email"]
-        new_email = result["new_email"]
+        token = serializer.validated_data["token"]
 
-        # Send notification to old email about the change
-        send_email_change_notification(user, old_email, new_email)
+        # Use service to confirm email change
+        result = AuthenticationService.confirm_email_change(token.token)
 
-        return ResponseHandler.success(
-            data=UserSerializer(user).data,
-            message="Email address changed successfully. You can now use your new email to login.",
-        )
+        if result:
+            user = result["user"]
+            return ResponseHandler.success(
+                data=UserSerializer(user).data,
+                message="Email address changed successfully. You can now use your new email to login.",
+            )
+        return ResponseHandler.error(message="Email change confirmation failed. Token invalid or expired.")
 
     return ResponseHandler.error(message="Email change confirmation failed.", errors=serializer.errors)

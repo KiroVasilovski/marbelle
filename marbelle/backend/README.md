@@ -74,6 +74,49 @@ app_name/
 ✅ **Scalability**: Easy to add new features without bloating files
 ✅ **Import Clarity**: `from users.serializers import UserRegistrationSerializer` is explicit and clear
 
+## Service Layer Pattern (IMPORTANT)
+
+**All business logic must be in Services, NOT in Views.**
+
+### Service Structure
+```
+app_name/services/
+├── __init__.py
+├── service1.py    # Business logic (static methods only)
+└── service2.py
+```
+
+### Key Rules
+- **Services contain only static methods** - Stateless operations
+- **Views call services** - Views are thin HTTP handlers only
+- **No HTTP in services** - Services work with plain Python objects
+- **Reusable across views** - One service, multiple endpoints
+- **Clear naming** - Methods explicitly describe operations
+
+### Pattern
+```
+View → Serializer (validate) → Service (business logic) → Model (data access) → Response
+```
+
+### Existing Services (Use These!)
+- `SessionService` - Session management (header/cookie)
+- `TokenService` - Token lifecycle (email/password/email-change)
+- `AuthenticationService` - User registration, email verification, password reset
+- `EmailService` - Email sending
+- `UserService` - User profile, password changes
+- `AddressService` - Address CRUD
+- `CartService` - Cart operations
+- `ProductImageService` - Product images
+- `ProductFilterService` - Product search/filter
+
+### When Creating Services
+✅ Complex workflows (multiple steps)
+✅ Reused across multiple views
+✅ Multi-model operations
+✅ Side effects (email, notifications)
+
+See implementation examples in `{app}/services/` for reference.
+
 ## Setup Instructions
 
 ### 1. Virtual Environment Setup

@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from core import ResponseHandler
 
 from ..serializers import PasswordChangeSerializer, UserProfileSerializer
+from ..services import UserService
 
 
 @api_view(["GET", "PUT"])
@@ -23,18 +24,22 @@ def user_profile(request: Request) -> Response:
     user = request.user
 
     if request.method == "GET":
-        serializer = UserProfileSerializer(user)
+        profile_data = UserService.get_user_profile(user)
+
         return ResponseHandler.success(
-            data=serializer.data,
+            data=profile_data,
             message="Profile retrieved successfully.",
         )
-
     elif request.method == "PUT":
         serializer = UserProfileSerializer(user, data=request.data, partial=True)
+
         if serializer.is_valid():
-            serializer.save()
+            # Use service to update profile with email enumeration protection
+            UserService.update_user_profile(user, serializer.validated_data)
+            profile_data = UserService.get_user_profile(user)
+
             return ResponseHandler.success(
-                data=serializer.data,
+                data=profile_data,
                 message="Profile updated successfully.",
             )
 
@@ -48,8 +53,16 @@ def change_password(request: Request) -> Response:
     Password change endpoint.
     """
     serializer = PasswordChangeSerializer(data=request.data, context={"request": request})
+
     if serializer.is_valid():
-        serializer.save()
-        return ResponseHandler.success(message="Password changed successfully.")
+        current_password = serializer.validated_data["current_password"]
+        new_password = serializer.validated_data["new_password"]
+
+        # Use service to change password
+        success = UserService.change_password(request.user, current_password, new_password)
+
+        if success:
+            return ResponseHandler.success(message="Password changed successfully.")
+        return ResponseHandler.error(message="Password change failed. Current password is incorrect.")
 
     return ResponseHandler.error(message="Password change failed.", errors=serializer.errors)

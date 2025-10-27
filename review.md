@@ -22,17 +22,6 @@ except Exception:
 
 **Impact:** Failed logout attempts (token not blacklisted) go unnoticed, allowing revoked tokens to remain valid.
 
-**Fix:**
-
-```python
-import logging
-logger = logging.getLogger(__name__)
-
-except Exception as e:
-    logger.error(f"Logout failed for user {request.user.id}: {str(e)}")
-    return Response({"success": False, "message": "Logout failed."}, status=status.HTTP_400_BAD_REQUEST)
-```
-
 ---
 
 ## **2. Performance Bottlenecks**
@@ -63,27 +52,6 @@ def save(self, *args: Any, **kwargs: Any):
 For users with many addresses, this becomes increasingly inefficient.
 
 **Impact:** Slower address operations, increased database load.
-
-**Fix:**
-
-```python
-def save(self, *args: Any, **kwargs: Any):
-    # Ensure only one primary address per user
-    if self.is_primary:
-        # Exclude current instance to avoid unnecessary updates
-        Address.objects.filter(user=self.user, is_primary=True).exclude(pk=self.pk).update(is_primary=False)
-
-    # If this is the user's first address, make it primary (only for new addresses)
-    if not self.pk:
-        # Use exists() which is more efficient than count()
-        has_addresses = Address.objects.filter(user=self.user).exists()
-        if not has_addresses:
-            self.is_primary = True
-
-    super().save(*args, **kwargs)
-```
-
----
 
 ### **MEDIUM: Missing select_related in AddressViewSet**
 
@@ -128,40 +96,7 @@ EmailChangeToken.objects.filter(user=user).delete()
 
 **Impact:** Database bloat - after 1 year with 10,000 users, you could have 100,000+ expired tokens.
 
-**Fix:** Create a Celery periodic task:
-
-```python
-# In users/tasks.py
-from celery import shared_task
-from django.utils import timezone
-from datetime import timedelta
-from .models import EmailVerificationToken, PasswordResetToken, EmailChangeToken
-
-@shared_task
-def cleanup_expired_tokens():
-    """Delete expired tokens older than 7 days"""
-    cutoff = timezone.now() - timedelta(days=7)
-
-    deleted_verification = EmailVerificationToken.objects.filter(expires_at__lt=cutoff).delete()
-    deleted_reset = PasswordResetToken.objects.filter(expires_at__lt=cutoff).delete()
-    deleted_email_change = EmailChangeToken.objects.filter(expires_at__lt=cutoff).delete()
-
-    return {
-        'verification_tokens': deleted_verification[0],
-        'reset_tokens': deleted_reset[0],
-        'email_change_tokens': deleted_email_change[0],
-    }
-
-# In celery.py or celerybeat schedule
-from celery.schedules import crontab
-
-app.conf.beat_schedule = {
-    'cleanup-expired-tokens': {
-        'task': 'users.tasks.cleanup_expired_tokens',
-        'schedule': crontab(hour=2, minute=0),  # Run daily at 2 AM
-    },
-}
-```
+**Fix:** Create a Celery periodic task.
 
 ## **3. Bugs & Edge Cases**
 
@@ -185,30 +120,6 @@ return instance
 **Scenario:** Database connection drops between validation and save. User sees "Profile updated successfully" but their changes are lost.
 
 **Impact:** Data loss, user confusion, potential security issues if critical updates (like email) fail silently.
-
-**Fix:**
-
-```python
-from django.db import IntegrityError
-
-try:
-    instance.save()
-except IntegrityError as e:
-    # Only catch email duplication errors for security
-    if 'email' in str(e).lower() or 'unique constraint' in str(e).lower():
-        # Silently ignore duplicate email for security (prevent enumeration)
-        logger.info(f"Duplicate email update attempt for user {instance.id}")
-    else:
-        # Re-raise other integrity errors
-        logger.error(f"Profile update integrity error for user {instance.id}: {str(e)}")
-        raise
-except Exception as e:
-    # Log and re-raise unexpected errors
-    logger.error(f"Profile update failed for user {instance.id}: {str(e)}")
-    raise
-
-return instance
-```
 
 ---
 
@@ -238,28 +149,6 @@ def validate_token(self, value: str) -> EmailVerificationToken:
 
 **Impact:** 500 Internal Server Error instead of graceful "Invalid token" message.
 
-**Fix:**
-
-```python
-def validate_token(self, value: str) -> EmailVerificationToken:
-    try:
-        verification_token = EmailVerificationToken.objects.select_related('user').get(token=value)
-
-        # Check if token is valid
-        if not verification_token.is_valid:
-            raise serializers.ValidationError("Invalid or expired verification token.")
-
-        # Check if user still exists and is not already active
-        if not hasattr(verification_token, 'user') or verification_token.user is None:
-            raise serializers.ValidationError("Invalid verification token.")
-
-        return verification_token
-    except (EmailVerificationToken.DoesNotExist, User.DoesNotExist):
-        raise serializers.ValidationError("Invalid verification token.")
-```
-
----
-
 ### **LOW: Phone Validation Regex Too Permissive**
 
 **Location:** `marbelle/backend/users/models.py:27-29`
@@ -279,199 +168,7 @@ phone_regex = RegexValidator(
 
 **Impact:** Invalid phone numbers stored in database, failed contact attempts.
 
-**Recommendation:** Use the `phonenumbers` library for proper international validation:
-
-```python
-# In requirements.txt
-phonenumbers==8.13.27
-
-# In models.py or validators.py
-from phonenumbers import parse, is_valid_number, NumberParseException
-from django.core.exceptions import ValidationError
-
-def validate_phone_number(value):
-    """Validate international phone numbers using phonenumbers library."""
-    if not value:  # Allow blank if field allows it
-        return
-
-    try:
-        phone_number = parse(value, None)  # Auto-detect country
-        if not is_valid_number(phone_number):
-            raise ValidationError("Invalid phone number for the specified country.")
-    except NumberParseException:
-        raise ValidationError(
-            "Invalid phone number format. Please use international format (e.g., +1234567890)."
-        )
-
-# In models
-phone = models.CharField(
-    validators=[validate_phone_number],
-    max_length=20,
-    blank=True,
-    null=True,
-)
-```
-
-## **4. Maintainability & Readability (Code Smells)**
-
-TODOO ->
-
-### **MEDIUM: Inconsistent Response Format**
-
-**Location:** `marbelle/backend/users/views.py`
-
-**Issue:** Some endpoints return `{"success": True, "data": {"addresses": [...]}}` while others return `{"success": True, "data": serializer.data}`. The wrapping of data in an extra object is inconsistent.
-
-**Examples:**
-
--   Line 526: `{"success": True, "data": {"addresses": serializer.data}}` ← Extra wrapper
--   Line 429: `{"success": True, "data": serializer.data}` ← Direct data
--   Line 77: `{"success": True, "message": "Login successful.", "data": token_data}` ← Direct data
-
-**Impact:** Frontend developers must handle different response structures for similar endpoints.
-
-**Fix:** Standardize on one format across all endpoints:
-
-```python
-# RECOMMENDED FORMAT
-# For lists - data is a list directly
-{
-    "success": true,
-    "message": "Addresses retrieved successfully.",
-    "data": [
-        {"id": 1, "label": "Home", ...},
-        {"id": 2, "label": "Office", ...}
-    ]
-}
-
-# For single objects - data is an object directly
-{
-    "success": true,
-    "message": "Address created successfully.",
-    "data": {"id": 1, "label": "Home", ...}
-}
-
-# Update AddressViewSet.list()
-def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-    queryset = self.get_queryset()
-    serializer = self.get_serializer(queryset, many=True)
-    return Response(
-        {
-            "success": True,
-            "message": "Addresses retrieved successfully.",
-            "data": serializer.data  # Direct list, not wrapped
-        },
-        status=status.HTTP_200_OK,
-    )
-```
-
----
-
-### **MEDIUM: Violation of Single Responsibility Principle**
-
-**Location:** `marbelle/backend/users/views.py:250-410`
-
-**Issue:** Four email helper functions (`send_verification_email`, `send_password_reset_email`, `send_email_change_verification`, `send_email_change_notification`) are mixed with view functions in the same file. This violates separation of concerns:
-
--   Views should handle HTTP requests/responses
--   Email logic should be separate
--   Makes testing harder (can't test email sending without importing views)
-
-**Impact:**
-
--   Hard to test email sending in isolation
--   Views file is 582 lines (too long)
--   Violates Single Responsibility Principle
-
-**Fix:** Create a dedicated email service:
-
-```python
-# users/services/email_service.py
-from typing import Dict, Any
-from django.conf import settings
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-import logging
-
-logger = logging.getLogger(__name__)
-
-class EmailService:
-    """Service for sending user-related emails."""
-
-    @staticmethod
-    def send_verification_email(user: User, token: str) -> bool:
-        """
-        Send email verification email.
-
-        Args:
-            user: User instance
-            token: Verification token
-
-        Returns:
-            bool: True if sent successfully, False otherwise
-        """
-        try:
-            subject = "Verify your Marbelle account"
-            verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
-
-            html_message = render_to_string(
-                "users/email_verification.html",
-                {"user": user, "verification_url": verification_url},
-            )
-            plain_message = strip_tags(html_message)
-
-            send_mail(
-                subject=subject,
-                message=plain_message,
-                html_message=html_message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=False,
-            )
-
-            logger.info(f"Verification email sent to {user.email}")
-            return True
-
-        except Exception as e:
-            logger.error(f"Failed to send verification email to {user.email}: {str(e)}")
-            return False
-
-    @staticmethod
-    def send_password_reset_email(user: User, token: str) -> bool:
-        """Send password reset email."""
-        # Similar implementation
-        ...
-
-    @staticmethod
-    def send_email_change_verification(user: User, new_email: str, token: str) -> bool:
-        """Send email change verification to new email address."""
-        ...
-
-    @staticmethod
-    def send_email_change_notification(user: User, old_email: str, new_email: str) -> bool:
-        """Send security notification to old email address."""
-        ...
-
-# In views.py
-from .services.email_service import EmailService
-
-@api_view(["POST"])
-@permission_classes([AllowAny])
-@ratelimit(key="ip", rate="5/m", method="POST")
-def register_user(request: Request) -> Response:
-    serializer = UserRegistrationSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.save()
-        verification_token = EmailVerificationToken.objects.create(user=user)
-
-        # Use service instead of local function
-        EmailService.send_verification_email(user, verification_token.token)
-
-        return Response(...)
-```
-
----
+**Recommendation:** Use the `phonenumbers` library for proper international validation.
 
 ### **LOW: Duplicated Phone Regex Definition**
 
@@ -485,36 +182,6 @@ def register_user(request: Request) -> Response:
 This violates DRY principle.
 
 **Impact:** If you need to change phone validation, you must update it in two places.
-
-**Fix:**
-
-```python
-# users/validators.py
-from django.core.validators import RegexValidator
-
-PHONE_REGEX_VALIDATOR = RegexValidator(
-    regex=r"^\+?1?\d{9,15}$",
-    message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.",
-)
-
-# In models.py
-from .validators import PHONE_REGEX_VALIDATOR
-
-class User(AbstractUser):
-    phone = models.CharField(
-        validators=[PHONE_REGEX_VALIDATOR],
-        max_length=20,
-        blank=True,
-        null=True,
-    )
-
-class Address(models.Model):
-    phone = models.CharField(
-        validators=[PHONE_REGEX_VALIDATOR],
-        max_length=20,
-        blank=True,
-    )
-```
 
 ## **5. Best Practices & Idiomatic Code**
 
@@ -537,99 +204,7 @@ class Address(models.Model):
 -   Difficult to debug production issues
 -   Can't detect attack patterns
 
-**Fix:** Add structured logging:
-
-```python
-import logging
-logger = logging.getLogger(__name__)
-
-# In login_user (views.py)
-@api_view(["POST"])
-@permission_classes([AllowAny])
-@ratelimit(key="ip", rate="5/m", method="POST")
-def login_user(request: Request) -> Response:
-    serializer = UserLoginSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.validated_data["user"]
-        logger.info(
-            f"Successful login: user_id={user.id}, email={user.email}, "
-            f"ip={request.META.get('REMOTE_ADDR')}"
-        )
-        token_data = TokenSerializer.get_token_for_user(user)
-        return Response(...)
-
-    # Log failed login attempt
-    email = request.data.get('email', 'unknown')
-    logger.warning(
-        f"Failed login attempt: email={email}, "
-        f"ip={request.META.get('REMOTE_ADDR')}, "
-        f"errors={serializer.errors}"
-    )
-    return Response(...)
-
-# In verify_email
-logger.info(f"Email verified: user_id={user.id}, email={user.email}")
-
-# In request_password_reset
-logger.warning(
-    f"Password reset requested: email={email}, "
-    f"ip={request.META.get('REMOTE_ADDR')}"
-)
-
-# In request_email_change
-logger.info(
-    f"Email change requested: user_id={user.id}, "
-    f"old_email={user.email}, new_email={new_email}"
-)
-
-# Add to settings/prod.py for production logging
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
-        },
-        'json': {
-            '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
-            'format': '%(asctime)s %(name)s %(levelname)s %(message)s'
-        }
-    },
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
-            'maxBytes': 1024 * 1024 * 10,  # 10 MB
-            'backupCount': 10,
-            'formatter': 'verbose',
-        },
-        'security': {
-            'level': 'WARNING',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs' / 'security.log',
-            'maxBytes': 1024 * 1024 * 10,
-            'backupCount': 10,
-            'formatter': 'verbose',
-        },
-    },
-    'loggers': {
-        'users': {  # Your app logger
-            'handlers': ['file', 'security'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'django.security': {
-            'handlers': ['security'],
-            'level': 'WARNING',
-            'propagate': False,
-        },
-    },
-}
-```
-
----
+**Fix:** Add structured logging.
 
 ### **LOW: Missing **all** in Models**
 
@@ -652,8 +227,6 @@ __all__ = [
 ]
 ```
 
----
-
 ## **6. Architectural Alignment**
 
 ### **HIGH: Violation of DRY Principle in Token Models**
@@ -675,101 +248,7 @@ This is ~150 lines of duplicated code.
 -   Increased maintenance burden
 -   Higher risk of bugs from inconsistent updates
 
-**Fix:** Create an abstract base model:
-
-```python
-# users/models.py
-import secrets
-from datetime import timedelta
-from typing import Any
-
-from django.contrib.auth.models import AbstractUser
-from django.db import models
-from django.utils import timezone
-
-
-class AbstractToken(models.Model):
-    """
-    Abstract base class for all token models.
-
-    Provides common functionality for email verification, password reset,
-    and email change tokens.
-    """
-
-    user = models.ForeignKey(
-        'User',  # Use string reference to avoid circular import
-        on_delete=models.CASCADE,
-        related_name='%(class)s_tokens',  # Dynamic related_name
-    )
-    token = models.CharField(max_length=64, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField()
-    is_used = models.BooleanField(default=False)
-
-    class Meta:
-        abstract = True
-        indexes = [
-            models.Index(fields=['expires_at']),  # For cleanup queries
-            models.Index(fields=['token']),  # For token lookup
-            models.Index(fields=['user', 'is_used']),  # For validation
-        ]
-
-    def save(self, *args: Any, **kwargs: Any) -> None:
-        """Generate token and set expiry if not already set."""
-        if not self.token:
-            self.token = secrets.token_urlsafe(32)
-        if not self.expires_at:
-            self.expires_at = timezone.now() + timedelta(hours=24)
-        super().save(*args, **kwargs)
-
-    @property
-    def is_expired(self) -> bool:
-        """Check if token has expired."""
-        return timezone.now() > self.expires_at
-
-    @property
-    def is_valid(self) -> bool:
-        """Check if token is valid (not used and not expired)."""
-        return not self.is_used and not self.is_expired
-
-
-class EmailVerificationToken(AbstractToken):
-    """Token for email verification during registration."""
-
-    class Meta:
-        db_table = "email_verification_tokens"
-        verbose_name = "Email Verification Token"
-        verbose_name_plural = "Email Verification Tokens"
-
-    def __str__(self) -> str:
-        return f"Email verification for {self.user.email}"
-
-
-class PasswordResetToken(AbstractToken):
-    """Token for password reset requests."""
-
-    class Meta:
-        db_table = "password_reset_tokens"
-        verbose_name = "Password Reset Token"
-        verbose_name_plural = "Password Reset Tokens"
-
-    def __str__(self) -> str:
-        return f"Password reset for {self.user.email}"
-
-
-class EmailChangeToken(AbstractToken):
-    """Token for email address change confirmation."""
-
-    new_email = models.EmailField(help_text="The requested new email address")
-
-    class Meta:
-        db_table = "email_change_tokens"
-        verbose_name = "Email Change Token"
-        verbose_name_plural = "Email Change Tokens"
-
-    def __str__(self) -> str:
-        return f"Email change for {self.user.email} to {self.new_email}"
-```
+**Fix:** Create an abstract base model.
 
 **Benefits:**
 
@@ -780,108 +259,6 @@ class EmailChangeToken(AbstractToken):
 -   Better index organization (defined once)
 
 **Migration Required:** Yes, but it's a refactoring that doesn't change the database schema.
-
----
-
-### **MEDIUM: Mixed Concerns in Serializers**
-
-**Location:** `marbelle/backend/users/serializers.py:182-206`
-
-**Issue:** `UserProfileSerializer.update()` contains business logic (checking for duplicate emails, silently ignoring duplicates) that should be in a service layer, not in serialization.
-
-**Why It Matters:**
-
--   Serializers should handle data validation and transformation
--   Business logic should be in services or models
--   Makes testing harder (must test through serializer)
--   Violates Single Responsibility Principle
-
-**Better Architecture:**
-
-```python
-# users/services/user_service.py
-import logging
-from typing import Dict, Any
-from django.db import IntegrityError
-from ..models import User
-
-logger = logging.getLogger(__name__)
-
-class UserService:
-    """Service for user-related business logic."""
-
-    @staticmethod
-    def update_profile(user: User, validated_data: Dict[str, Any]) -> User:
-        """
-        Update user profile with email duplication handling.
-
-        Silently ignores email changes if the new email already exists
-        to prevent email enumeration attacks.
-
-        Args:
-            user: User instance to update
-            validated_data: Validated data from serializer
-
-        Returns:
-            Updated user instance
-        """
-        # Check if email is being changed and if it already exists
-        if "email" in validated_data and user.email != validated_data["email"]:
-            new_email = validated_data["email"]
-            if User.objects.filter(email=new_email).exists():
-                # Silently ignore the email change for security
-                logger.info(
-                    f"Duplicate email update attempt: user_id={user.id}, "
-                    f"attempted_email={new_email}"
-                )
-                validated_data.pop("email")
-
-        # Update user attributes
-        for attr, value in validated_data.items():
-            setattr(user, attr, value)
-
-        try:
-            user.save()
-        except IntegrityError as e:
-            # Edge case: race condition on email
-            if 'email' in str(e).lower():
-                logger.warning(
-                    f"Email integrity error during profile update: "
-                    f"user_id={user.id}, error={str(e)}"
-                )
-            else:
-                raise
-
-        return user
-
-# In serializers.py
-from .services.user_service import UserService
-
-class UserProfileSerializer(serializers.ModelSerializer):
-    """Serializer for user profile management."""
-
-    class Meta:
-        model = User
-        fields = ["first_name", "last_name", "email", "phone", "company_name"]
-        extra_kwargs = {
-            "email": {"validators": []},  # Remove built-in validators
-        }
-
-    def validate_email(self, value: str) -> str:
-        """Basic email format validation."""
-        return value.strip().lower()
-
-    def update(self, instance: User, validated_data: Dict[str, Any]) -> User:
-        """Update user profile using service layer."""
-        return UserService.update_profile(instance, validated_data)
-```
-
-**Benefits:**
-
--   Clear separation of concerns
--   Easier to test business logic in isolation
--   Reusable logic across different endpoints
--   Better logging and error handling
 
 ---
 
@@ -903,106 +280,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 -   Business logic mixed with data access
 -   Makes it harder to add caching layer
 
-**Better Pattern:** Implement repository layer:
-
-```python
-# users/repositories/user_repository.py
-from typing import Optional, List
-from django.db.models import QuerySet
-from ..models import User
-
-class UserRepository:
-    """Repository for User data access."""
-
-    @staticmethod
-    def get_by_email(email: str, active_only: bool = False) -> Optional[User]:
-        """
-        Get user by email address.
-
-        Args:
-            email: User email address
-            active_only: Only return active users
-
-        Returns:
-            User instance or None if not found
-        """
-        try:
-            query = User.objects
-            if active_only:
-                query = query.filter(is_active=True)
-            return query.get(email=email.lower())
-        except User.DoesNotExist:
-            return None
-
-    @staticmethod
-    def get_by_id(user_id: int) -> Optional[User]:
-        """Get user by ID."""
-        try:
-            return User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return None
-
-    @staticmethod
-    def email_exists(email: str) -> bool:
-        """Check if email is already registered."""
-        return User.objects.filter(email__iexact=email).exists()
-
-    @staticmethod
-    def create_user(email: str, password: str, **kwargs) -> User:
-        """Create a new user."""
-        return User.objects.create_user(
-            username=email,
-            email=email,
-            password=password,
-            **kwargs
-        )
-
-# users/repositories/token_repository.py
-from typing import Optional
-from ..models import EmailVerificationToken, PasswordResetToken
-
-class TokenRepository:
-    """Repository for token data access."""
-
-    @staticmethod
-    def create_verification_token(user: User) -> EmailVerificationToken:
-        """Create email verification token for user."""
-        return EmailVerificationToken.objects.create(user=user)
-
-    @staticmethod
-    def get_verification_token(token: str) -> Optional[EmailVerificationToken]:
-        """Get verification token by token string."""
-        try:
-            return EmailVerificationToken.objects.select_related('user').get(token=token)
-        except EmailVerificationToken.DoesNotExist:
-            return None
-
-    @staticmethod
-    def create_reset_token(user: User) -> PasswordResetToken:
-        """Create password reset token for user."""
-        return PasswordResetToken.objects.create(user=user)
-
-# Usage in views.py
-from .repositories.user_repository import UserRepository
-from .repositories.token_repository import TokenRepository
-
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def request_password_reset(request: Request) -> Response:
-    email = request.data.get("email", "").strip().lower()
-
-    if not email or "@" not in email:
-        return Response(...)
-
-    # Use repository instead of direct ORM access
-    user = UserRepository.get_by_email(email, active_only=True)
-
-    if user:
-        reset_token = TokenRepository.create_reset_token(user)
-        EmailService.send_password_reset_email(user, reset_token.token)
-
-    return Response(...)
-```
+**Better Pattern:** Implement repository layer.
 
 **Benefits:**
 
@@ -1037,13 +315,7 @@ def request_password_reset(request: Request) -> Response:
     - Prevents N+1 query problem
     - 10x performance improvement for address lists
 
-7. ✅ **Extract email functions to EmailService** (`users/views.py:250-410`)
-
-    - Better separation of concerns
-    - Easier testing
-    - Cleaner code organization
-
-8. ✅ **Add comprehensive logging** (throughout codebase)
+7. ✅ **Add comprehensive logging** (throughout codebase)
     - Security events (login, password reset, etc.)
     - Failed attempts
     - Audit trail
@@ -1056,12 +328,7 @@ def request_password_reset(request: Request) -> Response:
     -   Delete expired tokens older than 7 days
     -   Add database index on `expires_at`
 
-11. ✅ **Standardize API response format**
-
-    -   Consistent structure across all endpoints
-    -   Better frontend developer experience
-
-12. ✅ **Improve phone validation** (`users/models.py:27`)
+11. ✅ **Improve phone validation** (`users/models.py:27`)
     -   Use `phonenumbers` library
     -   Support international numbers
 
@@ -1072,12 +339,6 @@ def request_password_reset(request: Request) -> Response:
     -   Centralized data access
     -   Easier testing
     -   Better separation of concerns
-
-16. ⏳ **Extract business logic to services**
-
-    -   UserService, TokenService
-    -   Cleaner architecture
-    -   Reusable logic
 
 ---
 

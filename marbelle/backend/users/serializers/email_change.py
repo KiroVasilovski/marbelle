@@ -1,18 +1,20 @@
 """
 Email change serializers for requesting and confirming email address changes.
+Delegates business logic to AuthenticationService.
 """
 
 from typing import Any, Dict
 
-from django.db import transaction
 from rest_framework import serializers
 
 from ..models import EmailChangeToken, User
+from ..services import AuthenticationService
 
 
 class EmailChangeRequestSerializer(serializers.Serializer):
     """
     Serializer for email change request.
+    Validates credentials and new email, delegates token creation to AuthenticationService.
     Industry-standard approach: requires current password + new email.
     """
 
@@ -46,16 +48,19 @@ class EmailChangeRequestSerializer(serializers.Serializer):
 
     def save(self) -> EmailChangeToken:
         """
-        Create email change token.
+        Create email change token via AuthenticationService.
+        Service handles:
+        - Token deletion (replaces old tokens)
+        - Token creation
+        - Verification email sending
         """
         user = self.context["request"].user
+        current_password = self.validated_data["current_password"]
         new_email = self.validated_data["new_email"]
 
-        # Delete any existing email change tokens for this user
-        EmailChangeToken.objects.filter(user=user).delete()
-
-        # Create new email change token
-        email_change_token = EmailChangeToken.objects.create(user=user, new_email=new_email)
+        email_change_token = AuthenticationService.request_email_change(user, current_password, new_email)
+        if not email_change_token:
+            raise serializers.ValidationError("Unable to create email change token.")
 
         return email_change_token
 
@@ -63,6 +68,7 @@ class EmailChangeRequestSerializer(serializers.Serializer):
 class EmailChangeConfirmSerializer(serializers.Serializer):
     """
     Serializer for email change confirmation.
+    Validates token, delegates email change to AuthenticationService.
     """
 
     token = serializers.CharField()
@@ -81,19 +87,17 @@ class EmailChangeConfirmSerializer(serializers.Serializer):
 
     def save(self) -> Dict[str, Any]:
         """
-        Confirm email change and update user email.
-        Returns both user and old email for notification purposes.
+        Confirm email change via AuthenticationService.
+        Service handles:
+        - Atomic email update
+        - Token marking as used
+        - Username sync with email
+        - Notification email sending
         """
         email_change_token = self.validated_data["token"]
-        user = email_change_token.user
-        old_email = user.email
 
-        with transaction.atomic():
-            email_change_token.is_used = True
-            email_change_token.save()
+        result = AuthenticationService.confirm_email_change(email_change_token.token)
+        if not result:
+            raise serializers.ValidationError("Unable to confirm email change.")
 
-            user.email = email_change_token.new_email
-            user.username = email_change_token.new_email
-            user.save()
-
-        return {"user": user, "old_email": old_email, "new_email": email_change_token.new_email}
+        return result

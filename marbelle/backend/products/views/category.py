@@ -14,7 +14,7 @@ from rest_framework.response import Response
 
 from core import Paginator, ResponseHandler
 
-from ..models import Category, Product
+from ..models import Category
 from ..serializers import CategoryDetailSerializer, CategoryListSerializer, ProductListSerializer
 from .filters import ProductFilter
 
@@ -58,23 +58,29 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         """
         Custom action to get products for a specific category.
         URL: /api/v1/categories/{id}/products/
+        Supports filtering, search, and pagination via query parameters.
         """
-        category = self.get_object()
-        products = Product.objects.filter(category=category, is_active=True).prefetch_related("images")
+        from ..services import ProductFilterService
 
-        # Apply filtering and search to products
+        category = self.get_object()
+
+        # Get category products using service
+        products = ProductFilterService.get_category_products(category)
+
+        # Apply filtering using service
         filterset = ProductFilter(request.GET, queryset=products)
         if filterset.is_valid():
             products = filterset.qs
 
-        # Apply search
+        # Apply search using service
         search_query = request.query_params.get("search")
         if search_query:
-            products = (
-                products.filter(name__icontains=search_query).distinct()
-                | products.filter(description__icontains=search_query).distinct()
-                | products.filter(sku__icontains=search_query).distinct()
-            )
+            products = ProductFilterService.search_products(products, search_query)
+
+        # Apply ordering using service
+        ordering = request.query_params.get("ordering")
+        if ordering:
+            products = ProductFilterService.order_products(products, ordering)
 
         # Apply pagination
         page = self.paginate_queryset(products)

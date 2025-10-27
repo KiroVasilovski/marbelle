@@ -4,10 +4,8 @@ Address API ViewSet for user address management.
 
 from typing import Any
 
-from django.db import transaction
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -17,6 +15,7 @@ from core import ResponseHandler
 
 from ..models import Address
 from ..serializers import AddressSerializer
+from ..services import AddressService
 
 
 class AddressViewSet(ModelViewSet):
@@ -36,31 +35,20 @@ class AddressViewSet(ModelViewSet):
 
     def perform_destroy(self, instance: Address) -> None:
         """
-        Custom deletion logic - prevent deletion if it's the only address or used in recent orders.
+        Custom deletion logic - prevent deletion if it's the only address.
         """
-        user = self.request.user
-        address_count = Address.objects.filter(user=user).count()
-
-        if address_count == 1:
-            raise ValidationError("Cannot delete the only address. Please add another address first.")
-
-        # TODO: Add check for recent orders using this address when orders app is available
-        # For now, just delete the address
-        super().perform_destroy(instance)
+        try:
+            AddressService.delete_address(instance)
+        except ValueError as e:
+            raise ValueError(str(e))
 
     @action(detail=True, methods=["patch"])
     def set_primary(self, request: Request, pk: int | None = None) -> Response:
         """
         Set address as primary.
         """
-        with transaction.atomic():
-            address = self.get_object()
-
-            # Lock rows for update
-            Address.objects.filter(user=request.user, is_primary=True).select_for_update().update(is_primary=False)
-
-            address.is_primary = True
-            address.save()
+        address = self.get_object()
+        AddressService.set_primary_address(address)
 
         serializer = self.get_serializer(address)
         return ResponseHandler.success(
@@ -85,12 +73,17 @@ class AddressViewSet(ModelViewSet):
         """
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return ResponseHandler.success(
-                data=serializer.data,
-                message="Address created successfully.",
-                status_code=status.HTTP_201_CREATED,
-            )
+            try:
+                # Use service to create address with validation
+                AddressService.create_address(request.user, serializer.validated_data)
+                serializer = self.get_serializer(self.get_queryset().latest("id"))
+                return ResponseHandler.success(
+                    data=serializer.data,
+                    message="Address created successfully.",
+                    status_code=status.HTTP_201_CREATED,
+                )
+            except ValueError as e:
+                return ResponseHandler.error(message=str(e))
 
         return ResponseHandler.error(
             message="Address creation failed.",
@@ -106,11 +99,16 @@ class AddressViewSet(ModelViewSet):
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
 
         if serializer.is_valid():
-            serializer.save()
-            return ResponseHandler.success(
-                data=serializer.data,
-                message="Address updated successfully.",
-            )
+            try:
+                # Use service to update address
+                AddressService.update_address(instance, serializer.validated_data)
+                serializer = self.get_serializer(instance)
+                return ResponseHandler.success(
+                    data=serializer.data,
+                    message="Address updated successfully.",
+                )
+            except ValueError as e:
+                return ResponseHandler.error(message=str(e))
 
         return ResponseHandler.error(
             message="Address update failed.",
@@ -124,5 +122,5 @@ class AddressViewSet(ModelViewSet):
         try:
             self.perform_destroy(self.get_object())
             return ResponseHandler.success(message="Address deleted successfully.")
-        except Exception as e:
+        except ValueError as e:
             return ResponseHandler.error(message=str(e))
