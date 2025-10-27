@@ -2,10 +2,8 @@
 
 from typing import Optional
 
-from django.utils import timezone
-
-from ..constants import TokenExpiry
 from ..models import EmailChangeToken, EmailVerificationToken, PasswordResetToken, User
+from ..repositories import TokenRepository
 
 
 class TokenService:
@@ -41,23 +39,7 @@ class TokenService:
         Returns:
             EmailVerificationToken: Valid token for user
         """
-        verification_token, created = EmailVerificationToken.objects.get_or_create(
-            user=user,
-            is_used=False,
-            defaults={
-                "expires_at": timezone.now() + TokenExpiry.get_verification_expiry(),
-            },
-        )
-
-        # If token already exists and is not expired, reuse it
-        if not created and verification_token.is_valid:
-            # Token already exists and is valid, use it as-is
-            return verification_token
-        elif not created and not verification_token.is_valid:
-            # Token exists but is expired, create a new one
-            verification_token = EmailVerificationToken.objects.create(user=user)
-
-        return verification_token
+        return TokenRepository.get_or_create_email_verification_token(user)
 
     @staticmethod
     def verify_email_token(token: str) -> Optional[EmailVerificationToken]:
@@ -70,13 +52,7 @@ class TokenService:
         Returns:
             EmailVerificationToken if valid, None otherwise
         """
-        try:
-            token_obj = EmailVerificationToken.objects.get(token=token)
-            if token_obj.is_valid:
-                return token_obj
-        except EmailVerificationToken.DoesNotExist:
-            pass
-        return None
+        return TokenRepository.verify_email_token(token)
 
     @staticmethod
     def mark_email_verification_used(token: EmailVerificationToken) -> None:
@@ -86,8 +62,7 @@ class TokenService:
         Args:
             token: Token object to mark as used
         """
-        token.is_used = True
-        token.save()
+        TokenRepository.mark_token_used(token)
 
     # ====== PASSWORD RESET TOKEN METHODS ======
 
@@ -105,10 +80,7 @@ class TokenService:
         Returns:
             PasswordResetToken: New reset token
         """
-        # Delete any existing password reset tokens for this user
-        PasswordResetToken.objects.filter(user=user).delete()
-
-        return PasswordResetToken.objects.create(user=user)
+        return TokenRepository.create_password_reset_token(user)
 
     @staticmethod
     def verify_password_reset_token(token: str) -> Optional[PasswordResetToken]:
@@ -121,13 +93,7 @@ class TokenService:
         Returns:
             PasswordResetToken if valid, None otherwise
         """
-        try:
-            token_obj = PasswordResetToken.objects.get(token=token)
-            if token_obj.is_valid:
-                return token_obj
-        except PasswordResetToken.DoesNotExist:
-            pass
-        return None
+        return TokenRepository.verify_password_reset_token(token)
 
     @staticmethod
     def mark_password_reset_used(token: PasswordResetToken) -> None:
@@ -137,8 +103,7 @@ class TokenService:
         Args:
             token: Token object to mark as used
         """
-        token.is_used = True
-        token.save()
+        TokenRepository.mark_token_used(token)
 
     # ====== EMAIL CHANGE TOKEN METHODS ======
 
@@ -156,10 +121,7 @@ class TokenService:
         Returns:
             EmailChangeToken: New email change token
         """
-        # Delete any existing email change tokens for this user
-        EmailChangeToken.objects.filter(user=user).delete()
-
-        return EmailChangeToken.objects.create(user=user, new_email=new_email)
+        return TokenRepository.create_email_change_token(user, new_email)
 
     @staticmethod
     def verify_email_change_token(token: str) -> Optional[EmailChangeToken]:
@@ -172,13 +134,7 @@ class TokenService:
         Returns:
             EmailChangeToken if valid, None otherwise
         """
-        try:
-            token_obj = EmailChangeToken.objects.get(token=token)
-            if token_obj.is_valid:
-                return token_obj
-        except EmailChangeToken.DoesNotExist:
-            pass
-        return None
+        return TokenRepository.verify_email_change_token(token)
 
     @staticmethod
     def mark_email_change_used(token: EmailChangeToken) -> None:
@@ -188,8 +144,7 @@ class TokenService:
         Args:
             token: Token object to mark as used
         """
-        token.is_used = True
-        token.save()
+        TokenRepository.mark_token_used(token)
 
     # ====== CLEANUP METHODS ======
 
@@ -200,13 +155,4 @@ class TokenService:
 
         This is an optional maintenance task. Can be called periodically via management command.
         """
-        now = timezone.now()
-
-        # Delete expired email verification tokens
-        EmailVerificationToken.objects.filter(expires_at__lt=now).delete()
-
-        # Delete expired password reset tokens
-        PasswordResetToken.objects.filter(expires_at__lt=now).delete()
-
-        # Delete expired email change tokens
-        EmailChangeToken.objects.filter(expires_at__lt=now).delete()
+        TokenRepository.cleanup_expired_tokens()

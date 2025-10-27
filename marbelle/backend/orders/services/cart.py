@@ -7,8 +7,10 @@ from rest_framework.request import Request
 
 from core import SessionService
 from products.models import Product
+from products.repositories import ProductRepository
 
 from ..models import Cart, CartItem
+from ..repositories import CartRepository
 
 
 class CartService:
@@ -66,11 +68,10 @@ class CartService:
                 - error_message: Error message if invalid, None otherwise
                 - product: Product object if valid, None otherwise
         """
-        try:
-            product = Product.objects.get(id=product_id, is_active=True)
-            return True, None, product
-        except Product.DoesNotExist:
+        product = ProductRepository.get_by_id(product_id)
+        if not product:
             return False, "Product not found.", None
+        return True, None, product
 
     @staticmethod
     def validate_quantity(quantity: int) -> tuple[bool, Optional[str]]:
@@ -137,12 +138,13 @@ class CartService:
             CartItem: Created or updated cart item
         """
         with transaction.atomic():
-            cart_item, created = CartItem.objects.get_or_create(
-                cart=cart, product=product, defaults={"quantity": quantity, "unit_price": product.price}
-            )
+            # Check if item already exists in cart
+            if CartRepository.cart_item_exists(product.id, cart):
+                # Get existing item
+                existing_items = CartRepository.get_cart_items(cart).filter(product=product)
+                cart_item = existing_items.first()
 
-            if not created:
-                # Update existing item quantity
+                # Calculate new quantity (add to existing)
                 new_quantity = cart_item.quantity + quantity
 
                 # Validate new quantity doesn't exceed 99
@@ -153,8 +155,11 @@ class CartService:
                 if product.stock_quantity < new_quantity:
                     raise ValueError(f"Only {product.stock_quantity} items available in stock.")
 
-                cart_item.quantity = new_quantity
-                cart_item.save()
+                # Update via repository
+                cart_item = CartRepository.update_item(cart_item.id, cart, new_quantity)
+            else:
+                # Create new item via repository
+                cart_item = CartRepository.add_item(cart, product.id, quantity)
 
         return cart_item
 
@@ -178,10 +183,10 @@ class CartService:
             raise ValueError(f"Only {cart_item.product.stock_quantity} items available in stock.")
 
         with transaction.atomic():
-            cart_item.quantity = quantity
-            cart_item.save()
+            # Update via repository
+            updated_item = CartRepository.update_item(cart_item.id, cart_item.cart, quantity)
 
-        return cart_item
+        return updated_item
 
     @staticmethod
     def remove_item_from_cart(cart_item: CartItem) -> str:
@@ -197,7 +202,8 @@ class CartService:
         product_name = cart_item.product.name
 
         with transaction.atomic():
-            cart_item.delete()
+            # Remove via repository
+            CartRepository.remove_item(cart_item.id, cart_item.cart)
 
         return product_name
 
@@ -210,7 +216,8 @@ class CartService:
             cart: Cart to clear
         """
         with transaction.atomic():
-            cart.clear()
+            # Clear via repository
+            CartRepository.clear_cart(cart)
 
     # ====== RESPONSE FORMATTING ======
 
@@ -234,8 +241,9 @@ class CartService:
             "items": [],
         }
 
-        # Add cart items
-        for item in cart.items.select_related("product").all():
+        # Add cart items via repository (optimized with select_related)
+        items = CartRepository.get_cart_items(cart)
+        for item in items:
             item_data = CartService._format_item_response(item)
             cart_data["items"].append(item_data)
 

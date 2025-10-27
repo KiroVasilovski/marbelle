@@ -117,6 +117,45 @@ View → Serializer (validate) → Service (business logic) → Model (data acce
 
 See implementation examples in `{app}/services/` for reference.
 
+## Repository Pattern (CRITICAL)
+
+**All data access must go through Repositories, NOT direct ORM calls.**
+
+### Repository Structure
+```
+app_name/repositories/
+├── __init__.py
+├── model1.py    # Data access for Model1
+└── model2.py    # Data access for Model2
+```
+
+### Key Rules
+- **Repositories handle all database queries** - No direct `Model.objects` calls in services
+- **Services call repositories** - Never call ORM directly from services or views
+- **Optimized queries** - Repositories include prefetch_related/select_related for performance
+- **Consistent patterns** - All repositories follow the same conventions
+
+### Architecture
+```
+View → Service (business logic) → Repository (data access) → Model (database)
+```
+
+### Existing Repositories (Use These!)
+- `UserRepository` - User queries and creation
+- `TokenRepository` - Email/password/change-email tokens
+- `AddressRepository` - Address CRUD operations
+- `ProductRepository` - Product search, filter, categories
+- `CartRepository` - Cart and cart item operations
+- `OrderRepository` - Order retrieval and creation
+
+### When Creating New Features
+1. Add repository methods to `app_name/repositories/` for all data access
+2. Call repository methods from services
+3. Services call repositories, never ORM directly
+4. Write tests in `app_name/test_repositories.py`
+
+For detailed documentation, see [REPOSITORY_PATTERN.md](../../REPOSITORY_PATTERN.md).
+
 ## Setup Instructions
 
 ### 1. Virtual Environment Setup

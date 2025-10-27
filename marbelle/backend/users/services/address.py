@@ -6,6 +6,7 @@ from django.db import transaction
 
 from ..constants import UserLimits
 from ..models import Address, User
+from ..repositories import AddressRepository
 
 
 class AddressService:
@@ -31,7 +32,7 @@ class AddressService:
         Returns:
             list: Address objects for user
         """
-        return list(user.addresses.all())
+        return list(AddressRepository.get_user_addresses(user))
 
     @staticmethod
     def create_address(user: User, address_data: dict) -> Address:
@@ -51,33 +52,28 @@ class AddressService:
         Raises:
             ValueError: If user has reached max address limit
         """
-        # Check address limit
-        if user.addresses.count() >= UserLimits.MAX_ADDRESSES_PER_USER:
+        # Check address limit via repository
+        if AddressRepository.count_user_addresses(user) >= UserLimits.MAX_ADDRESSES_PER_USER:
             raise ValueError(f"Maximum {UserLimits.MAX_ADDRESSES_PER_USER} addresses allowed per user.")
 
-        # Create address (save() will handle auto-primary)
-        address = Address.objects.create(user=user, **address_data)
+        # Create address via repository (save() will handle auto-primary)
+        address = AddressRepository.create_address(user, **address_data)
 
         return address
 
     @staticmethod
-    def update_address(user: Address, address_data: dict) -> Address:
+    def update_address(address: Address, address_data: dict) -> Address:
         """
         Update address fields.
 
         Args:
-            user: User object
+            address: Address object to update
             address_data: Dictionary of fields to update
 
         Returns:
             Address: Updated address object
         """
-        for attr, value in address_data.items():
-            setattr(user, attr, value)
-
-        user.save()
-
-        return user
+        return AddressRepository.update_address(address, **address_data)
 
     @staticmethod
     def delete_address(address: Address) -> None:
@@ -92,11 +88,11 @@ class AddressService:
         Raises:
             ValueError: If trying to delete only address
         """
-        # Check if this is user's only address
-        if address.user.addresses.count() <= 1:
+        # Check if this is user's only address via repository
+        if AddressRepository.count_user_addresses(address.user) <= 1:
             raise ValueError("Cannot delete the only address. Users must have at least one address.")
 
-        address.delete()
+        AddressRepository.delete_address(address)
 
     @staticmethod
     def set_primary_address(address: Address) -> Address:
@@ -112,12 +108,7 @@ class AddressService:
             Address: Updated address object
         """
         with transaction.atomic():
-            # Unset all other primary addresses
-            address.user.addresses.filter(is_primary=True).update(is_primary=False)
-
-            # Set this one as primary
-            address.is_primary = True
-            address.save()
+            AddressRepository.set_primary_address(address)
 
         return address
 
@@ -134,7 +125,9 @@ class AddressService:
         Returns:
             bool: True if unique, False if duplicate
         """
-        query = user.addresses.filter(label=label)
         if exclude_address:
-            query = query.exclude(id=exclude_address.id)
-        return not query.exists()
+            # For updates, check if any other address has this label
+            query = AddressRepository.get_user_addresses(user).filter(label=label).exclude(id=exclude_address.id)
+            return not query.exists()
+        # For new addresses, use repository's label check
+        return not AddressRepository.user_has_address_label(user, label)

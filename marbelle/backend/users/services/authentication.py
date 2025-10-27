@@ -7,6 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from ..models import EmailChangeToken, EmailVerificationToken, PasswordResetToken, User
+from ..repositories import UserRepository
 from .email import EmailService
 from .token import TokenService
 
@@ -48,9 +49,8 @@ class AuthenticationService:
         Returns:
             tuple: (user, verification_token)
         """
-        # Create user
-        user = User.objects.create_user(
-            username=email,
+        # Create user via repository
+        user = UserRepository.create_user(
             email=email,
             first_name=first_name,
             last_name=last_name,
@@ -136,23 +136,23 @@ class AuthenticationService:
         Returns:
             bool: True if email sent, False if user already active
         """
-        try:
-            user = User.objects.get(email=email)
-
-            # Don't allow resending if already active
-            if user.is_active:
-                return False
-
-            # Create new verification token
-            verification_token = EmailVerificationToken.objects.create(user=user)
-
-            # Send verification email
-            EmailService.send_verification_email(user, verification_token.token)
-
-            return True
-        except User.DoesNotExist:
+        # Use repository to get user by email
+        user = UserRepository.get_by_email(email)
+        if not user:
             # Return success to prevent email enumeration
             return True
+
+        # Don't allow resending if already active
+        if user.is_active:
+            return False
+
+        # Create new verification token
+        verification_token = EmailVerificationToken.objects.create(user=user)
+
+        # Send verification email
+        EmailService.send_verification_email(user, verification_token.token)
+
+        return True
 
     # ====== PASSWORD RESET ======
 
@@ -169,19 +169,19 @@ class AuthenticationService:
         Returns:
             PasswordResetToken: Created token, or None if user not found
         """
-        try:
-            user = User.objects.get(email=email, is_active=True)
-
-            # Create password reset token
-            reset_token = TokenService.create_password_reset_token(user)
-
-            # Send password reset email
-            EmailService.send_password_reset_email(user, reset_token.token)
-
-            return reset_token
-        except User.DoesNotExist:
+        # Use repository to get active user by email
+        user = UserRepository.get_active_by_email(email)
+        if not user:
             # Return None to prevent email enumeration
             return None
+
+        # Create password reset token
+        reset_token = TokenService.create_password_reset_token(user)
+
+        # Send password reset email
+        EmailService.send_password_reset_email(user, reset_token.token)
+
+        return reset_token
 
     @staticmethod
     def confirm_password_reset(token: str, new_password: str) -> Optional[User]:
@@ -242,7 +242,7 @@ class AuthenticationService:
             return None
 
         # Verify new email is not already in use
-        if User.objects.filter(email=new_email).exists():
+        if UserRepository.email_exists(new_email):
             return None
 
         # Create email change token

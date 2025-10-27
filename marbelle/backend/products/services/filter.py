@@ -4,7 +4,8 @@ from typing import Optional
 
 from django.db.models import QuerySet
 
-from ..models import Category, Product
+from ..models import Category
+from ..repositories import ProductRepository
 from ..views.filters import ProductFilter
 
 
@@ -27,7 +28,7 @@ class ProductFilterService:
         Returns:
             QuerySet: Products with prefetched related data
         """
-        return Product.objects.filter(is_active=True).prefetch_related("images", "category").order_by("-created_at")
+        return ProductRepository.get_all_active()
 
     @staticmethod
     def get_category_products(category: Category) -> QuerySet:
@@ -40,7 +41,7 @@ class ProductFilterService:
         Returns:
             QuerySet: Products in category with prefetched data
         """
-        return category.products.filter(is_active=True).prefetch_related("images").order_by("-created_at")
+        return ProductRepository.get_active_in_category(category.id)
 
     @staticmethod
     def apply_filters(queryset: QuerySet, filters: dict) -> QuerySet:

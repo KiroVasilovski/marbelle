@@ -3,6 +3,7 @@
 from typing import Any, Dict
 
 from ..models import User
+from ..repositories import UserRepository
 
 
 class UserService:
@@ -55,7 +56,7 @@ class UserService:
         # Check if email is being changed and if it already exists
         if "email" in update_data and user.email != update_data["email"]:
             new_email = update_data["email"]
-            if User.objects.filter(email=new_email).exists():
+            if UserRepository.email_exists(new_email):
                 # Silently ignore the email change for security
                 update_data.pop("email")
 
