@@ -1,19 +1,15 @@
-"""
-Token-related serializers for email verification, password reset, and JWT tokens.
-"""
+"""Token-related serializers for email verification, password reset, and JWT tokens."""
 
 from typing import Any, Dict
 
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from ..models import EmailVerificationToken, PasswordResetToken, User
+from ..models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """
-    Serializer for user information (without sensitive data).
-    """
+    """Serializer for user information (without sensitive data)."""
 
     is_business_customer = serializers.ReadOnlyField()
 
@@ -24,26 +20,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class EmailVerificationSerializer(serializers.Serializer):
-    """
-    Serializer for email verification.
-    """
+    """Serializer for email verification."""
 
     token = serializers.CharField()
 
-    def validate_token(self, value: str) -> EmailVerificationToken:
-        try:
-            verification_token = EmailVerificationToken.objects.get(token=value)
-            if not verification_token.is_valid:
-                raise serializers.ValidationError("Invalid or expired verification token.")
-            return verification_token
-        except EmailVerificationToken.DoesNotExist:
-            raise serializers.ValidationError("Invalid verification token.")
-
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
-    """
-    Serializer for password reset confirmation.
-    """
+    """Serializer for password reset confirmation."""
 
     token = serializers.CharField()
     new_password = serializers.CharField(write_only=True, validators=[])
@@ -61,20 +44,9 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
             raise serializers.ValidationError({"new_password_confirm": "Passwords do not match."})
         return attrs
 
-    def validate_token(self, value: str) -> PasswordResetToken:
-        try:
-            reset_token = PasswordResetToken.objects.get(token=value)
-            if not reset_token.is_valid:
-                raise serializers.ValidationError("Invalid or expired reset token.")
-            return reset_token
-        except PasswordResetToken.DoesNotExist:
-            raise serializers.ValidationError("Invalid reset token.")
-
 
 class TokenSerializer(serializers.Serializer):
-    """
-    Serializer for JWT token response.
-    """
+    """Serializer for JWT token response."""
 
     access = serializers.CharField()
     refresh = serializers.CharField()
@@ -82,9 +54,8 @@ class TokenSerializer(serializers.Serializer):
 
     @classmethod
     def get_token_for_user(cls, user: User) -> Dict[str, Any]:
-        """
-        Generate JWT tokens for user.
-        """
+        """Generate JWT tokens for user."""
+
         refresh = RefreshToken.for_user(user)
         return {
             "access": str(refresh.access_token),

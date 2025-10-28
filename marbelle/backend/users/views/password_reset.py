@@ -37,9 +37,8 @@ def request_password_reset(request: Request) -> Response:
 @permission_classes([AllowAny])
 @ratelimit(key="ip", rate=RateLimits.PASSWORD_RESET, method="POST")
 def confirm_password_reset(request: Request) -> Response:
-    """
-    Password reset confirmation endpoint.
-    """
+    """Password reset confirmation endpoint."""
+
     serializer = PasswordResetConfirmSerializer(data=request.data)
 
     if not serializer.is_valid():
@@ -48,6 +47,11 @@ def confirm_password_reset(request: Request) -> Response:
     new_password = serializer.validated_data["new_password"]
     token = serializer.validated_data["token"]
 
-    if AuthenticationService.confirm_password_reset(token.token, new_password):
-        return ResponseHandler.success(message="Password reset successful. You can now login with your new password.")
-    return ResponseHandler.error(message="Password reset failed. Token invalid or expired.")
+    try:
+        if AuthenticationService.confirm_password_reset(token, new_password):
+            return ResponseHandler.success(
+                message="Password reset successful. You can now login with your new password."
+            )
+        return ResponseHandler.error(message="Password reset failed. Token invalid or expired.")
+    except ValueError as e:
+        return ResponseHandler.error(message=str(e))

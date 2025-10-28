@@ -1,6 +1,4 @@
-"""
-Dashboard serializers for user profile and password management.
-"""
+"""Dashboard serializers for user profile and password management."""
 
 from typing import Any, Dict
 
@@ -8,43 +6,23 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from ..models import User
-from ..services import UserService
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for user profile management.
+    Email updates must go through dedicated email change endpoints with verification.
     """
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email", "phone", "company_name"]
-        extra_kwargs = {
-            "email": {"validators": []},  # Remove built-in validators for email
-        }
-
-    def validate_email(self, value: str) -> str:
-        """
-        Validate email format but allow duplicate emails for security.
-
-        Always returns the email as valid to prevent email enumeration attacks.
-        The frontend should inform users that if the email is already registered,
-        the change will be silently ignored for security reasons.
-        """
-        return value
-
-    def update(self, instance: User, validated_data: Dict[str, Any]) -> User:
-        """
-        Update user profile with email change handling.
-        """
-        return UserService.update_user_profile(instance, validated_data)
+        fields = ["first_name", "last_name", "phone", "company_name"]
 
 
 class PasswordChangeSerializer(serializers.Serializer):
     """
     Serializer for password change.
     Validates current password and new password confirmation.
-    Delegates password update to UserService for business logic.
     """
 
     current_password = serializers.CharField(write_only=True)
@@ -52,28 +30,20 @@ class PasswordChangeSerializer(serializers.Serializer):
     new_password_confirm = serializers.CharField(write_only=True)
 
     def validate_current_password(self, value: str) -> str:
-        """
-        Validate current password.
-        """
+        """Validate current password."""
+
         user = self.context["request"].user
+
         if not user.check_password(value):
             raise serializers.ValidationError("Current password is incorrect.")
         return value
 
     def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Validate password confirmation.
-        """
-        if attrs["new_password"] != attrs["new_password_confirm"]:
-            raise serializers.ValidationError({"new_password_confirm": "Passwords do not match."})
-        return attrs
+        """Validate password confirmation."""
 
-    def save(self) -> None:
-        """
-        Save new password using UserService.
-        Delegates to UserService.change_password() which handles password update.
-        """
-        user = self.context["request"].user
-        current_password = self.validated_data["current_password"]
-        new_password = self.validated_data["new_password"]
-        UserService.change_password(user, current_password, new_password)
+        new_password = attrs.get("new_password")
+        new_password_confirm = attrs.get("new_password_confirm")
+
+        if new_password != new_password_confirm:
+            raise serializers.ValidationError("Passwords do not match.")
+        return attrs

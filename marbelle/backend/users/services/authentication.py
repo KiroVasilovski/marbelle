@@ -49,7 +49,7 @@ class AuthenticationService:
         Returns:
             tuple: (user, verification_token)
         """
-        # Create user via repository
+
         user = UserRepository.create_user(
             email=email,
             first_name=first_name,
@@ -60,10 +60,8 @@ class AuthenticationService:
             is_active=False,  # User is not active until email is verified
         )
 
-        # Get or create verification token
         verification_token = TokenService.get_or_create_email_verification_token(user)
 
-        # Send verification email
         EmailService.send_verification_email(user, verification_token.token)
 
         return user, verification_token
@@ -80,12 +78,19 @@ class AuthenticationService:
             password: User password
 
         Returns:
-            User: Authenticated user or None if credentials invalid
+            User: Authenticated user or None if credentials invalid or user not active
+
+        Raises:
+            ValueError: If user account is not activated
         """
-        # Authenticate using email as username
+
         user = authenticate(username=email, password=password)
+
         if not user:
             return None
+
+        if not user.is_active:
+            raise ValueError("Account is not activated. Please check your email for verification instructions.")
 
         # Update last_login timestamp
         user.last_login = timezone.now()
@@ -106,19 +111,18 @@ class AuthenticationService:
         Returns:
             User: Activated user, or None if token invalid
         """
-        # Verify token is valid
+
         verification_token = TokenService.verify_email_token(token)
+
         if not verification_token:
             return None
 
         user = verification_token.user
 
         with transaction.atomic():
-            # Activate user
             user.is_active = True
             user.save()
 
-            # Mark token as used
             TokenService.mark_email_verification_used(verification_token)
 
         return user
@@ -136,20 +140,17 @@ class AuthenticationService:
         Returns:
             bool: True if email sent, False if user already active
         """
-        # Use repository to get user by email
+
         user = UserRepository.get_by_email(email)
         if not user:
             # Return success to prevent email enumeration
             return True
 
-        # Don't allow resending if already active
         if user.is_active:
             return False
 
-        # Create new verification token
         verification_token = EmailVerificationToken.objects.create(user=user)
 
-        # Send verification email
         EmailService.send_verification_email(user, verification_token.token)
 
         return True
@@ -169,16 +170,15 @@ class AuthenticationService:
         Returns:
             PasswordResetToken: Created token, or None if user not found
         """
-        # Use repository to get active user by email
+
         user = UserRepository.get_active_by_email(email)
+
         if not user:
             # Return None to prevent email enumeration
             return None
 
-        # Create password reset token
         reset_token = TokenService.create_password_reset_token(user)
 
-        # Send password reset email
         EmailService.send_password_reset_email(user, reset_token.token)
 
         return reset_token
@@ -195,7 +195,7 @@ class AuthenticationService:
         Returns:
             User: User with reset password, or None if token invalid
         """
-        # Verify token is valid
+
         reset_token = TokenService.verify_password_reset_token(token)
         if not reset_token:
             return None
@@ -203,11 +203,9 @@ class AuthenticationService:
         user = reset_token.user
 
         with transaction.atomic():
-            # Update password
             user.set_password(new_password)
             user.save()
 
-            # Mark token as used
             TokenService.mark_password_reset_used(reset_token)
 
         return user
@@ -215,7 +213,7 @@ class AuthenticationService:
     # ====== EMAIL CHANGE ======
 
     @staticmethod
-    def request_email_change(user: User, current_password: str, new_email: str) -> Optional[EmailChangeToken]:
+    def request_email_change(user: User, current_password: str, new_email: str) -> EmailChangeToken:
         """
         Request email change with password re-authentication.
 
@@ -223,7 +221,6 @@ class AuthenticationService:
         - Current password correct
         - New email different from current
         - New email not already in use
-        - Only one pending change per user
 
         Args:
             user: User requesting email change
@@ -231,24 +228,23 @@ class AuthenticationService:
             new_email: New email address
 
         Returns:
-            EmailChangeToken: Created token, or None if validation failed
+            EmailChangeToken: Created token
+
+        Raises:
+            ValueError: If password incorrect or email already in use
         """
-        # Verify current password
+
         if not user.check_password(current_password):
-            return None
+            raise ValueError("Current password is incorrect.")
 
-        # Verify new email is different
         if user.email == new_email:
-            return None
+            raise ValueError("New email must be different from current email.")
 
-        # Verify new email is not already in use
         if UserRepository.email_exists(new_email):
-            return None
+            raise ValueError("This email address is already registered.")
 
-        # Create email change token
         email_change_token = TokenService.create_email_change_token(user, new_email)
 
-        # Send verification email to new address
         EmailService.send_email_change_verification(user, new_email, email_change_token.token)
 
         return email_change_token
@@ -269,28 +265,28 @@ class AuthenticationService:
             token: Email change confirmation token
 
         Returns:
-            dict: {'user': User, 'old_email': str, 'new_email': str}, or None if token invalid
+            dict: {'user': User, 'old_email': str, 'new_email': str}
+
+        Raises:
+            ValueError: If token is invalid or expired
         """
-        # Verify token is valid
+
         email_change_token = TokenService.verify_email_change_token(token)
 
         if not email_change_token:
-            return None
+            raise ValueError("Invalid or expired email change token.")
 
         user = email_change_token.user
         old_email = user.email
         new_email = email_change_token.new_email
 
         with transaction.atomic():
-            # Update email
             user.email = new_email
             user.username = new_email
             user.save()
 
-            # Mark token as used
             TokenService.mark_email_change_used(email_change_token)
 
-        # Send notification to old email
         try:
             EmailService.send_email_change_notification(user, old_email, new_email)
         except Exception:
