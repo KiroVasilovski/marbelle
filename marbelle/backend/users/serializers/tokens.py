@@ -9,7 +9,9 @@ from ..models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer for user information (without sensitive data)."""
+    """
+    Serializer for user information (without sensitive data).
+    """
 
     is_business_customer = serializers.ReadOnlyField()
 
@@ -20,13 +22,17 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class EmailVerificationSerializer(serializers.Serializer):
-    """Serializer for email verification."""
+    """
+    Serializer for email verification.
+    """
 
     token = serializers.CharField()
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
-    """Serializer for password reset confirmation."""
+    """
+    Serializer for password reset confirmation.
+    """
 
     token = serializers.CharField()
     new_password = serializers.CharField(write_only=True, validators=[])
@@ -46,7 +52,9 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
 
 class TokenSerializer(serializers.Serializer):
-    """Serializer for JWT token response."""
+    """
+    Serializer for JWT token response.
+    """
 
     access = serializers.CharField()
     refresh = serializers.CharField()
@@ -54,9 +62,11 @@ class TokenSerializer(serializers.Serializer):
 
     @classmethod
     def get_token_for_user(cls, user: User) -> Dict[str, Any]:
-        """Generate JWT tokens for user."""
-
+        """
+        Generate JWT tokens for user.
+        """
         refresh = RefreshToken.for_user(user)
+
         return {
             "access": str(refresh.access_token),
             "refresh": str(refresh),

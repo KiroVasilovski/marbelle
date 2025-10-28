@@ -1,6 +1,4 @@
-"""
-Validators for response data JSON serialization.
-"""
+"""Validators for response data JSON serialization."""
 
 import json
 from typing import Any

@@ -1,6 +1,4 @@
-"""
-Response payload builders for success and error responses.
-"""
+"""Response payload builders for success and error responses."""
 
 from typing import Any, Dict, Optional
 

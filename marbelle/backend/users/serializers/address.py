@@ -6,7 +6,9 @@ from ..models import Address
 
 
 class AddressSerializer(serializers.ModelSerializer):
-    """Serializer for address management."""
+    """
+    Serializer for address management.
+    """
 
     class Meta:
         model = Address

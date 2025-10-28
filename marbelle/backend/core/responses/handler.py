@@ -1,6 +1,4 @@
-"""
-Central response handler for creating DRF Response objects with standardized formats.
-"""
+"""Central response handler for creating DRF Response objects with standardized formats."""
 
 from typing import Any, Dict, Optional
 

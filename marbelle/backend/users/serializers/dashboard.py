@@ -30,8 +30,9 @@ class PasswordChangeSerializer(serializers.Serializer):
     new_password_confirm = serializers.CharField(write_only=True)
 
     def validate_current_password(self, value: str) -> str:
-        """Validate current password."""
-
+        """
+        Validate current password.
+        """
         user = self.context["request"].user
 
         if not user.check_password(value):
@@ -39,8 +40,9 @@ class PasswordChangeSerializer(serializers.Serializer):
         return value
 
     def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate password confirmation."""
-
+        """
+        Validate password confirmation.
+        """
         new_password = attrs.get("new_password")
         new_password_confirm = attrs.get("new_password_confirm")
 

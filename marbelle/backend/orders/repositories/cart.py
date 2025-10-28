@@ -23,7 +23,7 @@ class CartRepository(BaseRepository):
     model = Cart
 
     @staticmethod
-    def get_user_cart(user: User) -> Cart:
+    def get_user_cart(user: User) -> Cart:  # type: ignore
         """
         Get or create a cart for an authenticated user.
 
@@ -111,10 +111,11 @@ class CartRepository(BaseRepository):
             product_id=product_id,
             defaults={"quantity": quantity},
         )
+
         if not created:
-            # If item already exists, update quantity
             cart_item.quantity = quantity
             cart_item.save()
+
         return cart_item
 
     @staticmethod
@@ -134,6 +135,7 @@ class CartRepository(BaseRepository):
             cart_item = CartItem.objects.select_related("product").get(id=item_id, cart=cart)
             cart_item.quantity = quantity
             cart_item.save()
+
             return cart_item
         except CartItem.DoesNotExist:
             return None
@@ -153,6 +155,7 @@ class CartRepository(BaseRepository):
         try:
             cart_item = CartItem.objects.get(id=item_id, cart=cart)
             cart_item.delete()
+
             return True
         except CartItem.DoesNotExist:
             return False

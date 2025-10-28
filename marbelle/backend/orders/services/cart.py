@@ -69,6 +69,7 @@ class CartService:
                 - product: Product object if valid, None otherwise
         """
         product = ProductRepository.get_by_id(product_id)
+
         if not product:
             return False, "Product not found.", None
         return True, None, product
@@ -138,27 +139,20 @@ class CartService:
             CartItem: Created or updated cart item
         """
         with transaction.atomic():
-            # Check if item already exists in cart
             if CartRepository.cart_item_exists(product.id, cart):
-                # Get existing item
                 existing_items = CartRepository.get_cart_items(cart).filter(product=product)
                 cart_item = existing_items.first()
 
-                # Calculate new quantity (add to existing)
                 new_quantity = cart_item.quantity + quantity
 
-                # Validate new quantity doesn't exceed 99
                 if new_quantity > 99:
                     raise ValueError("Maximum quantity per product is 99.")
 
-                # Validate stock for new quantity
                 if product.stock_quantity < new_quantity:
                     raise ValueError(f"Only {product.stock_quantity} items available in stock.")
 
-                # Update via repository
                 cart_item = CartRepository.update_item(cart_item.id, cart, new_quantity)
             else:
-                # Create new item via repository
                 cart_item = CartRepository.add_item(cart, product.id, quantity)
 
         return cart_item
@@ -178,12 +172,10 @@ class CartService:
         Raises:
             ValueError: If stock unavailable or quantity exceeds limits
         """
-        # Validate stock availability
         if cart_item.product.stock_quantity < quantity:
             raise ValueError(f"Only {cart_item.product.stock_quantity} items available in stock.")
 
         with transaction.atomic():
-            # Update via repository
             updated_item = CartRepository.update_item(cart_item.id, cart_item.cart, quantity)
 
         return updated_item
@@ -202,7 +194,6 @@ class CartService:
         product_name = cart_item.product.name
 
         with transaction.atomic():
-            # Remove via repository
             CartRepository.remove_item(cart_item.id, cart_item.cart)
 
         return product_name
@@ -216,7 +207,6 @@ class CartService:
             cart: Cart to clear
         """
         with transaction.atomic():
-            # Clear via repository
             CartRepository.clear_cart(cart)
 
     # ====== RESPONSE FORMATTING ======
@@ -241,8 +231,8 @@ class CartService:
             "items": [],
         }
 
-        # Add cart items via repository (optimized with select_related)
         items = CartRepository.get_cart_items(cart)
+
         for item in items:
             item_data = CartService._format_item_response(item)
             cart_data["items"].append(item_data)
@@ -321,6 +311,8 @@ class CartService:
             str: Image URL or None if no images
         """
         primary_image = product.images.filter(is_primary=True).first()
+
         if not primary_image:
             primary_image = product.images.first()
+
         return primary_image.image.url if primary_image else None

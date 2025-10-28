@@ -9,7 +9,9 @@ from ..models import User
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    """Serializer for user registration."""
+    """
+    Serializer for user registration.
+    """
 
     password = serializers.CharField(write_only=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True)
@@ -19,7 +21,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ["email", "first_name", "last_name", "company_name", "phone", "password", "password_confirm"]
 
     def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate password confirmation."""
+        """
+        Validate password confirmation.
+        """
         if attrs["password"] != attrs["password_confirm"]:
             raise serializers.ValidationError({"password_confirm": "Passwords do not match."})
         return attrs

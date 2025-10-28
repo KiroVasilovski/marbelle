@@ -14,8 +14,9 @@ class EmailChangeRequestSerializer(serializers.Serializer):
     new_email = serializers.EmailField()
 
     def validate_current_password(self, value: str) -> str:
-        """Validate current password for re-authentication."""
-
+        """
+        Validate current password for re-authentication.
+        """
         user = self.context["request"].user
 
         if not user.check_password(value):
@@ -23,8 +24,9 @@ class EmailChangeRequestSerializer(serializers.Serializer):
         return value
 
     def validate_new_email(self, value: str) -> str:
-        """Validate new email is different from current email."""
-
+        """
+        Validate new email is different from current email.
+        """
         user = self.context["request"].user
 
         if user.email.lower() == value.lower():
@@ -34,6 +36,8 @@ class EmailChangeRequestSerializer(serializers.Serializer):
 
 
 class EmailChangeConfirmSerializer(serializers.Serializer):
-    """Serializer for email change confirmation."""
+    """
+    Serializer for email change confirmation.
+    """
 
     token = serializers.CharField()
