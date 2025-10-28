@@ -25,16 +25,11 @@ def request_password_reset(request: Request) -> Response:
     """
     email = request.data.get("email", "").strip().lower()
 
-    # Validate email format
     if not email or "@" not in email:
-        return ResponseHandler.success(
-            message="If this email is registered, you will receive password reset instructions."
-        )
+        return ResponseHandler.error(message="Please provide a valid email address.")
 
-    # Service handles email enumeration protection internally
     AuthenticationService.request_password_reset(email)
 
-    # Always return the same success response regardless of whether email exists
     return ResponseHandler.success(message="If this email is registered, you will receive password reset instructions.")
 
 
@@ -47,17 +42,12 @@ def confirm_password_reset(request: Request) -> Response:
     """
     serializer = PasswordResetConfirmSerializer(data=request.data)
 
-    if serializer.is_valid():
-        new_password = serializer.validated_data["new_password"]
-        token = serializer.validated_data["token"]
+    if not serializer.is_valid():
+        return ResponseHandler.error(message="Password reset failed.", errors=serializer.errors)
 
-        # Use service to confirm password reset
-        user = AuthenticationService.confirm_password_reset(token.token, new_password)
+    new_password = serializer.validated_data["new_password"]
+    token = serializer.validated_data["token"]
 
-        if user:
-            return ResponseHandler.success(
-                message="Password reset successful. You can now login with your new password."
-            )
-        return ResponseHandler.error(message="Password reset failed. Token invalid or expired.")
-
-    return ResponseHandler.error(message="Password reset failed.", errors=serializer.errors)
+    if AuthenticationService.confirm_password_reset(token.token, new_password):
+        return ResponseHandler.success(message="Password reset successful. You can now login with your new password.")
+    return ResponseHandler.error(message="Password reset failed. Token invalid or expired.")

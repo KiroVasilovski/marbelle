@@ -80,7 +80,7 @@ class AuthenticationService:
             password: User password
 
         Returns:
-            User: Authenticated user with updated last_login, or None if credentials invalid
+            User: Authenticated user or None if credentials invalid
         """
         # Authenticate using email as username
         user = authenticate(username=email, password=password)
@@ -273,6 +273,7 @@ class AuthenticationService:
         """
         # Verify token is valid
         email_change_token = TokenService.verify_email_change_token(token)
+
         if not email_change_token:
             return None
 
@@ -283,13 +284,13 @@ class AuthenticationService:
         with transaction.atomic():
             # Update email
             user.email = new_email
-            user.username = new_email  # Sync username with email
+            user.username = new_email
             user.save()
 
             # Mark token as used
             TokenService.mark_email_change_used(email_change_token)
 
-        # Send notification to old email (outside transaction to not block if email fails)
+        # Send notification to old email
         try:
             EmailService.send_email_change_notification(user, old_email, new_email)
         except Exception:

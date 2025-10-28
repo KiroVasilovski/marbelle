@@ -14,7 +14,6 @@ from ..services import UserService
 class UserProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for user profile management.
-    Delegates profile updates to UserService for business logic.
     """
 
     class Meta:
@@ -37,11 +36,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def update(self, instance: User, validated_data: Dict[str, Any]) -> User:
         """
         Update user profile with email change handling.
-
-        Delegates to UserService.update_user_profile() which handles:
-        - Email enumeration protection
-        - Email duplicate checking
-        - Atomic save operations
         """
         return UserService.update_user_profile(instance, validated_data)
 

@@ -79,7 +79,7 @@ class UserLoginSerializer(serializers.Serializer):
             except User.DoesNotExist:
                 raise serializers.ValidationError("Invalid email or password.")
 
-            # Authenticate user via AuthenticationService (handles last_login update)
+            # Authenticate user via AuthenticationService
             user = AuthenticationService.authenticate_user(email, password)
             if not user:
                 raise serializers.ValidationError("Invalid email or password.")
