@@ -43,7 +43,6 @@ class AddressViewSet(ModelViewSet):
     def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         List all addresses for the authenticated user.
-        Routed through Service for consistent business logic.
         """
         try:
             addresses = AddressService.get_user_addresses(request.user)
@@ -59,7 +58,6 @@ class AddressViewSet(ModelViewSet):
     def retrieve(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Retrieve a specific address by ID.
-        Routed through Service for consistent business logic and security checks.
         """
         try:
             address = AddressService.get_user_address(kwargs.get("pk"), request.user)
@@ -75,7 +73,6 @@ class AddressViewSet(ModelViewSet):
     def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Create a new address for authenticated user.
-        Serializer validates input, Service handles business logic.
         """
         serializer = self.get_serializer(data=request.data)
 
@@ -128,7 +125,6 @@ class AddressViewSet(ModelViewSet):
     def destroy(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Delete an address.
-        Prevents deletion if it's the only address (business logic via Service).
         """
         try:
             address = AddressService.get_user_address(kwargs.get("pk"), request.user)

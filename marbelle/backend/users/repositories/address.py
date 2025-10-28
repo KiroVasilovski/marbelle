@@ -10,12 +10,7 @@ from ..models import Address, User
 
 
 class AddressRepository(BaseRepository):
-    """
-    Repository for Address model operations.
-
-    Centralizes all address database queries and ensures consistent
-    query optimization to prevent N+1 problems.
-    """
+    """Repository for Address model operations."""
 
     model = Address
 
@@ -23,7 +18,6 @@ class AddressRepository(BaseRepository):
     def get_user_addresses(user: User) -> QuerySet:
         """
         Get all addresses for a user.
-
         Returns addresses ordered by primary status and creation date
         for consistent ordering in API responses.
 
@@ -52,7 +46,6 @@ class AddressRepository(BaseRepository):
     def get_user_address(address_id: int, user: User) -> Optional[Address]:
         """
         Get a specific address for a user.
-
         Includes security check to ensure the address belongs to the user.
 
         Args:
@@ -71,7 +64,6 @@ class AddressRepository(BaseRepository):
     def user_has_address_label(user: User, label: str) -> bool:
         """
         Check if user already has an address with the given label.
-
         Used for validating label uniqueness per user (addresses
         can have the same label across different users).
 
@@ -101,7 +93,6 @@ class AddressRepository(BaseRepository):
     def create_address(user: User, **kwargs: Any) -> Address:
         """
         Create a new address for a user.
-
         The Address model's save() method automatically handles
         setting the first address as primary and ensuring only
         one primary address per user.
@@ -129,14 +120,15 @@ class AddressRepository(BaseRepository):
         """
         for attr, value in kwargs.items():
             setattr(address, attr, value)
+
         address.save()
+
         return address
 
     @staticmethod
     def set_primary_address(address: Address) -> None:
         """
         Set an address as the primary address for its user.
-
         Automatically unsets any other primary addresses for the user.
 
         Args:

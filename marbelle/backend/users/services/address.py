@@ -10,16 +10,7 @@ from ..repositories import AddressRepository
 
 
 class AddressService:
-    """
-    Service for managing user addresses.
-
-    Handles:
-    - Creating addresses with auto-primary logic
-    - Updating addresses
-    - Deleting with constraints
-    - Setting primary address
-    - Validation of address limits and constraints
-    """
+    """Service for managing user addresses."""
 
     @staticmethod
     def get_user_addresses(user: User) -> list[Address]:
@@ -58,7 +49,6 @@ class AddressService:
     def create_address(user: User, address_data: dict) -> Address:
         """
         Create new address for user.
-
         First address is automatically set as primary.
         Enforces maximum addresses per user limit and label uniqueness.
 
@@ -88,7 +78,6 @@ class AddressService:
     def update_address(address: Address, address_data: dict) -> Address:
         """
         Update address fields.
-
         Enforces label uniqueness per user.
 
         Args:
@@ -114,7 +103,6 @@ class AddressService:
     def delete_address(address: Address) -> None:
         """
         Delete address with constraint checking.
-
         Prevents deletion of last remaining address.
 
         Args:
@@ -132,7 +120,6 @@ class AddressService:
     def set_primary_address(address: Address) -> Address:
         """
         Set address as primary for user.
-
         Ensures only one primary address per user.
 
         Args:
