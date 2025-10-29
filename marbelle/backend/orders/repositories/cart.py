@@ -26,7 +26,6 @@ class CartRepository(BaseRepository):
     def get_user_cart(user: User) -> Cart:  # type: ignore
         """
         Get or create a cart for an authenticated user.
-
         Each user has exactly one cart (OneToOneField relationship).
 
         Args:
@@ -35,7 +34,7 @@ class CartRepository(BaseRepository):
         Returns:
             Cart instance for the user (created if didn't exist)
         """
-        cart, created = Cart.objects.get_or_create(user=user)
+        cart, _ = Cart.objects.get_or_create(user=user)
         return cart
 
     @staticmethod
@@ -49,10 +48,7 @@ class CartRepository(BaseRepository):
         Returns:
             Cart instance for the session (created if didn't exist)
         """
-        cart, created = Cart.objects.get_or_create(
-            session_key=session_key,
-            user=None,
-        )
+        cart, _ = Cart.objects.get_or_create(session_key=session_key, user=None)
         return cart
 
     @staticmethod
@@ -107,9 +103,7 @@ class CartRepository(BaseRepository):
             CartItem instance
         """
         cart_item, created = CartItem.objects.get_or_create(
-            cart=cart,
-            product_id=product_id,
-            defaults={"quantity": quantity},
+            cart=cart, product_id=product_id, defaults={"quantity": quantity}
         )
 
         if not created:

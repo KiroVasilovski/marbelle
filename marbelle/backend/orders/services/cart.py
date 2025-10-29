@@ -17,21 +17,19 @@ class CartService:
     """
     Service for managing shopping cart operations.
 
-    Handles:
+    Handles all business logic:
     - Cart creation and retrieval (for authenticated users and guests)
-    - Adding, updating, and removing items
+    - Adding, updating, and removing items with full validation
     - Stock and quantity validation
     - Price freezing at add time
+    - Cart item retrieval with access control
     - Response data formatting
     """
-
-    # ====== CART RETRIEVAL ======
 
     @staticmethod
     def get_or_create_cart(request: Request) -> tuple[Cart, Optional[str]]:
         """
         Get or create a cart for the current request.
-
         For authenticated users, returns user-based cart.
         For guest users, returns session-based cart with session ID.
 
@@ -52,7 +50,28 @@ class CartService:
             cart, _ = Cart.objects.get_or_create(session_key=session_key, user=None, defaults={})
             return cart, session_key
 
-    # ====== VALIDATION METHODS ======
+    @staticmethod
+    def get_cart_item(item_id: int, cart: Cart) -> tuple[bool, Optional[str], Optional[CartItem]]:
+        """
+        Retrieve a cart item with access control and validation.
+        Ensures the item belongs to the specified cart (security check).
+
+        Args:
+            item_id: Cart item ID
+            cart: Cart instance (for security/access control)
+
+        Returns:
+            tuple: (is_valid, error_message, cart_item)
+                - is_valid: True if item found and belongs to cart
+                - error_message: Error message if invalid, None otherwise
+                - cart_item: CartItem object if found, None otherwise
+        """
+        cart_item = CartRepository.get_cart_item(item_id, cart)
+
+        if not cart_item:
+            return False, "Cart item not found.", None
+
+        return True, None, cart_item
 
     @staticmethod
     def validate_product_exists(product_id: int) -> tuple[bool, Optional[str], Optional[Product]]:
@@ -75,33 +94,11 @@ class CartService:
         return True, None, product
 
     @staticmethod
-    def validate_quantity(quantity: int) -> tuple[bool, Optional[str]]:
-        """
-        Validate quantity is within allowed range (1-99).
-
-        Args:
-            quantity: Quantity to validate
-
-        Returns:
-            tuple: (is_valid, error_message)
-        """
-        if isinstance(quantity, str):
-            try:
-                quantity = int(quantity)
-            except (ValueError, TypeError):
-                return False, "Invalid quantity value."
-
-        if not isinstance(quantity, int) or quantity < 1 or quantity > 99:
-            return False, "Quantity must be between 1 and 99."
-
-        return True, None
-
-    @staticmethod
     def validate_stock_availability(
         product: Product, quantity: int, cart_item: Optional[CartItem] = None
     ) -> tuple[bool, Optional[str]]:
         """
-        Validate product stock availability.
+        Validate product stock availability for adding/updating cart items.
 
         Args:
             product: Product object to check stock for
@@ -111,105 +108,155 @@ class CartService:
         Returns:
             tuple: (is_valid, error_message)
         """
-        # Check if product is in stock at all
         if not product.in_stock:
             return False, "Product is out of stock."
 
-        # Check if quantity is available
         if product.stock_quantity < quantity:
             return False, f"Only {product.stock_quantity} items available in stock."
 
         return True, None
 
-    # ====== CART ITEM OPERATIONS ======
-
     @staticmethod
-    def add_item_to_cart(cart: Cart, product: Product, quantity: int) -> CartItem:
+    def add_item_to_cart(cart: Cart, product_id: int, quantity: int) -> tuple[bool, Optional[str], Optional[CartItem]]:
         """
         Add product to cart or update quantity if already exists.
 
-        Freezes unit price at add time (price doesn't change if product price updates).
-
         Args:
             cart: Cart object
-            product: Product to add
+            product_id: Product ID to add
             quantity: Quantity to add
 
         Returns:
-            CartItem: Created or updated cart item
+            tuple: (success, error_message, cart_item)
+                - success: True if item added successfully
+                - error_message: Error description if failed, None if successful
+                - cart_item: CartItem object if successful, None if failed
         """
-        with transaction.atomic():
-            if CartRepository.cart_item_exists(product.id, cart):
-                existing_items = CartRepository.get_cart_items(cart).filter(product=product)
-                cart_item = existing_items.first()
+        is_valid, error_msg, product = CartService.validate_product_exists(product_id)
 
-                new_quantity = cart_item.quantity + quantity
+        if not is_valid:
+            return False, error_msg, None
 
-                if new_quantity > 99:
-                    raise ValueError("Maximum quantity per product is 99.")
+        is_valid, error_msg = CartService.validate_stock_availability(product, quantity)
+        if not is_valid:
+            return False, error_msg, None
 
-                if product.stock_quantity < new_quantity:
-                    raise ValueError(f"Only {product.stock_quantity} items available in stock.")
+        try:
+            with transaction.atomic():
+                if CartRepository.cart_item_exists(product.id, cart):
+                    # Update existing item
+                    existing_items = CartRepository.get_cart_items(cart).filter(product=product)
+                    cart_item = existing_items.first()
 
-                cart_item = CartRepository.update_item(cart_item.id, cart, new_quantity)
-            else:
-                cart_item = CartRepository.add_item(cart, product.id, quantity)
+                    new_quantity = cart_item.quantity + quantity
 
-        return cart_item
+                    # Validate new total quantity
+                    if new_quantity > 99:
+                        return False, "Maximum quantity per product is 99.", None
+
+                    # Validate stock for new quantity
+                    if product.stock_quantity < new_quantity:
+                        return False, f"Only {product.stock_quantity} items available in stock.", None
+
+                    cart_item = CartRepository.update_item(cart_item.id, cart, new_quantity)
+                else:
+                    # Create new item
+                    cart_item = CartRepository.add_item(cart, product.id, quantity)
+
+            return True, None, cart_item
+
+        except Exception as e:
+            return False, f"Error adding item to cart: {str(e)}", None
 
     @staticmethod
-    def update_cart_item_quantity(cart_item: CartItem, quantity: int) -> CartItem:
+    def update_cart_item_quantity(
+        item_id: int, cart: Cart, quantity: int
+    ) -> tuple[bool, Optional[str], Optional[CartItem]]:
         """
-        Update quantity of existing cart item.
+        Update quantity of an existing cart item with validation.
 
         Args:
-            cart_item: CartItem to update
+            item_id: Cart item ID
+            cart: Cart instance (for access control)
             quantity: New quantity
 
         Returns:
-            CartItem: Updated cart item
-
-        Raises:
-            ValueError: If stock unavailable or quantity exceeds limits
+            tuple: (success, error_message, cart_item)
+                - success: True if updated successfully
+                - error_message: Error description if failed, None if successful
+                - cart_item: Updated CartItem if successful, None if failed
         """
-        if cart_item.product.stock_quantity < quantity:
-            raise ValueError(f"Only {cart_item.product.stock_quantity} items available in stock.")
+        is_valid, error_msg, cart_item = CartService.get_cart_item(item_id, cart)
 
-        with transaction.atomic():
-            updated_item = CartRepository.update_item(cart_item.id, cart_item.cart, quantity)
+        if not is_valid:
+            return False, error_msg, None
 
-        return updated_item
+        is_valid, error_msg = CartService.validate_stock_availability(cart_item.product, quantity)
+
+        if not is_valid:
+            return False, error_msg, None
+
+        try:
+            with transaction.atomic():
+                updated_item = CartRepository.update_item(item_id, cart, quantity)
+
+            return True, None, updated_item
+
+        except Exception as e:
+            return False, f"Error updating cart item: {str(e)}", None
 
     @staticmethod
-    def remove_item_from_cart(cart_item: CartItem) -> str:
+    def remove_item_from_cart(item_id: int, cart: Cart) -> tuple[bool, Optional[str], Optional[str]]:
         """
-        Remove item from cart.
+        Remove item from cart with access control.
 
         Args:
-            cart_item: CartItem to remove
+            item_id: Cart item ID
+            cart: Cart instance (for access control)
 
         Returns:
-            str: Product name of removed item (for message)
+            tuple: (success, error_message, product_name)
+                - success: True if removed successfully
+                - error_message: Error description if failed, None if successful
+                - product_name: Name of removed product if successful, None if failed
         """
-        product_name = cart_item.product.name
+        is_valid, error_msg, cart_item = CartService.get_cart_item(item_id, cart)
 
-        with transaction.atomic():
-            CartRepository.remove_item(cart_item.id, cart_item.cart)
+        if not is_valid:
+            return False, error_msg, None
 
-        return product_name
+        try:
+            product_name = cart_item.product.name
+
+            with transaction.atomic():
+                CartRepository.remove_item(item_id, cart)
+
+            return True, None, product_name
+
+        except Exception as e:
+            return False, f"Error removing cart item: {str(e)}", None
 
     @staticmethod
-    def clear_cart(cart: Cart) -> None:
+    def clear_cart(cart: Cart) -> tuple[bool, Optional[str]]:
         """
         Remove all items from cart.
 
         Args:
             cart: Cart to clear
-        """
-        with transaction.atomic():
-            CartRepository.clear_cart(cart)
 
-    # ====== RESPONSE FORMATTING ======
+        Returns:
+            tuple: (success, error_message)
+                - success: True if cleared successfully
+                - error_message: Error description if failed, None if successful
+        """
+        try:
+            with transaction.atomic():
+                CartRepository.clear_cart(cart)
+
+            return True, None
+
+        except Exception as e:
+            return False, f"Error clearing cart: {str(e)}"
 
     @staticmethod
     def format_cart_response(cart: Cart) -> dict:

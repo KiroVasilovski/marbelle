@@ -15,16 +15,13 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for Order model.
     Provides read-only endpoints for users to view their orders.
-
-    Future implementation will include:
-    - List user's orders
-    - Retrieve order details
-    - Order tracking and status
     """
 
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Return only orders for the authenticated user."""
+        """
+        Return only orders for the authenticated user.
+        """
         return Order.objects.filter(user=self.request.user).prefetch_related("items__product").order_by("-created_at")

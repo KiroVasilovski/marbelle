@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from core import ResponseHandler
 
-from ..models import CartItem
+from ..serializers import AddToCartSerializer, UpdateCartItemSerializer
 from ..services import CartService
 
 
@@ -21,26 +21,20 @@ def get_cart(request: Request) -> Response:
     Returns cart with all items, quantities, prices, and calculated totals.
     Creates empty cart if none exists.
     """
-    try:
-        cart, session_key = CartService.get_or_create_cart(request)
-        cart_data = CartService.format_cart_response(cart)
+    cart, session_key = CartService.get_or_create_cart(request)
 
-        response = ResponseHandler.success(
-            data=cart_data,
-            message="Cart retrieved successfully.",
-        )
+    cart_data = CartService.format_cart_response(cart)
 
-        # Add session ID to response header for Safari compatibility
-        if session_key:
-            response["X-Session-ID"] = session_key
+    response = ResponseHandler.success(
+        data=cart_data,
+        message="Cart retrieved successfully.",
+    )
 
-        return response
+    # Add session ID to response header for Safari compatibility
+    if session_key:
+        response["X-Session-ID"] = session_key
 
-    except Exception as e:
-        return ResponseHandler.error(
-            message=f"Error retrieving cart: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+    return response
 
 
 @api_view(["POST"])
@@ -55,64 +49,40 @@ def add_to_cart(request: Request) -> Response:
         "quantity": 2
     }
     """
-    try:
-        data = request.data
-        product_id = data.get("product_id")
-        quantity = data.get("quantity", 1)
+    serializer = AddToCartSerializer(data=request.data)
 
-        # Validation: Product ID required
-        if not product_id:
-            return ResponseHandler.error(message="Product ID is required.")
+    if not serializer.is_valid():
+        return ResponseHandler.error(message="Invalid input.", errors=serializer.errors)
 
-        # Validation: Quantity
-        is_valid, error_msg = CartService.validate_quantity(quantity)
-        if not is_valid:
-            return ResponseHandler.error(message=error_msg)
+    product_id = serializer.validated_data["product_id"]
+    quantity = serializer.validated_data["quantity"]
 
-        # Validation: Product exists
-        is_valid, error_msg, product = CartService.validate_product_exists(product_id)
-        if not is_valid:
-            return ResponseHandler.error(
-                message=error_msg,
-                status_code=status.HTTP_404_NOT_FOUND,
-            )
+    cart, session_key = CartService.get_or_create_cart(request)
 
-        # Validation: Stock availability
-        is_valid, error_msg = CartService.validate_stock_availability(product, quantity)
-        if not is_valid:
-            return ResponseHandler.error(message=error_msg)
+    success, error_msg, cart_item = CartService.add_item_to_cart(cart, product_id, quantity)
 
-        # Get or create cart
-        cart, session_key = CartService.get_or_create_cart(request)
-
-        # Add or update cart item
-        try:
-            cart_item = CartService.add_item_to_cart(cart, product, quantity)
-        except ValueError as e:
-            return ResponseHandler.error(message=str(e))
-
-        # Format response
-        item_data = {
-            "item": CartService.format_item_response(cart_item),
-            "cart_totals": CartService.format_cart_totals(cart),
-        }
-
-        response = ResponseHandler.success(
-            data=item_data,
-            message=f"Added {quantity} x {product.name} to cart.",
-        )
-
-        # Add session ID to response header for Safari compatibility
-        if session_key:
-            response["X-Session-ID"] = session_key
-
-        return response
-
-    except Exception as e:
+    if not success:
+        status_code = status.HTTP_404_NOT_FOUND if "not found" in error_msg.lower() else status.HTTP_400_BAD_REQUEST
         return ResponseHandler.error(
-            message=f"Error adding item to cart: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message=error_msg,
+            status_code=status_code,
         )
+
+    item_data = {
+        "item": CartService.format_item_response(cart_item),
+        "cart_totals": CartService.format_cart_totals(cart),
+    }
+
+    response = ResponseHandler.success(
+        data=item_data,
+        message=f"Added {quantity} x {cart_item.product.name} to cart.",
+    )
+
+    # Add session ID to response header for Safari compatibility
+    if session_key:
+        response["X-Session-ID"] = session_key
+
+    return response
 
 
 @api_view(["PUT"])
@@ -126,57 +96,39 @@ def update_cart_item(request: Request, item_id: int) -> Response:
         "quantity": 3
     }
     """
-    try:
-        data = request.data
-        quantity = data.get("quantity")
+    serializer = UpdateCartItemSerializer(data=request.data)
 
-        # Validation: Quantity required
-        if quantity is None:
-            return ResponseHandler.error(message="Quantity is required.")
+    if not serializer.is_valid():
+        return ResponseHandler.error(message="Invalid input.", errors=serializer.errors)
 
-        # Validation: Quantity validity
-        is_valid, error_msg = CartService.validate_quantity(quantity)
-        if not is_valid:
-            return ResponseHandler.error(message=error_msg)
+    quantity = serializer.validated_data["quantity"]
 
-        # Get cart and item
-        cart, session_key = CartService.get_or_create_cart(request)
-        try:
-            cart_item = CartItem.objects.get(id=item_id, cart=cart)
-        except CartItem.DoesNotExist:
-            return ResponseHandler.error(
-                message="Cart item not found.",
-                status_code=status.HTTP_404_NOT_FOUND,
-            )
+    cart, session_key = CartService.get_or_create_cart(request)
 
-        # Update quantity with validation
-        try:
-            cart_item = CartService.update_cart_item_quantity(cart_item, quantity)
-        except ValueError as e:
-            return ResponseHandler.error(message=str(e))
+    success, error_msg, cart_item = CartService.update_cart_item_quantity(item_id, cart, quantity)
 
-        # Format response
-        item_data = {
-            "item": CartService.format_item_response(cart_item),
-            "cart_totals": CartService.format_cart_totals(cart),
-        }
-
-        response = ResponseHandler.success(
-            data=item_data,
-            message="Cart item updated successfully.",
-        )
-
-        # Add session ID to response header for Safari compatibility
-        if session_key:
-            response["X-Session-ID"] = session_key
-
-        return response
-
-    except Exception as e:
+    if not success:
+        status_code = status.HTTP_404_NOT_FOUND if "not found" in error_msg.lower() else status.HTTP_400_BAD_REQUEST
         return ResponseHandler.error(
-            message=f"Error updating cart item: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message=error_msg,
+            status_code=status_code,
         )
+
+    item_data = {
+        "item": CartService.format_item_response(cart_item),
+        "cart_totals": CartService.format_cart_totals(cart),
+    }
+
+    response = ResponseHandler.success(
+        data=item_data,
+        message="Cart item updated successfully.",
+    )
+
+    # Add session ID to response header for Safari compatibility
+    if session_key:
+        response["X-Session-ID"] = session_key
+
+    return response
 
 
 @api_view(["DELETE"])
@@ -185,39 +137,29 @@ def remove_cart_item(request: Request, item_id: int) -> Response:
     """
     Remove a specific item from the cart.
     """
-    try:
-        # Get cart and item
-        cart, session_key = CartService.get_or_create_cart(request)
-        try:
-            cart_item = CartItem.objects.get(id=item_id, cart=cart)
-        except CartItem.DoesNotExist:
-            return ResponseHandler.error(
-                message="Cart item not found.",
-                status_code=status.HTTP_404_NOT_FOUND,
-            )
+    cart, session_key = CartService.get_or_create_cart(request)
 
-        # Remove item
-        product_name = CartService.remove_item_from_cart(cart_item)
+    success, error_msg, product_name = CartService.remove_item_from_cart(item_id, cart)
 
-        # Format response
-        cart_totals_data = {"cart_totals": CartService.format_cart_totals(cart)}
-
-        response = ResponseHandler.success(
-            data=cart_totals_data,
-            message=f"Removed {product_name} from cart.",
-        )
-
-        # Add session ID to response header for Safari compatibility
-        if session_key:
-            response["X-Session-ID"] = session_key
-
-        return response
-
-    except Exception as e:
+    if not success:
+        status_code = status.HTTP_404_NOT_FOUND if "not found" in error_msg.lower() else status.HTTP_400_BAD_REQUEST
         return ResponseHandler.error(
-            message=f"Error removing cart item: {str(e)}",
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message=error_msg,
+            status_code=status_code,
         )
+
+    cart_totals_data = {"cart_totals": CartService.format_cart_totals(cart)}
+
+    response = ResponseHandler.success(
+        data=cart_totals_data,
+        message=f"Removed {product_name} from cart.",
+    )
+
+    # Add session ID to response header for Safari compatibility
+    if session_key:
+        response["X-Session-ID"] = session_key
+
+    return response
 
 
 @api_view(["DELETE"])
@@ -226,26 +168,25 @@ def clear_cart(request: Request) -> Response:
     """
     Remove all items from the cart.
     """
-    try:
-        cart, session_key = CartService.get_or_create_cart(request)
-        CartService.clear_cart(cart)
+    cart, session_key = CartService.get_or_create_cart(request)
 
-        # Format response
-        cart_totals_data = {"cart_totals": CartService.format_cart_totals(cart)}
+    success, error_msg = CartService.clear_cart(cart)
 
-        response = ResponseHandler.success(
-            data=cart_totals_data,
-            message="Cart cleared successfully.",
-        )
-
-        # Add session ID to response header for Safari compatibility
-        if session_key:
-            response["X-Session-ID"] = session_key
-
-        return response
-
-    except Exception as e:
+    if not success:
         return ResponseHandler.error(
-            message=f"Error clearing cart: {str(e)}",
+            message=error_msg,
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
+    cart_totals_data = {"cart_totals": CartService.format_cart_totals(cart)}
+
+    response = ResponseHandler.success(
+        data=cart_totals_data,
+        message="Cart cleared successfully.",
+    )
+
+    # Add session ID to response header for Safari compatibility
+    if session_key:
+        response["X-Session-ID"] = session_key
+
+    return response
