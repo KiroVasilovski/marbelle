@@ -14,6 +14,7 @@ from core import Paginator, ResponseHandler
 
 from ..models import Product
 from ..serializers import ProductDetailSerializer, ProductListSerializer
+from ..services import ProductService
 from .filters import ProductFilter
 
 
@@ -21,7 +22,6 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for Product model.
     Provides list and detail endpoints with filtering and search capabilities.
-    Public access - no authentication required.
     """
 
     permission_classes = [AllowAny]
@@ -32,11 +32,15 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ["name"]
 
     def get_queryset(self) -> QuerySet[Product]:
-        """Return only active products with prefetched images."""
-        return Product.objects.filter(is_active=True).prefetch_related("images").select_related("category")
+        """
+        Return only active products with prefetched images via ProductService.
+        """
+        return ProductService.get_all_active_products()
 
     def get_serializer_class(self):
-        """Return appropriate serializer based on action."""
+        """
+        Return appropriate serializer based on action.
+        """
         if self.action == "retrieve":
             return ProductDetailSerializer
         return ProductListSerializer

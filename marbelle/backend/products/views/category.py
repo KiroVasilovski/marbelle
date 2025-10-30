@@ -1,6 +1,4 @@
-"""
-Category ViewSet for catalog API endpoints.
-"""
+"""Category ViewSet for catalog API endpoints."""
 
 from typing import Any
 
@@ -16,6 +14,7 @@ from core import Paginator, ResponseHandler
 
 from ..models import Category
 from ..serializers import CategoryDetailSerializer, CategoryListSerializer, ProductListSerializer
+from ..services import CategoryService, ProductService
 from .filters import ProductFilter
 
 
@@ -23,7 +22,6 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for Category model.
     Provides list and detail endpoints with product counts.
-    Public access - no authentication required.
     """
 
     permission_classes = [AllowAny]
@@ -33,20 +31,32 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ["name"]
 
     def get_queryset(self) -> QuerySet[Category]:
-        """Return only active categories."""
-        return Category.objects.filter(is_active=True)
+        """
+        Return only active categories with product count annotation.
+        """
+        return CategoryService.get_all_active_categories_with_count()
 
     def get_serializer_class(self):
-        """Return appropriate serializer based on action."""
+        """
+        Return appropriate serializer based on action.
+        """
         if self.action == "retrieve":
             return CategoryDetailSerializer
         return CategoryListSerializer
 
     def retrieve(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
-        Retrieve a single category with standardized response format.
+        Retrieve a single category.
         """
-        instance = self.get_object()
+        category_id = self.kwargs.get("pk")
+        instance = CategoryService.get_category_by_id_with_count(category_id)
+
+        if not instance:
+            return ResponseHandler.error(
+                message="Category not found.",
+                status_code=404,
+            )
+
         serializer = self.get_serializer(instance)
         return ResponseHandler.success(
             data=serializer.data,
@@ -60,29 +70,14 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         URL: /api/v1/categories/{id}/products/
         Supports filtering, search, and pagination via query parameters.
         """
-        from ..services import ProductFilterService
-
         category = self.get_object()
 
-        # Get category products using service
-        products = ProductFilterService.get_category_products(category)
+        products = ProductService.get_category_products(category.id)
 
-        # Apply filtering using service
         filterset = ProductFilter(request.GET, queryset=products)
         if filterset.is_valid():
             products = filterset.qs
 
-        # Apply search using service
-        search_query = request.query_params.get("search")
-        if search_query:
-            products = ProductFilterService.search_products(products, search_query)
-
-        # Apply ordering using service
-        ordering = request.query_params.get("ordering")
-        if ordering:
-            products = ProductFilterService.order_products(products, ordering)
-
-        # Apply pagination
         page = self.paginate_queryset(products)
         if page is not None:
             serializer = ProductListSerializer(page, many=True, context={"request": request})

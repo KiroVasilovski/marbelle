@@ -1,9 +1,9 @@
 """Services for products app business logic."""
 
-from .filter import ProductFilterService
-from .image import ProductImageService
+from .category import CategoryService
+from .product import ProductService
 
 __all__ = [
-    "ProductImageService",
-    "ProductFilterService",
+    "CategoryService",
+    "ProductService",
 ]

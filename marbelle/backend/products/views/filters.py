@@ -24,7 +24,9 @@ class ProductFilter(filters.FilterSet):
         fields = ["category", "min_price", "max_price", "in_stock"]
 
     def filter_in_stock(self, queryset: QuerySet[Product], name: str, value: bool) -> QuerySet[Product]:
-        """Filter products based on stock availability."""
+        """
+        Filter products based on stock availability.
+        """
         if value is True:
             return queryset.filter(stock_quantity__gt=0)
         elif value is False:

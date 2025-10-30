@@ -1,6 +1,4 @@
-"""
-Product serializers for listing and detail views.
-"""
+"""Product serializers for listing and detail views."""
 
 from rest_framework import serializers
 
@@ -15,7 +13,7 @@ class ProductListSerializer(serializers.ModelSerializer):
     """
 
     images = ProductImageSerializer(many=True, read_only=True)
-    in_stock = serializers.SerializerMethodField()
+    in_stock = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Product
@@ -33,10 +31,6 @@ class ProductListSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-
-    def get_in_stock(self, obj: Product) -> bool:
-        """Return stock availability as boolean."""
-        return obj.stock_quantity > 0
 
 
 class ProductDetailSerializer(ProductListSerializer):

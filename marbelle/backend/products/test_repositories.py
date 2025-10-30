@@ -3,7 +3,7 @@
 from django.test import TestCase
 
 from .models import Category, Product
-from .repositories import ProductRepository
+from .repositories import CategoryRepository, ProductRepository
 
 
 class ProductRepositoryTest(TestCase):
@@ -112,50 +112,6 @@ class ProductRepositoryTest(TestCase):
         products = list(ProductRepository.get_active_in_category(new_category.id))
         self.assertEqual(len(products), 0)
 
-    def test_filter_products_by_search(self) -> None:
-        """Test filtering products by search query."""
-        products = list(ProductRepository.filter_products(search_query="Marble"))
-        self.assertEqual(len(products), 1)
-        self.assertEqual(products[0].id, self.product1.id)
-
-    def test_filter_products_by_category(self) -> None:
-        """Test filtering products by category."""
-        products = list(ProductRepository.filter_products(category_id=self.category.id))
-        self.assertEqual(len(products), 2)
-
-    def test_filter_products_by_price_range(self) -> None:
-        """Test filtering products by price range."""
-        # min_price = 150, max_price = 200 should include both
-        products = list(ProductRepository.filter_products(min_price=150.0, max_price=200.0))
-        self.assertEqual(len(products), 2)
-
-        # Only products <= 150
-        products = list(ProductRepository.filter_products(max_price=150.0))
-        self.assertEqual(len(products), 1)
-        self.assertEqual(products[0].id, self.product1.id)
-
-    def test_filter_products_by_stock(self) -> None:
-        """Test filtering products by stock availability."""
-        # In stock only
-        products = list(ProductRepository.filter_products(in_stock=True))
-        self.assertEqual(len(products), 2)
-
-        # Out of stock only
-        products = list(ProductRepository.filter_products(in_stock=False))
-        self.assertEqual(len(products), 0)  # Inactive product not in results
-
-    def test_filter_products_combined(self) -> None:
-        """Test filtering with multiple criteria."""
-        products = list(
-            ProductRepository.filter_products(
-                search_query="Granite",
-                category_id=self.category.id,
-                min_price=150.0,
-            )
-        )
-        self.assertEqual(len(products), 1)
-        self.assertEqual(products[0].id, self.product2.id)
-
     def test_product_exists(self) -> None:
         """Test product_exists check."""
         self.assertTrue(ProductRepository.product_exists(self.product1.id))
@@ -169,13 +125,13 @@ class ProductRepositoryTest(TestCase):
 
     def test_get_category(self) -> None:
         """Test getting a category."""
-        category = ProductRepository.get_category(self.category.id)
+        category = CategoryRepository.get_by_id(self.category.id)
         self.assertIsNotNone(category)
         self.assertEqual(category.id, self.category.id)
 
     def test_get_category_not_found(self) -> None:
-        """Test get_category returns None for non-existent ID."""
-        category = ProductRepository.get_category(99999)
+        """Test get_by_id returns None for non-existent ID."""
+        category = CategoryRepository.get_by_id(99999)
         self.assertIsNone(category)
 
     def test_get_all_active_categories(self) -> None:
@@ -183,6 +139,6 @@ class ProductRepositoryTest(TestCase):
         # Create inactive category to verify it's not returned
         Category.objects.create(name="Inactive", is_active=False)
 
-        categories = list(ProductRepository.get_all_active_categories())
+        categories = list(CategoryRepository.get_all_active())
         self.assertEqual(len(categories), 1)
         self.assertEqual(categories[0].id, self.category.id)

@@ -15,9 +15,6 @@ User = get_user_model()
 class CartRepository(BaseRepository):
     """
     Repository for Cart and CartItem model operations.
-
-    Centralizes all cart-related database queries with optimized prefetching
-    to prevent N+1 query problems when loading cart items and products.
     """
 
     model = Cart
