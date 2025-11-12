@@ -4,9 +4,9 @@ Full-stack e-commerce application for natural stone products.
 
 ## Stack
 
-- **Backend**: Django 5.2 LTS + Python 3.12.11 + PostgreSQL 16+
-- **Frontend**: React + TypeScript + Vite + Tailwind CSS + Shadcn UI
-- **Infrastructure**: Docker Compose
+-   **Backend**: Django 5.2 LTS + Python 3.13 + PostgreSQL 16+
+-   **Frontend**: React + TypeScript + Vite + Tailwind CSS + Shadcn UI
+-   **Infrastructure**: Docker Compose
 
 ## Quick Start
 
@@ -22,9 +22,10 @@ docker-compose exec backend python manage.py createsuperuser
 ```
 
 **Access:**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000/api/v1/
-- Admin Panel: http://localhost:8000/admin/
+
+-   Frontend: http://localhost:3000
+-   Backend API: http://localhost:8000/api/v1/
+-   Admin Panel: http://localhost:8000/admin/
 
 ## Health Check
 
@@ -95,7 +96,7 @@ lsof -i :5432  # Database
 
 ## Documentation
 
-- [Backend Guide](backend/README.md) - Django API setup and architecture
-- [Frontend Guide](frontend/README.md) - React app setup and components
-- [Project Guidelines](../CLAUDE.md) - SCRUM workflow and standards
-- [API Documentation](../API.md) - Complete API endpoint reference
+-   [Backend Guide](backend/README.md) - Django API setup and architecture
+-   [Frontend Guide](frontend/README.md) - React app setup and components
+-   [Project Guidelines](../CLAUDE.md) - SCRUM workflow and standards
+-   [API Documentation](../API.md) - Complete API endpoint reference

@@ -5,7 +5,7 @@
 Marbelle is a full-stack e-commerce platform for natural stone products (marble, tiles, mosaics).
 
 **Stack**:
-- **Backend**: Django 5.2 LTS + Python 3.12.11 + PostgreSQL 16+
+- **Backend**: Django 5.2 LTS + Python 3.13 + PostgreSQL 16+
 - **Frontend**: React + TypeScript + Vite + Tailwind CSS + Shadcn UI
 - **Infrastructure**: Docker Compose
 
